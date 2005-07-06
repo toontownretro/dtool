@@ -29,8 +29,26 @@
 //               stream itself.  Useful for indenting a series of
 //               lines of text by a given amount.
 ////////////////////////////////////////////////////////////////////
-ostream &
+EXPCL_DTOOL ostream &
 indent(ostream &out, int indent_level);
+
+////////////////////////////////////////////////////////////////////
+//     Function: write_long_list
+//  Description: Writes a list of things to the indicated output
+//               stream, with a space separating each item.  One or
+//               more lines will be written, and the lines will
+//               automatically be broken such that no line exceeds
+//               max_col columns if possible.
+////////////////////////////////////////////////////////////////////
+template<class InputIterator>
+void
+write_long_list(ostream &out, int indent_level,
+                InputIterator ifirst, InputIterator ilast,
+                string first_prefix = "",
+                string later_prefix = "",
+                int max_col = 72);
+
+#include "indent.I"
 
 #endif
 
