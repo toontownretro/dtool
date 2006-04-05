@@ -1,5 +1,5 @@
-// Filename: mutexWin32Impl.h
-// Created by:  drose (07Feb06)
+// Filename: mutexLinuxImpl.h
+// Created by:  drose (28Mar06)
 //
 ////////////////////////////////////////////////////////////////////
 //
@@ -16,40 +16,43 @@
 //
 ////////////////////////////////////////////////////////////////////
 
-#ifndef MUTEXWIN32IMPL_H
-#define MUTEXWIN32IMPL_H
+#ifndef MUTEXLINUXIMPL_H
+#define MUTEXLINUXIMPL_H
 
 #include "dtoolbase.h"
 #include "selectThreadImpl.h"
 
-#ifdef THREAD_WIN32_IMPL
+#ifdef THREAD_LINUX_IMPL
 
-#include "pnotify.h"
+#include "numeric_types.h"
 
-#include <windows.h>
-
-#define MUTEX_DEFINES_TRYLOCK 1
+#undef MUTEX_DEFINES_TRYLOCK
 
 ////////////////////////////////////////////////////////////////////
-//       Class : MutexWin32Impl
-// Description : Uses Windows native calls to implement a mutex.
+//       Class : MutexLinuxImpl
+// Description : Uses Linux threads to implement a mutex.
 ////////////////////////////////////////////////////////////////////
-class EXPCL_DTOOLCONFIG MutexWin32Impl {
+class EXPCL_DTOOL MutexLinuxImpl {
 public:
-  INLINE MutexWin32Impl();
-  INLINE ~MutexWin32Impl();
+  INLINE MutexLinuxImpl();
+  INLINE ~MutexLinuxImpl();
 
-  INLINE void lock();
-  INLINE bool try_lock();
-  INLINE void release();
+  void lock();
+  void release();
 
 private:
-  CRITICAL_SECTION _lock;
-  friend class ConditionVarWin32Impl;
+  enum Mode {
+    M_unlocked = 0,
+    M_locked_no_waiters = 1,
+    M_locked_with_waiters = 2,
+  };
+
+  PN_int32 _mode;
+  friend class ConditionVarLinuxImpl;
 };
 
-#include "mutexWin32Impl.I"
+#include "mutexLinuxImpl.I"
 
-#endif  // THREAD_WIN32_IMPL
+#endif  // THREAD_LINUX_IMPL
 
 #endif

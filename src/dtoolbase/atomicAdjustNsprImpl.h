@@ -1,5 +1,5 @@
-// Filename: mutexNsprImpl.h
-// Created by:  drose (08Aug02)
+// Filename: atomicAdjustNsprImpl.h
+// Created by:  drose (09Aug02)
 //
 ////////////////////////////////////////////////////////////////////
 //
@@ -16,39 +16,31 @@
 //
 ////////////////////////////////////////////////////////////////////
 
-#ifndef MUTEXNSPRIMPL_H
-#define MUTEXNSPRIMPL_H
+#ifndef ATOMICADJUSTNSPRIMPL_H
+#define ATOMICADJUSTNSPRIMPL_H
 
-#include "dtoolbase.h"
+#include "pandabase.h"
 #include "selectThreadImpl.h"
 
 #ifdef THREAD_NSPR_IMPL
 
-#include "pnotify.h"
+#include "numeric_types.h"
 
-#include <prlock.h>
-
-#undef MUTEX_DEFINES_TRYLOCK
+#include <pratom.h>
 
 ////////////////////////////////////////////////////////////////////
-//       Class : MutexNsprImpl
-// Description : Uses NSPR to implement a mutex.
+//       Class : AtomicAdjustNsprImpl
+// Description : Uses NSPR to implement atomic adjustments.
 ////////////////////////////////////////////////////////////////////
-class EXPCL_DTOOLCONFIG MutexNsprImpl {
+class EXPCL_DTOOL AtomicAdjustNsprImpl {
 public:
-  INLINE MutexNsprImpl();
-  INLINE ~MutexNsprImpl();
-
-  INLINE void lock();
-  INLINE bool try_lock();
-  INLINE void release();
-
-private:
-  PRLock *_lock;
-  friend class ConditionVarNsprImpl;
+  INLINE static void inc(PN_int32 &var);
+  INLINE static bool dec(PN_int32 &var);
+  INLINE static PN_int32 set(PN_int32 &var, PN_int32 new_value);
+  INLINE static PN_int32 get(const PN_int32 &var);
 };
 
-#include "mutexNsprImpl.I"
+#include "atomicAdjustNsprImpl.I"
 
 #endif  // THREAD_NSPR_IMPL
 

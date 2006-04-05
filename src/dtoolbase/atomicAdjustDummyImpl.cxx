@@ -1,5 +1,5 @@
-// Filename: mutexDummyImpl.h
-// Created by:  drose (08Aug02)
+// Filename: atomicAdjustDummyImpl.cxx
+// Created by:  drose (09Aug02)
 //
 ////////////////////////////////////////////////////////////////////
 //
@@ -16,33 +16,10 @@
 //
 ////////////////////////////////////////////////////////////////////
 
-#ifndef MUTEXDUMMYIMPL_H
-#define MUTEXDUMMYIMPL_H
-
-#include "dtoolbase.h"
 #include "selectThreadImpl.h"
 
 #ifdef THREAD_DUMMY_IMPL
 
-#include "pnotify.h"
-
-////////////////////////////////////////////////////////////////////
-//       Class : MutexDummyImpl
-// Description : A fake mutex implementation for single-threaded
-//               applications that don't need any synchronization
-//               control.  This does nothing at all.
-////////////////////////////////////////////////////////////////////
-class EXPCL_DTOOLCONFIG MutexDummyImpl {
-public:
-  INLINE MutexDummyImpl();
-  INLINE ~MutexDummyImpl();
-
-  INLINE void lock();
-  INLINE void release();
-};
-
-#include "mutexDummyImpl.I"
+#include "atomicAdjustDummyImpl.h"
 
 #endif  // THREAD_DUMMY_IMPL
-
-#endif
