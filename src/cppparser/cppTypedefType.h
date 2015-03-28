@@ -1,5 +1,5 @@
-// Filename: cppExtensionType.h
-// Created by:  drose (21Oct99)
+// Filename: cppTypedefType.h
+// Created by:  rdb (01Aug14)
 //
 ////////////////////////////////////////////////////////////////////
 //
@@ -12,34 +12,28 @@
 //
 ////////////////////////////////////////////////////////////////////
 
-#ifndef CPPEXTENSIONTYPE_H
-#define CPPEXTENSIONTYPE_H
+#ifndef CPPTYPEDEFTYPE_H
+#define CPPTYPEDEFTYPE_H
 
 #include "dtoolbase.h"
-
 #include "cppType.h"
-#include "cppInstance.h"
 
-class CPPScope;
 class CPPIdentifier;
 
 ///////////////////////////////////////////////////////////////////
-//       Class : CPPExtensionType
-// Description : Base class of enum, class, struct, and union types.
-//               An instance of the base class (instead of one of
-//               the specializations) is used for forward references.
+//       Class : CPPTypedefType
+// Description :
 ////////////////////////////////////////////////////////////////////
-class CPPExtensionType : public CPPType {
+class CPPTypedefType : public CPPType {
 public:
-  enum Type {
-    T_enum,
-    T_class,
-    T_struct,
-    T_union,
-  };
+  CPPTypedefType(CPPType *type, const string &name, CPPScope *current_scope);
+  CPPTypedefType(CPPType *type, CPPIdentifier *ident, CPPScope *current_scope);
+  CPPTypedefType(CPPType *type, CPPInstanceIdentifier *ii,
+                 CPPScope *current_scope, const CPPFile &file);
 
-  CPPExtensionType(Type type, CPPIdentifier *ident, CPPScope *current_scope,
-                   const CPPFile &file);
+  bool is_scoped() const;
+  CPPScope *get_scope(CPPScope *current_scope, CPPScope *global_scope,
+                      CPPPreprocessor *error_sink = NULL) const;
 
   virtual string get_simple_name() const;
   virtual string get_local_name(CPPScope *scope = NULL) const;
@@ -47,6 +41,8 @@ public:
 
   virtual bool is_incomplete() const;
   virtual bool is_tbd() const;
+
+  virtual bool is_fully_specified() const;
 
   virtual CPPDeclaration *substitute_decl(SubstDecl &subst,
                                           CPPScope *current_scope,
@@ -57,18 +53,22 @@ public:
 
   virtual bool is_equivalent(const CPPType &other) const;
 
-
   virtual void output(ostream &out, int indent_level, CPPScope *scope,
                       bool complete) const;
   virtual SubType get_subtype() const;
 
-  virtual CPPExtensionType *as_extension_type();
+  virtual CPPTypedefType *as_typedef_type();
 
-
-  Type _type;
+  CPPType *_type;
   CPPIdentifier *_ident;
-};
 
-ostream &operator << (ostream &out, CPPExtensionType::Type type);
+protected:
+  virtual bool is_equal(const CPPDeclaration *other) const;
+  virtual bool is_less(const CPPDeclaration *other) const;
+
+  bool _subst_decl_recursive_protect;
+  typedef vector<CPPTypeProxy *> Proxies;
+  Proxies _proxies;
+};
 
 #endif
