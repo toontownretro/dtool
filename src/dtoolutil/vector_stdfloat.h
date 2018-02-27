@@ -6,21 +6,23 @@
  * license.  You should have received a copy of this license along
  * with this source code in a file named "LICENSE."
  *
- * @file vector_string.cxx
+ * @file vector_stdfloat.h
  * @author drose
- * @date 2000-05-15
+ * @date 2011-10-07
  */
 
-#include "vector_string.h"
+#ifndef VECTOR_STDFLOAT_H
+#define VECTOR_STDFLOAT_H
 
-#define EXPCL EXPCL_DTOOL
-#define EXPTP EXPTP_DTOOL
-#define TYPE std::string
-#define NAME vector_string
+#include "dtoolbase.h"
 
-#include "vector_src.cxx"
+#include "vector_double.h"
+#include "vector_float.h"
 
-// Tell GCC that we'll take care of the instantiation explicitly here.
-#ifdef __GNUC__
-#pragma implementation
+#ifndef STDFLOAT_DOUBLE
+typedef vector_float vector_stdfloat;
+#else
+typedef vector_double vector_stdfloat;
+#endif  // STDFLOAT_DOUBLE
+
 #endif

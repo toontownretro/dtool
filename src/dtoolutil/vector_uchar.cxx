@@ -6,17 +6,17 @@
  * license.  You should have received a copy of this license along
  * with this source code in a file named "LICENSE."
  *
- * @file vector_string.cxx
+ * @file vector_uchar.cxx
  * @author drose
- * @date 2000-05-15
+ * @date 2000-05-10
  */
 
-#include "vector_string.h"
+#include "vector_uchar.h"
 
 #define EXPCL EXPCL_DTOOL
 #define EXPTP EXPTP_DTOOL
-#define TYPE std::string
-#define NAME vector_string
+#define TYPE unsigned char
+#define NAME vector_uchar
 
 #include "vector_src.cxx"
 
