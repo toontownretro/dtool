@@ -79,6 +79,8 @@ ConfigPageManager::
  */
 void ConfigPageManager::
 reload_implicit_pages() {
+// Don't read implicit pages on static builds (aka CIO production).
+#ifndef LINK_ALL_STATIC
   if (_currently_loading) {
     // This is a recursion protector.  We can get recursion feedback between
     // config and notify, as each tries to use the other at construction.
@@ -404,8 +406,10 @@ reload_implicit_pages() {
     SetErrorMode(0);
   } else {
     SetErrorMode(SEM_FAILCRITICALERRORS);
-  }
+  } 
 #endif
+
+#endif // LINK_ALL_STATIC
 
 }
 
