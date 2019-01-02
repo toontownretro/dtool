@@ -12,16 +12,6 @@
 
 using std::string;
 
-PyMemberDef standard_type_members[] = {
-  {(char *)"this", (sizeof(void*) == sizeof(int)) ? T_UINT : T_ULONGLONG, offsetof(Dtool_PyInstDef, _ptr_to_object), READONLY, (char *)"C++ 'this' pointer, if any"},
-  {(char *)"this_ownership", T_BOOL, offsetof(Dtool_PyInstDef, _memory_rules), READONLY, (char *)"C++ 'this' ownership rules"},
-  {(char *)"this_const", T_BOOL, offsetof(Dtool_PyInstDef, _is_const), READONLY, (char *)"C++ 'this' const flag"},
-// {(char *)"this_signature", T_INT, offsetof(Dtool_PyInstDef, _signature),
-// READONLY, (char *)"A type check signature"},
-  {(char *)"this_metatype", T_OBJECT, offsetof(Dtool_PyInstDef, _My_Type), READONLY, (char *)"The dtool meta object"},
-  {nullptr}  /* Sentinel */
-};
-
 /**
 
  */
@@ -296,6 +286,43 @@ PyObject *_Dtool_Return(PyObject *value) {
 }
 
 #if PY_VERSION_HEX < 0x03040000
+/**
+ * This function converts an int value to the appropriate enum instance.
+ */
+static PyObject *Dtool_EnumType_New(PyTypeObject *subtype, PyObject *args, PyObject *kwds) {
+  PyObject *arg;
+  if (!Dtool_ExtractArg(&arg, args, kwds, "value")) {
+    return PyErr_Format(PyExc_TypeError,
+                        "%s() missing 1 required argument: 'value'",
+                        subtype->tp_name);
+  }
+
+  if (Py_TYPE(arg) == subtype) {
+    Py_INCREF(arg);
+    return arg;
+  }
+
+  PyObject *value2member = PyDict_GetItemString(subtype->tp_dict, "_value2member_map_");
+  nassertr_always(value2member != nullptr, nullptr);
+
+  PyObject *member = PyDict_GetItem(value2member, arg);
+  if (member != nullptr) {
+    Py_INCREF(member);
+    return member;
+  }
+
+  PyObject *repr = PyObject_Repr(arg);
+  PyErr_Format(PyExc_ValueError, "%s is not a valid %s",
+#if PY_MAJOR_VERSION >= 3
+               PyUnicode_AS_STRING(repr),
+#else
+               PyString_AS_STRING(repr),
+#endif
+               subtype->tp_name);
+  Py_DECREF(repr);
+  return nullptr;
+}
+
 static PyObject *Dtool_EnumType_Str(PyObject *self) {
   PyObject *name = PyObject_GetAttrString(self, "name");
 #if PY_MAJOR_VERSION >= 3
@@ -347,6 +374,7 @@ PyTypeObject *Dtool_EnumType_Create(const char *name, PyObject *names, const cha
   static PyObject *name_sunder_str;
   static PyObject *value_str;
   static PyObject *value_sunder_str;
+  static PyObject *value2member_map_sunder_str;
   // Emulate something vaguely like the enum module.
   if (enum_class == nullptr) {
 #if PY_MAJOR_VERSION >= 3
@@ -354,11 +382,13 @@ PyTypeObject *Dtool_EnumType_Create(const char *name, PyObject *names, const cha
     value_str = PyUnicode_InternFromString("value");
     name_sunder_str = PyUnicode_InternFromString("_name_");
     value_sunder_str = PyUnicode_InternFromString("_value_");
+    value2member_map_sunder_str = PyUnicode_InternFromString("_value2member_map_");
 #else
     name_str = PyString_InternFromString("name");
     value_str = PyString_InternFromString("value");
     name_sunder_str = PyString_InternFromString("_name_");
     value_sunder_str = PyString_InternFromString("_value_");
+    value2member_map_sunder_str = PyString_InternFromString("_value2member_map_");
 #endif
     PyObject *name_value_tuple = PyTuple_New(4);
     PyTuple_SET_ITEM(name_value_tuple, 0, name_str);
@@ -375,27 +405,39 @@ PyTypeObject *Dtool_EnumType_Create(const char *name, PyObject *names, const cha
     enum_class = PyObject_CallFunction((PyObject *)&PyType_Type, (char *)"s()N", "Enum", slots_dict);
     nassertr(enum_class != nullptr, nullptr);
   }
-  PyObject *result = PyObject_CallFunction((PyObject *)&PyType_Type, (char *)"s(O)N", name, enum_class, PyDict_New());
+
+  // Create a subclass of this generic Enum class we just created.
+  PyObject *value2member = PyDict_New();
+  PyObject *dict = PyDict_New();
+  PyDict_SetItem(dict, value2member_map_sunder_str, value2member);
+  PyObject *result = PyObject_CallFunction((PyObject *)&PyType_Type, (char *)"s(O)N", name, enum_class, dict);
   nassertr(result != nullptr, nullptr);
 
+  ((PyTypeObject *)result)->tp_new = Dtool_EnumType_New;
   ((PyTypeObject *)result)->tp_str = Dtool_EnumType_Str;
   ((PyTypeObject *)result)->tp_repr = Dtool_EnumType_Repr;
 
-  // Copy the names as instances of the above to the class dict.
+  PyObject *empty_tuple = PyTuple_New(0);
+
+  // Copy the names as instances of the above to the class dict, and create a
+  // reverse mapping in the _value2member_map_ dict.
   Py_ssize_t size = PyTuple_GET_SIZE(names);
   for (Py_ssize_t i = 0; i < size; ++i) {
     PyObject *item = PyTuple_GET_ITEM(names, i);
     PyObject *name = PyTuple_GET_ITEM(item, 0);
     PyObject *value = PyTuple_GET_ITEM(item, 1);
-    PyObject *member = _PyObject_CallNoArg(result);
+    PyObject *member = PyType_GenericNew((PyTypeObject *)result, empty_tuple, nullptr);
     PyObject_SetAttr(member, name_str, name);
     PyObject_SetAttr(member, name_sunder_str, name);
     PyObject_SetAttr(member, value_str, value);
     PyObject_SetAttr(member, value_sunder_str, value);
     PyObject_SetAttr(result, name, member);
+    PyDict_SetItem(value2member, value, member);
     Py_DECREF(member);
   }
   Py_DECREF(names);
+  Py_DECREF(value2member);
+  Py_DECREF(empty_tuple);
 #endif
 
   if (module != nullptr) {
@@ -588,46 +630,48 @@ PyObject *Dtool_PyModuleInitHelper(const LibraryDef *defs[], const char *modulen
         << "Python " << version << "\n";
     }
 
-    // Grab the __main__ module.
-    PyObject *main_module = PyImport_ImportModule("__main__");
-    if (main_module == nullptr) {
-      interrogatedb_cat.warning() << "Unable to import __main__\n";
-    }
-
-    // Extract the __file__ attribute, if present.
-    Filename main_dir;
-    PyObject *file_attr = nullptr;
-    if (main_module != nullptr) {
-      file_attr = PyObject_GetAttrString(main_module, "__file__");
-    }
-    if (file_attr == nullptr) {
-      // Must be running in the interactive interpreter.  Use the CWD.
-      main_dir = ExecutionEnvironment::get_cwd();
-    } else {
+    if (!ExecutionEnvironment::has_environment_variable("MAIN_DIR")) {
+      // Grab the __main__ module.
+      PyObject *main_module = PyImport_ImportModule("__main__");
+      if (main_module == NULL) {
+        interrogatedb_cat.warning() << "Unable to import __main__\n";
+      }
+      
+      // Extract the __file__ attribute, if present.
+      Filename main_dir;
+      PyObject *file_attr = nullptr;
+      if (main_module != nullptr) {
+        file_attr = PyObject_GetAttrString(main_module, "__file__");
+      }
+      if (file_attr == nullptr) {
+        // Must be running in the interactive interpreter.  Use the CWD.
+        main_dir = ExecutionEnvironment::get_cwd();
+      } else {
 #if PY_MAJOR_VERSION >= 3
-      Py_ssize_t length;
-      wchar_t *buffer = PyUnicode_AsWideCharString(file_attr, &length);
-      if (buffer != nullptr) {
-        main_dir = Filename::from_os_specific_w(std::wstring(buffer, length));
-        main_dir.make_absolute();
-        main_dir = main_dir.get_dirname();
-        PyMem_Free(buffer);
-      }
+        Py_ssize_t length;
+        wchar_t *buffer = PyUnicode_AsWideCharString(file_attr, &length);
+        if (buffer != nullptr) {
+          main_dir = Filename::from_os_specific_w(std::wstring(buffer, length));
+          main_dir.make_absolute();
+          main_dir = main_dir.get_dirname();
+          PyMem_Free(buffer);
+        }
 #else
-      char *buffer;
-      Py_ssize_t length;
-      if (PyString_AsStringAndSize(file_attr, &buffer, &length) != -1) {
-        main_dir = Filename::from_os_specific(std::string(buffer, length));
-        main_dir.make_absolute();
-        main_dir = main_dir.get_dirname();
-      }
+        char *buffer;
+        Py_ssize_t length;
+        if (PyString_AsStringAndSize(file_attr, &buffer, &length) != -1) {
+          main_dir = Filename::from_os_specific(std::string(buffer, length));
+          main_dir.make_absolute();
+          main_dir = main_dir.get_dirname();
+        }
 #endif
-      else {
-        interrogatedb_cat.warning() << "Invalid string for __main__.__file__\n";
+        else {
+          interrogatedb_cat.warning() << "Invalid string for __main__.__file__\n";
+        }
       }
+      ExecutionEnvironment::shadow_environment_variable("MAIN_DIR", main_dir.to_os_specific());
+      PyErr_Clear();
     }
-    ExecutionEnvironment::shadow_environment_variable("MAIN_DIR", main_dir.to_os_specific());
-    PyErr_Clear();
     initialized_main_dir = true;
 
     // Also, while we are at it, initialize the thread swap hook.
@@ -673,7 +717,8 @@ PyObject *Dtool_BorrowThisReference(PyObject *self, PyObject *args) {
 
 // We do expose a dictionay for dtool classes .. this should be removed at
 // some point..
-PyObject *Dtool_AddToDictionary(PyObject *self1, PyObject *args) {
+EXPCL_PYPANDA PyObject *
+Dtool_AddToDictionary(PyObject *self1, PyObject *args) {
   PyObject *self;
   PyObject *subject;
   PyObject *key;
