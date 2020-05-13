@@ -91,6 +91,9 @@ if(THIRDPARTY_DIRECTORY)
     VorbisFile
     VRPN
     ZLIB
+    Embree
+    GameNetworkingSockets
+    Protobuf
   )
 
     string(TOLOWER "${_Package}" _package)
@@ -769,3 +772,39 @@ package_option(VRPN
   are building Panda3D for a fixed VRPN-based VR installation.")
 
 package_status(VRPN "VRPN")
+
+#
+# ------------ Embree ------------
+#
+
+find_package(Embree QUIET)
+
+package_option(Embree
+  "Enabled support for Intel Embree ray-tracing library.  THIS IS NEEDED!"
+  FOUND_AS Embree)
+
+package_status(Embree "Embree")
+
+#
+# ------------ GameNetworkingSockets ------------
+#
+
+find_package(Protobuf QUIET)
+
+package_option(Protobuf
+  "Enables support for Google Protocol Buffers library (required by GameNetworkingSockets)."
+  FOUND_AS Protobuf)
+
+package_status(Protobuf "Protobuf")
+
+if (HAVE_PROTOBUF)
+  find_package(GameNetworkingSockets QUIET)
+
+  package_option(GameNetworkingSockets
+    "Enables support for Valve's GameNetworkingSockets library. THIS IS NEEDED!"
+    FOUND_AS GameNetworkingSockets)
+
+  package_status(GameNetworkingSockets "GameNetworkingSockets")
+else()
+  set(HAVE_GAMENETWORKINGSOCKETS 0)
+endif()
