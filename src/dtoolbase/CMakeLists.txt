@@ -78,6 +78,13 @@ set(P3DTOOLBASE_SOURCES
   typedObject.cxx
 )
 
+set(P3DTOOLBASE_IGATE_HEADERS
+  typeHandle.h
+  typeRegistry.h
+  typedObject.h
+  neverFreeMemory.h
+)
+
 set(P3DTOOLBASE_IGATEEXT
   typeHandle_ext.cxx
   typeHandle_ext.h
@@ -93,7 +100,7 @@ target_include_directories(p3dtoolbase PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
   $<BUILD_INTERFACE:${PANDA_OUTPUT_DIR}/include>)
 target_link_libraries(p3dtoolbase PKG::EIGEN PKG::THREADS)
-target_interrogate(p3dtoolbase ${P3DTOOLBASE_SOURCES} EXTENSIONS ${P3DTOOLBASE_IGATEEXT})
+target_interrogate(p3dtoolbase ${P3DTOOLBASE_SOURCES} ${P3DTOOLBASE_IGATE_HEADERS} EXTENSIONS ${P3DTOOLBASE_IGATEEXT})
 
 if(NOT BUILD_METALIBS)
   install(TARGETS p3dtoolbase
