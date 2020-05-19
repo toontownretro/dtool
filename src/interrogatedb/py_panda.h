@@ -394,6 +394,16 @@ ALWAYS_INLINE PyObject *Dtool_WrapValue(const std::pair<T1, T2> &value);
 
 EXPCL_PYPANDA Dtool_PyTypedObject *Dtool_GetSuperBase();
 
+// Is this the right place for this class?
+class EXPCL_PYPANDA PyMutexHolder {
+public:
+  ALWAYS_INLINE PyMutexHolder();
+  ALWAYS_INLINE ~PyMutexHolder();
+
+private:
+  PyGILState_STATE _gstate;
+};
+
 #include "py_panda.I"
 
 #include "py_wrappers.h"

@@ -348,3 +348,17 @@ ALWAYS_INLINE PyObject *Dtool_WrapValue(const std::pair<T1, T2> &value) {
   PyTuple_SET_ITEM(tuple, 1, Dtool_WrapValue(value.second));
   return tuple;
 }
+
+ALWAYS_INLINE PyMutexHolder::
+PyMutexHolder() {
+#if defined(HAVE_THREADS) && !defined(SIMPLE_THREADS)
+  _gstate = PyGILState_Ensure();
+#endif
+}
+
+ALWAYS_INLINE PyMutexHolder::
+~PyMutexHolder() {
+#if defined(HAVE_THREADS) && !defined(SIMPLE_THREADS)
+  PyGILState_Release(_gstate);
+#endif
+}
