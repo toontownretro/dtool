@@ -789,22 +789,16 @@ package_status(Embree "Embree")
 # ------------ GameNetworkingSockets ------------
 #
 
-find_package(Protobuf QUIET)
+# GameNetworkingSockets imports this
+find_package(Protobuf QUIET COMPONENTS libprotobuf)
 
-package_option(Protobuf
-  "Enables support for Google Protocol Buffers library (required by GameNetworkingSockets)."
-  FOUND_AS Protobuf)
+if (Protobuf_FOUND)
+    find_package(GameNetworkingSockets QUIET)
 
-package_status(Protobuf "Protobuf")
+    package_option(GameNetworkingSockets
+        "Enables support for Valve's GameNetworkingSockets library. THIS IS NEEDED!"
+        FOUND_AS GameNetworkingSockets)
 
-if (HAVE_PROTOBUF)
-  find_package(GameNetworkingSockets QUIET)
-
-  package_option(GameNetworkingSockets
-    "Enables support for Valve's GameNetworkingSockets library. THIS IS NEEDED!"
-    FOUND_AS GameNetworkingSockets)
-
-  package_status(GameNetworkingSockets "GameNetworkingSockets")
-else()
-  set(HAVE_GAMENETWORKINGSOCKETS 0)
+    package_status(GameNetworkingSockets "GameNetworkingSockets")
 endif()
+
