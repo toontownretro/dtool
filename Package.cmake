@@ -92,7 +92,7 @@ if(THIRDPARTY_DIRECTORY)
     VRPN
     ZLIB
     Embree
-    GameNetworkingSockets
+    ENet
     Protobuf
   )
 
@@ -786,25 +786,14 @@ package_option(Embree
 package_status(Embree "Embree")
 
 #
-# ------------ GameNetworkingSockets ------------
+# ------------ ENet ------------
 #
 
-find_package(Protobuf QUIET)
+find_package(ENet QUIET)
 
-package_option(Protobuf
-  "Enables support for Google Protocol Buffers library (required by GameNetworkingSockets)."
-  FOUND_AS Protobuf)
+package_option(ENet
+  "Enables support for ENet networking library."
+  FOUND_AS ENet)
 
-package_status(Protobuf "Protobuf")
+package_status(ENet "ENet")
 
-if (HAVE_PROTOBUF)
-  find_package(GameNetworkingSockets QUIET)
-
-  package_option(GameNetworkingSockets
-    "Enables support for Valve's GameNetworkingSockets library. THIS IS NEEDED!"
-    FOUND_AS GameNetworkingSockets)
-
-  package_status(GameNetworkingSockets "GameNetworkingSockets")
-else()
-  set(HAVE_GAMENETWORKINGSOCKETS 0)
-endif()
