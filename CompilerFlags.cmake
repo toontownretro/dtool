@@ -11,8 +11,8 @@ include(CheckCXXCompilerFlag)
 # These are flags for the custom configurations we add
 # Standard
 if(MSVC)
-  set(CMAKE_C_FLAGS_STANDARD "/Ox /Zi")
-  set(CMAKE_CXX_FLAGS_STANDARD "/Ox /Zi")
+  set(CMAKE_C_FLAGS_STANDARD "/Ox /Zi /bigobj")
+  set(CMAKE_CXX_FLAGS_STANDARD "/Ox /Zi /bigobj")
   set(CMAKE_SHARED_LINKER_FLAGS_STANDARD "/DEBUG")
   set(CMAKE_MODULE_LINKER_FLAGS_STANDARD "/DEBUG")
   set(CMAKE_EXE_LINKER_FLAGS_STANDARD "/DEBUG")
