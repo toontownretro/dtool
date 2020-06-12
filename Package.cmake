@@ -802,3 +802,21 @@ if (Protobuf_FOUND)
     package_status(GameNetworkingSockets "GameNetworkingSockets")
 endif()
 
+#
+# ------------ Maya ------------
+#
+
+find_package(Maya QUIET)
+message(${MAYA_LIBRARIES})
+package_option(Maya
+    "Enables support for Panda3D Maya conversion tools."
+    FOUND_AS MAYA)
+
+if (MAYA_FOUND)
+    set(maya_status "Maya (${MAYA_VERSION})")
+else()
+    set(maya_status "Maya")
+endif()
+
+package_status(MAYA ${maya_status})
+
