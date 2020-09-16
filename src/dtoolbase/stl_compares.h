@@ -21,19 +21,6 @@
 
 #include <assert.h>
 
-#ifdef HAVE_STL_HASH
-#include <hash_map>  // for hash_compare
-
-template<class Key, class Compare = std::less<Key> >
-class stl_hash_compare : public stdext::hash_compare<Key, Compare> {
-public:
-  INLINE bool is_equal(const Key &a, const Key &b) const {
-    return !operator()(a, b) && !operator()(b, a);
-  }
-};
-
-#else
-
 #include <map>  // for less
 
 // This is declared for the cases in which we don't have STL_HASH available.
@@ -50,8 +37,6 @@ public:
     return !operator()(a, b) && !operator()(b, a);
   }
 };
-
-#endif  // HAVE_STL_HASH
 
 /**
  * Compares two floating point numbers, within threshold of equivalence.
@@ -221,6 +206,14 @@ class indirect_compare_to_hash : public indirect_method_hash<Key, indirect_compa
 
 template<class Key>
 class indirect_compare_names_hash : public indirect_method_hash<Key, indirect_compare_names<Key> > {
+};
+
+template<class Key, class Compare>
+class internal_stl_equals : public Compare {
+public:
+  INLINE bool operator () (const Key &a, const Key &b) const {
+    return Compare::is_equal(a, b);
+  }
 };
 
 #endif

@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
 
 # Define if we have STL hash_map etc. available.
 # We're not using this functionality at the moment, it seems.
-set(HAVE_STL_HASH OFF)
+set(HAVE_STL_HASH ON)
 
 # Check if we have a gettimeofday() function.
 check_function_exists(gettimeofday HAVE_GETTIMEOFDAY)

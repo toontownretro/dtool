@@ -21,7 +21,7 @@
 
 #include <map>
 #ifdef HAVE_STL_HASH
-#include <hash_map>
+#include <unordered_map>
 #endif
 
 #if !defined(USE_STL_ALLOCATOR) || defined(CPPPARSER)
@@ -31,8 +31,8 @@
 #define pmultimap std::multimap
 
 #ifdef HAVE_STL_HASH
-#define phash_map stdext::hash_map
-#define phash_multimap stdext::hash_multimap
+#define phash_map std::unordered_map
+#define phash_multimap std::unordered_multimap
 #else  // HAVE_STL_HASH
 #define phash_map map
 #define phash_multimap multimap
@@ -122,27 +122,27 @@ public:
 
 #ifdef HAVE_STL_HASH
 /**
- * This is our own Panda specialization on the default STL hash_map.  Its main
- * purpose is to call the hooks for MemoryUsage to properly track STL-
+ * This is our own Panda specialization on the default STL unordered_map.
+ * Its main purpose is to call the hooks for MemoryUsage to properly track STL-
  * allocated memory.
  */
 template<class Key, class Value, class Compare = method_hash<Key, std::less<Key> > >
-class phash_map : public stdext::hash_map<Key, Value, Compare, pallocator_array<std::pair<const Key, Value> > > {
+class phash_map : public std::unordered_map<Key, Value, Compare, internal_stl_equals<Key, Compare>, pallocator_array<std::pair<const Key, Value> > > {
 public:
-  phash_map() : stdext::hash_map<Key, Value, Compare, pallocator_array<std::pair<const Key, Value> > >() { }
-  phash_map(const Compare &comp) : stdext::hash_map<Key, Value, Compare, pallocator_array<std::pair<const Key, Value> > >(comp) { }
+  phash_map() : std::unordered_map<Key, Value, Compare, internal_stl_equals<Key, Compare>, pallocator_array<std::pair<const Key, Value> > >() { }
+  phash_map(const Compare &comp) : std::unordered_map<Key, Value, Compare, internal_stl_equals<Key, Compare>, pallocator_array<std::pair<const Key, Value> > >(comp) { }
 };
 
 /**
- * This is our own Panda specialization on the default STL hash_multimap.  Its
- * main purpose is to call the hooks for MemoryUsage to properly track STL-
+ * This is our own Panda specialization on the default STL unordered_multimap.
+ * Its main purpose is to call the hooks for MemoryUsage to properly track STL-
  * allocated memory.
  */
 template<class Key, class Value, class Compare = method_hash<Key, std::less<Key> > >
-class phash_multimap : public stdext::hash_multimap<Key, Value, Compare, pallocator_array<std::pair<const Key, Value> > > {
+class phash_multimap : public std::unordered_multimap<Key, Value, Compare, internal_stl_equals<Key, Compare>, pallocator_array<std::pair<const Key, Value> > > {
 public:
-  phash_multimap() : stdext::hash_multimap<Key, Value, Compare, pallocator_array<std::pair<const Key, Value> > >() { }
-  phash_multimap(const Compare &comp) : stdext::hash_multimap<Key, Value, Compare, pallocator_array<std::pair<const Key, Value> > >(comp) { }
+  phash_multimap() : std::unordered_multimap<Key, Value, Compare, internal_stl_equals<Key, Compare>, pallocator_array<std::pair<const Key, Value> > >() { }
+  phash_multimap(const Compare &comp) : std::unordered_multimap<Key, Value, Compare, internal_stl_equals<Key, Compare>, pallocator_array<std::pair<const Key, Value> > >(comp) { }
 };
 
 #else // HAVE_STL_HASH

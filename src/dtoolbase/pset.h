@@ -21,7 +21,7 @@
 
 #include <set>
 #ifdef HAVE_STL_HASH
-#include <hash_set>
+#include <unordered_set>
 #endif
 
 #include <initializer_list>
@@ -33,8 +33,8 @@
 #define pmultiset std::multiset
 
 #ifdef HAVE_STL_HASH
-#define phash_set stdext::hash_set
-#define phash_multiset stdext::hash_multiset
+#define phash_set std::unordered_set
+#define phash_multiset std::unordered_multiset
 #else  // HAVE_STL_HASH
 #define phash_set std::set
 #define phash_multiset std::multiset
@@ -123,10 +123,10 @@ public:
  * allocated memory.
  */
 template<class Key, class Compare = method_hash<Key, std::less<Key> > >
-class phash_set : public stdext::hash_set<Key, Compare, pallocator_array<Key> > {
+class phash_set : public std::unordered_set<Key, Compare, internal_stl_equals<Key, Compare>, pallocator_array<Key> > {
 public:
-  phash_set() : stdext::hash_set<Key, Compare, pallocator_array<Key> >() { }
-  phash_set(const Compare &comp) : stdext::hash_set<Key, Compare, pallocator_array<Key> >(comp) { }
+  phash_set() : std::unordered_set<Key, Compare, internal_stl_equals<Key, Compare>, pallocator_array<Key> >() { }
+  phash_set(const Compare &comp) : std::unordered_set<Key, Compare, internal_stl_equals<Key, Compare>, pallocator_array<Key> >(comp) { }
 };
 
 /**
@@ -135,10 +135,10 @@ public:
  * allocated memory.
  */
 template<class Key, class Compare = method_hash<Key, std::less<Key> > >
-class phash_multiset : public stdext::hash_multiset<Key, Compare, pallocator_array<Key> > {
+class phash_multiset : public std::unordered_multiset<Key, Compare, internal_stl_equals<Key, Compare>, pallocator_array<Key> > {
 public:
-  phash_multiset() : stdext::hash_multiset<Key, Compare, pallocator_array<Key> >() { }
-  phash_multiset(const Compare &comp) : stdext::hash_multiset<Key, Compare, pallocator_array<Key> >(comp) { }
+  phash_multiset() : std::unordered_multiset<Key, Compare, internal_stl_equals<Key, Compare>, pallocator_array<Key> >() { }
+  phash_multiset(const Compare &comp) : std::unordered_multiset<Key, Compare, internal_stl_equals<Key, Compare>, pallocator_array<Key> >(comp) { }
 };
 
 #else // HAVE_STL_HASH
