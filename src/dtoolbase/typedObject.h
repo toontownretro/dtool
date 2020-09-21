@@ -132,6 +132,49 @@ private:
   static TypeHandle _type_handle;
 };
 
+// Handy macros to automatically implement required TypedObject methods.
+
+#define DECLARE_CLASS2(classname, parentname1, parentname2) \
+private: \
+  static TypeHandle _type_handle; \
+public: \
+  static TypeHandle get_class_type() { \
+    return _type_handle; \
+  } \
+  static void init_type() { \
+    parentname1::init_type(); \
+    parentname2::init_type(); \
+    register_type(_type_handle, #classname, \
+                  parentname1::get_class_type(), \
+		  parentname2::get_class_type()); \
+  } \
+  virtual TypeHandle get_type() const { \
+    return classname::get_class_type(); \
+  } \
+  virtual TypeHandle force_init_type() { init_type(); return get_class_type(); }
+
+#define DECLARE_CLASS(classname, parentname) \
+private: \
+  static TypeHandle _type_handle; \
+public: \
+  typedef parentname BaseClass; \
+  typedef classname MyClass; \
+  static TypeHandle get_class_type() { \
+    return _type_handle; \
+  } \
+  static void init_type() { \
+    parentname::init_type(); \
+    register_type(_type_handle, #classname, \
+                  parentname::get_class_type()); \
+  } \
+  virtual TypeHandle get_type() const { \
+    return classname::get_class_type(); \
+  } \
+  virtual TypeHandle force_init_type() { init_type(); return get_class_type(); }
+
+#define IMPLEMENT_CLASS(classname) \
+TypeHandle classname::_type_handle;
+
 #include "typedObject.I"
 
 #endif
