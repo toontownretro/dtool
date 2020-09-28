@@ -1,0 +1,15 @@
+# These are files that are generated within the source tree by the
+# ppremake system.
+
+/dtool_config.h
+Makefile
+pp.dep
+/built/
+Opt?-*
+src/cppparser/cppBison.cxx
+src/cppparser/cppBison.h
+src/prc/prc_parameters.h
+src/interrogate/interrogate_preamble_python_native.cxx
+src/dtoolbase/pandaVersion.h
+src/dtoolbase/checkPandaVersion.h
+src/dtoolbase/checkPandaVersion.cxx
