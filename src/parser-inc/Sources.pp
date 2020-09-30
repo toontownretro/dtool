@@ -1,31 +1,204 @@
 #define INSTALL_PARSER_INC \
-    algorithm deque ft2build.h hash_map hash_set iostream list map memory \
-    pair pthread.h queue set stack stdcompare.h stdtypedefs.h stdint.h \
-    string vector windows.h winsock2.h zlib.h files.h hex.h \
-    math.h md5.h evp.h bits/pthreadtypes.h event.h \
-    openssl/md5.h openssl/evp.h openssl/rand.h openssl/ssl.h \
-    openssl/x509.h openssl/x509v3.h openssl/err.h openssl/rsa.h \
-    openssl/crypto.h openssl/pem.h \
-    nurbs.hh stddef.h krb5.h MainHelix.h dllpath.h hxcom.h \
-    hxcomm.h hxcore.h hxengin.h hxerror.h hxfiles.h hxtbuf.h \
-    hxtbuff.h hxwin.h pyconfig.h Python.h py_panda.h Cg/cg.h Cg/cgGL.h \
-    opencv/cv.h opencv/cxcore.h opencv/highgui.h \
-    opencv2/core/core.hpp opencv2/highgui/highgui.hpp \
-    avcodec.h avformat.h avio.h avutil.h swscale.h integer.h \
-    intfloat_readwrite.h mathematics.h rational.h rtp.h \
-    rtsp.h rtspcodes.h setjmp.h tinyxml.h winsock2.h \
-    ode/ode.h collision_trimesh.h artools.h \
-    NxBoxController.h NxCapsuleController.h NxController.h \
-    NxControllerManager.h NxCooking.h NxExtended.h \
-    NxPhysics.h NxStream.h \
-    netinet/tcp.h netinet/ip.h sys/socket.h \
-    rfftw.h libtar.h malloc.h ucontext.h ctype.h \
-    libavutil/avutil.h libavformat/avformat.h \
-    libavcodec/avcodec.h libswscale/swscale.h \
-    libavformat/avio.h AR/ar.h \
-    WebCore.h WebView.h WebViewListener.h \
-    Core/Core.h Forest/Forest.h Renderers/OpenGL/OpenGLRenderer.h \
-    Renderers/DirectX9/DirectX9Renderer.h \
-    glew/glew.h Eigen/Dense Eigen/StdVector \
-    Rocket/Core/RenderInterface.h btBulletDynamicsCommon.h OVR.h \
-    ogg/os_types.h vorbis/vorbisfile.h
+    android/asset_manager.h \
+    AR/ar.h \
+    arpa/inet.h \
+    Cg/cg.h \
+    Cg/cgGL.h \
+    Eigen/Dense \
+    Eigen/StdVector \
+    Forest/Forest.h \
+    glew/glew.h \
+    libavcodec/avcodec.h \
+    libavformat/avformat.h \
+    libavformat/avio.h \
+    libavutil/avutil.h \
+    libswscale/swscale.h \
+    netinet/in.h \
+    netinet/ip.h \
+    netinet/tcp.h \
+    ode/ode.h \
+    ogg/ogg.h \
+    ogg/os_types.h \
+    opencv2/highgui/highgui.hpp \
+    openssl/crypto.h \
+    openssl/err.h \
+    openssl/evp.h \
+    openssl/md5.h \
+    openssl/pem.h \
+    openssl/rand.h \
+    openssl/rsa.h \
+    openssl/ssl.h \
+    openssl/x509.h \
+    openssl/x509v3.h \
+    opus/opus.h \
+    opus/opusfile.h \
+    opus/opus_types.h \
+    Renderers/OpenGL/DirectX9Renderer.h \
+    Renderers/OpenGL/OpenGLRenderer.h \
+    sys/inotify.h \
+    sys/ioctl.h \
+    sys/malloc.h \
+    sys/mman.h \
+    sys/select.h \
+    sys/socket.h \
+    sys/stat.h \
+    sys/sysinfo.h \
+    sys/time.h \
+    sys/timeb.h \
+    sys/types.h \
+    vorbis/codec.h \
+    vorbis/vorbisfile.h \
+    algorithm \
+    alloca.h \
+    ar.h \
+    assert.h \
+    atomic \
+    avcodec.h \
+    avformat.h \
+    avio.h \
+    avutil.h \
+    btBulletDynamicsCommon.h \
+    cassert \
+    cerrno \
+    cfloat \
+    clocale \
+    cmath \
+    collision_trimesh.h \
+    control.h \
+    csetjmp \
+    cstddef \
+    cstdint \
+    cstdio \
+    cstdlib \
+    cstring \
+    ctime \
+    ctype.h \
+    cv.h \
+    cvtypes.h \
+    cwchar \
+    cxcore.h \
+    cxerror.h \
+    cxtypes.h \
+    deque \
+    dirent.h \
+    dllpath.h \
+    errno.h \
+    event.h \
+    exception \
+    fcntl.h \
+    fftw3.h \
+    files.h \
+    float.h \
+    fstream \
+    ft2build.h \
+    functional \
+    hash_map \
+    hash_set \
+    hex.h \
+    highgui.h \
+    initializer_list \
+    integer.h \
+    intfloat_readwrite.h \
+    inttypes.h \
+    io.h \
+    iomanip \
+    ios \
+    iosfwd \
+    iostream \
+    iparamb2.h \
+    iparamm2.h \
+    iskin.h \
+    istdplug.h \
+    iterator \
+    jni.h \
+    krb5.h \
+    limits \
+    limits.h \
+    list \
+    locale.h \
+    malloc.h \
+    map \
+    math.h \
+    mathematics.h \
+    Max.h \
+    memory \
+    minmax.h \
+    mmsystem.h \
+    mutex \
+    netdb.h \
+    new \
+    nurbs.hh \
+    NxBoxController.h \
+    NxCapsuleController.h \
+    NxController.h \
+    NxControllerManager.h \
+    NxCooking.h \
+    NxExtended.h \
+    NxPhysics.h \
+    NxStream.h \
+    ode.h \
+    ostream \
+    os_types.h \
+    OVR.h \
+    pair \
+    phyexp.h \
+    process.h \
+    pthread.h \
+    pthreadtypes.h \
+    pyconfig.h \
+    py_panda.h \
+    Python.h \
+    queue \
+    rational.h \
+    rtp.h \
+    rtsp.h \
+    rtspcodes.h \
+    semaphore.h \
+    set \
+    setjmp.h \
+    squish.h \
+    sstream \
+    stack \
+    stdarg.h \
+    stdcompare.h \
+    stddef.h \
+    stdint.h \
+    stdio.h \
+    stdlib.h \
+    stdmat.h \
+    stdtypedefs.h \
+    streambuf \
+    string \
+    string.h \
+    swscale.h \
+    synchapi.h \
+    time.h \
+    tinyxml.h \
+    typeinfo \
+    type_traits \
+    ucontext.h \
+    unistd.h \
+    unordered_map \
+    unordered_set \
+    utility \
+    vector \
+    vorbisfile.h \
+    vrpn_Analog.h \
+    vrpn_Button.h \
+    vrpn_Configure.h \
+    vrpn_Connection.h \
+    vrpn_Dial.h \
+    vrpn_Tracker.h \
+    WebCore.h \
+    WebView.h \
+    WebViewListener.h \
+    windows.h \
+    winnt.h \
+    winsock.h \
+    winsock2.h \
+    ws2tcpip.h \
+    wtypes.h \
+    XInput.h \
+    xmmintrin.h \
+    zconf.h \
+    zlib.h

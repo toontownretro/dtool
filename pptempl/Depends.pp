@@ -53,24 +53,35 @@
     #end ss_lib_target
   #endif
   #if $[LINK_ALL_STATIC]
-    #forscopes python_module_target metalib_target ss_lib_target lib_target
+    #forscopes python_target python_module_target metalib_target ss_lib_target lib_target
       #define lib_is_static 1
-    #end python_module_target metalib_target ss_lib_target lib_target
+    #end python_target python_module_target metalib_target ss_lib_target lib_target
   #endif
 
   // Set up some needed stuff for Python modules.
+
   #forscopes python_module_target
-    #define is_python_module 1
     #define BUILD_TARGET $[and $[HAVE_INTERROGATE], $[INTERROGATE_PYTHON_INTERFACE]]
-    #define USE_PACKAGES python
-    #define LOCAL_LIBS p3interrogatedb
   #end python_module_target
+
+  #forscopes python_target
+    #define BUILD_TARGET $[HAVE_PYTHON]
+  #end python_target
+
+  #forscopes python_target python_module_target
+    #define USE_PACKAGES python
+    #define LIB_PREFIX
+    #define DYNAMIC_LIB_EXT $[PYTHON_MODULE_EXT]
+    #define install_lib_dir $[install_py_module_dir]
+    #define OUTPUT $[TARGET:panda3d.%=%]
+    #define dllext
+  #end python_target python_module_target
 
   #forscopes interface_target
     #define is_interface 1
   #end interface_target
 
-  #forscopes python_module_target metalib_target lib_target noinst_lib_target test_lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target test_bin_target
+  #forscopes python_target python_module_target metalib_target lib_target noinst_lib_target test_lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target test_bin_target
 
     ///////////////////////////////////////////////////////////////////////
     // We can optimize quite a bit by evaluating now several of the key
@@ -99,6 +110,10 @@
     #define get_igatemout $[get_igatemout]
     #define get_igatemcode $[get_igatemcode]
 
+    #define get_output_name $[get_output_name]
+    #define get_output_file $[get_output_file]
+    #define get_output_bundle_file $[get_output_bundle_file]
+
     ///////////////////////////////////////////////////////////////////////
 
     // Report a warning for nonexisting dependencies.
@@ -126,10 +141,10 @@
     #if $[should_composite_sources]
       // Put the C++ files specified in the $[COMPOSITE_SOURCES] variable
       // into a single C++ file that gets compiled.
-      #define composite_file $[ODIR]/$[TARGET]_composite.cxx
+      #define composite_file $[ODIR]/$[get_output_name]_composite.cxx
       #set composite_list $[composite_list] $[composite_file]
       #define $[composite_file]_sources $[composite_sources]
-      #define $[composite_file]_obj $[ODIR]/$[TARGET]_composite$[OBJ]
+      #define $[composite_file]_obj $[ODIR]/$[get_output_name]_composite$[OBJ]
       #push 1 $[composite_file]_sources
       #push 1 $[composite_file]_obj
       #set cxx_sources $[composite_file]
@@ -141,7 +156,7 @@
     // tend to be very large files themselves.
     #foreach source_file $[yxx_sources] $[lxx_sources]
       #define generated_file $[patsubst %.yxx %.lxx,%.cxx,$[source_file]]
-      #define $[generated_file]_obj $[patsubst %.yxx %.lxx,$[ODIR]/$[TARGET]_%$[OBJ],$[source_file]]
+      #define $[generated_file]_obj $[patsubst %.yxx %.lxx,$[ODIR]/$[get_output_name]_%$[OBJ],$[source_file]]
       #define $[generated_file]_sources $[source_file]
       #push 1 $[generated_file]_obj
       #set cxx_sources $[cxx_sources] $[generated_file]
@@ -164,7 +179,7 @@
 
     #define compile_sources $[c_sources] $[mm_sources] $[cxx_sources]
 
-  #end python_module_target metalib_target lib_target noinst_lib_target test_lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target test_bin_target
+  #end python_target python_module_target metalib_target lib_target noinst_lib_target test_lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target test_bin_target
 
   // Allow the user to define additional EXTRA_DEPENDS targets in each
   // Sources.pp.

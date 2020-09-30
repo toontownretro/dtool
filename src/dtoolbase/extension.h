@@ -21,7 +21,7 @@
  * _this members that can be used from the extension method.
  */
 template<class T>
-class EXPCL_INTERROGATEDB ExtensionBase {
+class EXPCL_DTOOL_DTOOLBASE ExtensionBase {
 public:
   T * _this;
 };

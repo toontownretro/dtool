@@ -9,26 +9,6 @@
 
   #define BUILDING_DLL BUILDING_DTOOL_DTOOLUTIL
 
-  // Needed by filename and executionEnvironment
-  //#define C++FLAGS \
-  //  -DHAVE_GLOBAL_ARGV \
-  //  -DPROTOTYPE_GLOBAL_ARGV \
-  //  -DGLOBAL_ARGV \
-  //  -DGLOBAL_ARGC \
-  //  -DHAVE_PROC_CURPROC_CMDLINE \
-  //  -DHAVE_PROC_CURPROC_FILE \
-  //  -DHAVE_PROC_SELF_CMDLINE \
-  //  -DHAVE_PROC_CURPROC_MAP \
-  //  -DHAVE_PROC_SELF_ENVIRON \
-  //  -DHAVE_PROC_SELF_EXE \
-  //  -DHAVE_PROC_SELF_MAPS \
-  //  -DSTATIC_INIT_GETENV \
-  //  -DHAVE_IOS_BINARY \
-  //  -DPHAVE_DIRENT_H \
-  //  -DPHAVE_GLOB_G \
-  //  -DPHAVE_LOCKF \
-  //  -DPHAVE_UTIME_H
-
   #define SOURCES \
     config_dtoolutil.h \
     dSearchPath.I dSearchPath.h \
@@ -92,7 +72,7 @@
     load_dso.h \
     pandaFileStream.h pandaFileStream.I \
     pandaFileStreamBuf.h \
-    pandaSystem.h pandaVersion.h \
+    pandaSystem.h \
     panda_getopt.h panda_getopt_long.h panda_getopt_impl.h \
     pfstream.h pfstream.I pfstreamBuf.h \
     preprocess_argv.h \
@@ -103,18 +83,6 @@
     vector_string.h \
     vector_src.cxx vector_src.h \
     win32ArgParser.h
-
-  #define IGATESCAN all
-
-  #define IGATEEXT \
-    filename_ext.h \
-    filename_ext.cxx \
-    globPattern_ext.cxx \
-    globPattern_ext.h \
-    iostream_ext.cxx \
-    iostream_ext.h \
-    textEncoder_ext.cxx \
-    textEncoder_ext.h
 
 #end lib_target
 

@@ -32,17 +32,14 @@
   #define INSTALL_HEADERS \
     interrogate_interface.h interrogate_request.h \
     config_interrogatedb.h \
-    extension.h py_panda.h \
+    py_panda.h \
     py_panda.I py_compat.h \
     py_wrappers.h
 
-  #define INTERROGATE_OPTIONS \
-    -D EXPCL_INTERROGATEDB= \
-    -promiscuous \
-    -string -true-name
-
-  #define IGATESCAN \
-    interrogate_interface.h \
-    interrogate_request.h
-
 #end lib_target
+
+#begin python_target
+  #define TARGET panda3d.interrogatedb
+  #define LOCAL_LIBS p3interrogatedb
+  #define SOURCES pydtool.cxx
+#end python_target

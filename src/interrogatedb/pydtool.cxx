@@ -6,8 +6,8 @@
 
 #include <sstream>
 
-#include "../../src/interrogatedb/interrogate_interface.h"
-#include "../../src/interrogatedb/interrogate_request.h"
+#include "interrogate_interface.h"
+#include "interrogate_request.h"
 #include "dtoolbase.h"
 
 #undef _POSIX_C_SOURCE
@@ -2620,4 +2620,3 @@ INIT_FUNC() {
   Py_InitModule("interrogatedb", python_simple_funcs);
 #endif
 }
-

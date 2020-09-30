@@ -17,10 +17,12 @@
     atomicAdjustPosixImpl.h atomicAdjustPosixImpl.I \
     atomicAdjustWin32Impl.h atomicAdjustWin32Impl.I \
     cmath.I cmath.h \
+    dcast.h dcast.T \
     deletedBufferChain.h deletedBufferChain.I \
     deletedChain.h deletedChain.T \
     dtoolbase.h dtoolbase_cc.h dtoolsymbols.h \
     dtool_platform.h \
+    extension.h \
     fakestringstream.h \
     indent.I indent.h indent.cxx \
     memoryBase.h \
@@ -54,6 +56,7 @@
     atomicAdjustI386Impl.cxx \
     atomicAdjustPosixImpl.cxx \
     atomicAdjustWin32Impl.cxx \
+    dcast.cxx \
     deletedBufferChain.cxx \
     dtoolbase.cxx \
     memoryBase.cxx \
@@ -81,10 +84,12 @@
     atomicAdjustPosixImpl.h atomicAdjustPosixImpl.I \
     atomicAdjustWin32Impl.h atomicAdjustWin32Impl.I \
     cmath.I cmath.h \
+    dcast.h dcast.T \
     deletedBufferChain.h deletedBufferChain.I \
     deletedChain.h deletedChain.T \
     dtoolbase.h dtoolbase_cc.h dtoolsymbols.h \
     dtool_platform.h \
+    extension.h \
     fakestringstream.h \
     indent.I indent.h \
     memoryBase.h \
@@ -109,9 +114,6 @@
     pdeque.h plist.h pmap.h pset.h \
     pvector.h epvector.h \
     lookup3.h
-
-  #define IGATESCAN all
-  #define IGATEEXT typeHandle_ext.cxx typeHandle_ext.h
 
 #end lib_target
 

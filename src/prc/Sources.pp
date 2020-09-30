@@ -106,14 +106,6 @@
     streamWrapper.I streamWrapper.h \
     streamWriter.I streamWriter.h
 
-  #define IGATESCAN all
-
-  #define IGATEEXT \
-    streamReader_ext.cxx \
-    streamReader_ext.h \
-    streamWriter_ext.cxx \
-    streamWriter_ext.h
-
 #end lib_target
 
 #include $[THISDIRPREFIX]prc_parameters.h.pp

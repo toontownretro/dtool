@@ -34,13 +34,13 @@
 // variable as set for the dconfig library (that is, the expression
 // $[SOURCES] is evaluated within the named scope whose key is
 // "dconfig"--whose variable $[TARGET] was defined to be "dconfig").
-#map all_libs TARGET(*/interface_target */static_lib_target */dynamic_lib_target */ss_lib_target */lib_target */noinst_lib_target */test_lib_target */metalib_target */python_module_target)
+#map all_libs TARGET(*/interface_target */static_lib_target */dynamic_lib_target */ss_lib_target */lib_target */noinst_lib_target */test_lib_target */metalib_target */python_module_target */python_target)
 
 // This map variable allows us to look up global variables that might
 // be defined in a particular Sources.pp, e.g. in the "toplevel" file.
 #map dir_type DIR_TYPE(*/)
 
-#map libs TARGET(*/interface_target */lib_target */static_lib_target */dynamic_lib_target */ss_lib_target */noinst_lib_target */test_lib_target */metalib_target */python_module_target)
+#map libs TARGET(*/interface_target */lib_target */static_lib_target */dynamic_lib_target */ss_lib_target */noinst_lib_target */test_lib_target */metalib_target */python_module_target */python_target)
 
 // This lets us identify which metalib, if any, is including each
 // named library.  That is, $[module $[TARGET],name] will return
@@ -566,8 +566,7 @@
 // The default library extension various based on the OS.
 #defer dynamic_lib_ext $[DYNAMIC_LIB_EXT]
 #defer static_lib_ext $[STATIC_LIB_EXT]
-#defer python_module_ext $[PYTHON_MODULE_EXT]
-#defer lib_ext $[if $[link_as_bundle],$[bundle_ext],$[if $[lib_is_static],$[static_lib_ext],$[if $[is_python_module],$[python_module_ext],$[dynamic_lib_ext]]]]
+#defer lib_ext $[if $[link_as_bundle],$[bundle_ext],$[if $[lib_is_static],$[static_lib_ext],$[dynamic_lib_ext]]]
 
 #defer link_lib_c $[if $[link_as_bundle],$[bundle_lib_c],$[if $[lib_is_static],$[static_lib_c],$[shared_lib_c]]]
 #defer link_lib_c++ $[if $[link_as_bundle],$[bundle_lib_c++],$[if $[lib_is_static],$[static_lib_c++],$[shared_lib_c++]]]
@@ -638,8 +637,8 @@
 // string if the target is not to be built, or the target name if it
 // is.
 #defer active_target $[if $[build_target],$[TARGET]]
-#defer active_target_libprefext $[if $[build_target],$[lib_prefix]$[TARGET]$[lib_ext]]
-#defer active_target_bundleext $[if $[and $[build_target],$[link_extra_bundle]],$[lib_prefix]$[TARGET]$[bundle_ext]]
+#defer active_target_libprefext $[if $[build_target],$[get_output_file]]
+#defer active_target_bundleext $[if $[and $[build_target],$[link_extra_bundle]],$[get_output_bundle_file]]
 
 // This subroutine will set up the sources variable to reflect the
 // complete set of sources for this target, and also set the
@@ -683,14 +682,14 @@
 // the target is not to be interrogated.
 #defer get_igatedb \
   $[if $[and $[run_interrogate],$[IGATESCAN]], \
-    $[ODIR]/$[TARGET]$[dllext].in]
+    $[ODIR]/$[get_output_name]$[dllext].in]
 
 // This variable returns the name of the interrogate code file
 // that will be generated for a particular target, or empty string if
 // the target is not to be interrogated.
 #defer get_igateoutput \
   $[if $[and $[run_interrogate],$[IGATESCAN]], \
-    $[ODIR]/$[TARGET]_igate.cxx]
+    $[ODIR]/$[get_output_name]_igate.cxx]
 
 // This variable returns the complete set of code files that are to
 // be compiled and linked into a Python module for a particular
@@ -705,11 +704,15 @@
 // and linked into this module.
 #defer get_igatemscan $[components $[get_igatedb:%=$[RELDIR]/%],$[active_igate_libs]]
 #defer get_igatemcode $[components $[get_igatecode:%=$[RELDIR]/%],$[active_igate_libs]]
-#defer get_igatemout $[if $[get_igatemscan],$[ODIR]/$[TARGET]_module.cxx]
+#defer get_igatemout $[if $[get_igatemscan],$[ODIR]/$[get_output_name]_module.cxx]
 
 // This variable returns the set of external packages used by this
 // target, and by all the components shared by this target.
 #defer use_packages $[unique $[USE_PACKAGES] $[all_libs $[USE_PACKAGES], $[complete_local_libs]]]
+
+#defer get_output_name $[lib_prefix]$[if $[OUTPUT],$[OUTPUT],$[TARGET]]
+#defer get_output_file $[get_output_name]$[dllext]$[lib_ext]
+#defer get_output_bundle_file $[get_output_name]$[dllext]$[bundle_ext]
 
 // This function returns the appropriate cflags for the target, based
 // on the various external packages this particular target claims to
@@ -896,7 +899,7 @@
   #end lib_target noinst_lib_target test_lib_target
 
   // These will never be part of a metalib.
-  #forscopes static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target metalib_target python_module_target
+  #forscopes static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target metalib_target python_module_target python_target
 
     #foreach depend $[LOCAL_LIBS]
       #define depend_metalib $[module $[TARGET],$[depend]]
@@ -912,7 +915,7 @@
         #set depend_libs $[depend_libs] $[depend]
       #endif
     #end depend
-  #end static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target metalib_target python_module_target
+  #end static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target metalib_target python_module_target python_target
 
   // In case we're defining any metalibs, these depend directly on
   // their components as well.
@@ -975,8 +978,6 @@ Warning: Variable $[upcase $[tree]]_INSTALL is not set!
   #define install_parser_inc_dir $[install_headers_dir]/parser-inc
 #endif
 
-#defer parser_inc_dir $[dirnames $[RELDIR], parser-inc]
-
 // Set up the correct interrogate options.
 
 // $[dllext] is redefined in the Windows Global.platform.pp files to
@@ -994,11 +995,11 @@ Warning: Variable $[upcase $[tree]]_INSTALL is not set!
 //
 // $[obj_prefix] may be redefined by one of the Global.platform.pp
 // files.
-#defer obj_prefix $[TARGET]_
+#defer obj_prefix $[get_output_name]_
 
 // Caution!  interrogate_ipath might be redefined in the
 // Global.platform.pp file.
-#defer interrogate_ipath $[parser_inc_dir:%=-S%] $[INTERROGATE_SYSTEM_IPATH:%=-S%] $[target_ipath:%=-I%]
+#defer interrogate_ipath $[install_parser_inc_dir:%=-S%] $[INTERROGATE_SYSTEM_IPATH:%=-S%] $[target_ipath:%=-I%]
 
 #defer interrogate_options \
     -DCPPPARSER -D__STDC__=1 -D__cplusplus $[SYSTEM_IGATE_FLAGS] \
