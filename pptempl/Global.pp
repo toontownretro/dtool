@@ -880,7 +880,8 @@ Warning: Variable $[upcase $[tree]]_INSTALL is not set!
 
 #defer interrogate_module_options \
     $[if $[INTERROGATE_PYTHON_INTERFACE],$[if $[PYTHON_NATIVE],-python-native,-python]] \
-    $[if $[INTERROGATE_C_INTERFACE],-c]
+    $[if $[INTERROGATE_C_INTERFACE],-c] \
+    $[if $[IMPORT],$[patsubst %,-i %, $[IMPORT]]]
 
 
 // The language stuff is used by model builds only.
