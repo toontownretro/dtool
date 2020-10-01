@@ -41,11 +41,6 @@
 #else
 #print - Did not find libtiff
 #endif
-#if $[HAVE_TAR]
-#print + libtar
-#else
-#print - Did not find libtar
-#endif
 #if $[HAVE_FFTW]
 #print + fftw
 #else
@@ -70,11 +65,6 @@
 #print + Cg DX9 API
 #else
 #print - Did not find Cg DX9 API
-#endif
-#if $[HAVE_CGDX10]
-#print + Cg DX10 API
-#else
-#print - Did not find Cg DX10 API
 #endif
 #if $[HAVE_VRPN]
 #print + VRPN
@@ -101,11 +91,6 @@
 #else
 #print - Did not find OpenAL sound library
 #endif
-#if $[HAVE_SPEEDTREE]
-#print + SpeedTree
-#else
-#print - Did not find SpeedTree
-#endif
 #if $[HAVE_GTK]
 #print + gtk+-2
 #else
@@ -115,16 +100,6 @@
 #print + Freetype
 #else
 #print - Did not find Freetype
-#endif
-#if $[HAVE_WX]
-#print + WxWidgets
-#else
-#print - Did not find WxWidgets
-#endif
-#if $[HAVE_FLTK]
-#print + FLTK
-#else
-#print - Did not find FLTK
 #endif
 #if $[HAVE_GL]
 #print + OpenGL
@@ -151,11 +126,6 @@
 #else
 #print - Not building Tinydisplay
 #endif
-//#if $[HAVE_SDL]
-//#print + SDL
-//#else
-//#print - Did not find SDL
-//#endif
 #if $[HAVE_X11]
 #print + X11
 #else
@@ -176,11 +146,6 @@
 #else
 #print - Did not find ODE
 #endif
-#if $[HAVE_AWESOMIUM]
-#print + AWESOMIUM
-#else
-#print - Did not find AWESOMIUM
-#endif
 #if $[HAVE_MAYA]
 #print + OpenMaya
 #else
@@ -190,11 +155,6 @@
 #print + FCollada
 #else
 #print - Did not find FCollada
-#endif
-#if $[or $[HAVE_COLLADA14DOM],$[HAVE_COLLADA15DOM]]
-#print + COLLADA DOM
-#else
-#print - Did not find COLLADA DOM
 #endif
 #if $[HAVE_ASSIMP]
 #print + Assimp
@@ -221,9 +181,24 @@
 #print - Did not find Bullet Physics
 #endif
 #if $[HAVE_VORBIS]
-#print + libvorbis (Ogg Vorbis Decoder)
+#print + Vorbis (Ogg Vorbis Decoder)
 #else
-#print - Did not find libvorbis (Ogg Vorbis Decoder)
+#print - Did not find Vorbis (Ogg Vorbis Decoder)
+#endif
+#if $[HAVE_OPUS]
+#print + Opus
+#else
+#print - Did not find Opus
+#endif
+#if $[HAVE_HARFBUZZ]
+#print + HarfBuzz
+#else
+#print - Did not find HarfBuzz
+#endif
+#if $[HAVE_OPENEXR]
+#print + OpenEXR
+#else
+#print - Did not find OpenEXR
 #endif
 
 #print
@@ -285,6 +260,9 @@ $[cdefine USE_DEBUG_PYTHON]
 /* Define if we have Python as a framework (Mac OS X).  */
 $[cdefine PYTHON_FRAMEWORK]
 
+/* Define if we have OpenAL installed as a framework. */
+$[cdefine HAVE_OPENAL_FRAMEWORK]
+
 /* Define if we have RAD game tools, Miles Sound System installed.  */
 $[cdefine HAVE_RAD_MSS]
 
@@ -307,9 +285,6 @@ $[cdefine HAVE_ROCKET_DEBUGGER]
 /* Define if we have built libRocket available and built with Python support. */
 $[cdefine HAVE_ROCKET_PYTHON]
 
-/* Define if we have SoftImage available. */
-$[cdefine HAVE_SOFTIMAGE]
-
 /* Define if we have FCollada available. */
 $[cdefine HAVE_FCOLLADA]
 
@@ -318,6 +293,9 @@ $[cdefine HAVE_ARTOOLKIT]
 
 /* Define if we have libvorbisfile available. */
 $[cdefine HAVE_VORBIS]
+
+/* Define if we have libopus available. */
+$[cdefine HAVE_OPUS]
 
 /* Define if we have OpenSSL installed.  */
 $[cdefine HAVE_OPENSSL]
@@ -336,6 +314,12 @@ $[cdefine HAVE_PNG]
 /* Define if we have libtiff installed.  */
 $[cdefine HAVE_TIFF]
 
+/* Define if we have OpenEXR installed.  */
+$[cdefine HAVE_OPENEXR]
+
+/* Define if we have HarfBuzz installed.  */
+$[cdefine HAVE_HARFBUZZ]
+
 /* Define if we want to build these other image file formats. */
 $[cdefine HAVE_SGI_RGB]
 $[cdefine HAVE_TGA]
@@ -344,20 +328,11 @@ $[cdefine HAVE_SOFTIMAGE_PIC]
 $[cdefine HAVE_BMP]
 $[cdefine HAVE_PNM]
 
-/* Define if we have libtar installed.  */
-$[cdefine HAVE_TAR]
-
 /* Define if we have libfftw installed.  */
 $[cdefine HAVE_FFTW]
 
 /* Define if we have libsquish installed.  */
 $[cdefine HAVE_SQUISH]
-
-/* Define if we have Berkeley DB installed.  */
-$[cdefine HAVE_BDB]
-
-/* Define if we have HELIX installed.  */
-$[cdefine HAVE_HELIX]
 
 /* Define if we have CG installed.  */
 $[cdefine HAVE_CG]
@@ -367,9 +342,6 @@ $[cdefine HAVE_CGGL]
 
 /* Define if we have CGDX9 installed.  */
 $[cdefine HAVE_CGDX9]
-
-/* Define if we have CGDX10 installed.  */
-$[cdefine HAVE_CGDX10]
 
 /* Define if we have zlib installed.  */
 $[cdefine HAVE_ZLIB]
@@ -388,9 +360,6 @@ $[cdefine OPENCV_VER_23]
 $[cdefine HAVE_FFMPEG]
 $[cdefine HAVE_SWSCALE]
 $[cdefine HAVE_SWRESAMPLE]
-
-/* Define if we have AWESOMIUM installed and want to build for AWESOMIUM.  */
-$[cdefine HAVE_AWESOMIUM]
 
 /* Define if we have GLX installed and want to build for GLX.  */
 $[cdefine HAVE_GLX]
@@ -416,15 +385,6 @@ $[cdefine HAVE_SDL]
 
 /* Define if we have X11. */
 $[cdefine HAVE_X11]
-
-/* Define if we have the XFree86-DGA extension. */
-$[cdefine HAVE_XF86DGA]
-
-/* Define if we have the XRandR extension. */
-$[cdefine HAVE_XRANDR]
-
-/* Define if we have the XCursor extension. */
-$[cdefine HAVE_XCURSOR]
 
 /* Define if we want to compile the threading code.  */
 $[cdefine HAVE_THREADS]
@@ -475,6 +435,9 @@ $[cdefine SIMULATE_NETWORK_DELAY]
 
 /* Define if we want to allow immediate mode OpenGL rendering.  */
 $[cdefine SUPPORT_IMMEDIATE_MODE]
+
+/* Define if we want to support fixed-function OpenGL rendering. */
+$[cdefine SUPPORT_FIXED_FUNCTION]
 
 /* Define for either of the alternative malloc schemes. */
 $[cdefine USE_MEMORY_DLMALLOC]

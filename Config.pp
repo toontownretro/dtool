@@ -90,6 +90,17 @@
   #define BUILD_TYPE unix
 #endif
 
+// Determine a sensible default location to search for third-party packages
+// on Unix.  On platforms like Windows, there is no standard location for
+// third-party packages.
+#if $[UNIX_PLATFORM]
+#define DEFAULT_IPATH /usr/include
+#define DEFAULT_LPATH /usr/lib/$[shell uname -m]-linux-gnu
+#else
+#define DEFAULT_IPATH
+#define DEFAULT_LPATH
+#endif
+
 // What is the default install directory for all trees in the Panda
 // suite?  The default value for this variable is provided by
 // ppremake; on Unix machines it is the value of --prefix passed in to
@@ -314,15 +325,15 @@
 // constrain most objects in Panda to 16-byte alignment, which could
 // impact memory usage on very-low-memory platforms.)  Currently
 // experimental.
-#define EIGEN_IPATH
+#define EIGEN_IPATH $[DEFAULT_IPATH]/eigen3
 #defer EIGEN_CFLAGS $[if $[WINDOWS_PLATFORM],/arch:SSE2,-msse2]
 #defer HAVE_EIGEN $[isdir $[EIGEN_IPATH]/Eigen]
 #define LINMATH_ALIGN 1
 
 // Is Python installed, and should Python interfaces be generated?  If
 // Python is installed, which directory is it in?
-#define PYTHON_IPATH /usr/include/python2.6
-#define PYTHON_LPATH
+#define PYTHON_IPATH $[DEFAULT_IPATH]/python3.8
+#define PYTHON_LPATH $[DEFAULT_LPATH]
 #define PYTHON_FPATH
 #define PYTHON_COMMAND python
 #defer PYTHON_DEBUG_COMMAND $[PYTHON_COMMAND]$[if $[WINDOWS_PLATFORM],_d]
@@ -459,17 +470,16 @@
 // Dinkum STL library that VC7 ships with includes a preliminary
 // implementation that Panda can optionally use.)  For now, we assume
 // you have this by default only on a Windows platform.
-
-// On second thought, it turns out that this API is still too
-// volatile.  The interface seems to have changed with the next
-// version of .NET, and it didn't present any measureable performance
-// gain anyway.  Never mind.
-#define HAVE_STL_HASH
+#define HAVE_STL_HASH 1
 
 // Is OpenSSL installed, and where?
-#define OPENSSL_IPATH
-#define OPENSSL_LPATH
+#define OPENSSL_IPATH $[DEFAULT_IPATH]
+#define OPENSSL_LPATH $[DEFAULT_LPATH]
+#if $[WINDOWS_PLATFORM]
+#define OPENSSL_LIBS libeay32.lib ssleay32.lib
+#else
 #define OPENSSL_LIBS ssl crypto
+#endif
 #defer HAVE_OPENSSL $[libtest $[OPENSSL_LPATH],$[OPENSSL_LIBS]]
 
 // Define this true to include the OpenSSL code to report verbose
@@ -477,8 +487,8 @@
 #defer REPORT_OPENSSL_ERRORS $[< $[OPTIMIZE], 4]
 
 // Is libjpeg installed, and where?
-#define JPEG_IPATH
-#define JPEG_LPATH
+#define JPEG_IPATH $[DEFAULT_IPATH]
+#define JPEG_LPATH $[DEFAULT_LPATH]
 #define JPEG_LIBS jpeg
 #defer HAVE_JPEG $[libtest $[JPEG_LPATH],$[JPEG_LIBS]]
 
@@ -491,15 +501,15 @@
 #defer HAVE_VIDEO4LINUX $[IS_LINUX]
 
 // Is libpng installed, and where?
-#define PNG_IPATH
-#define PNG_LPATH
-#define PNG_LIBS png
+#define PNG_IPATH $[DEFAULT_IPATH]/libpng16
+#define PNG_LPATH $[DEFAULT_LPATH]
+#define PNG_LIBS $[if $[WINDOWS_PLATFORM], libpng16_static.lib, png]
 #defer HAVE_PNG $[libtest $[PNG_LPATH],$[PNG_LIBS]]
 
 // Is libtiff installed, and where?
-#define TIFF_IPATH
-#define TIFF_LPATH
-#define TIFF_LIBS tiff z
+#define TIFF_IPATH $[DEFAULT_IPATH]
+#define TIFF_LPATH $[DEFAULT_LPATH]
+#define TIFF_LIBS tiff
 #defer HAVE_TIFF $[libtest $[TIFF_LPATH],$[TIFF_LIBS]]
 
 // These image file formats don't require the assistance of a
@@ -513,17 +523,9 @@
 #define HAVE_BMP 1
 #define HAVE_PNM 1
 
-// Is libtar installed, and where?  This is used to optimize patch
-// generation against tar files.
-#define TAR_IPATH
-#define TAR_LPATH
-#define TAR_LIBS tar
-#defer HAVE_TAR $[libtest $[TAR_LPATH],$[TAR_LIBS]]
-
-
 // Is libfftw installed, and where?
-#define FFTW_IPATH /opt/local/include
-#define FFTW_LPATH /opt/local/lib
+#define FFTW_IPATH $[DEFAULT_IPATH]
+#define FFTW_LPATH $[DEFAULT_LPATH]
 #define FFTW_LIBS rfftw fftw
 #defer HAVE_FFTW $[libtest $[FFTW_LPATH],$[FFTW_LIBS]]
 // This is because darwinport's version of the fftw lib is called
@@ -531,25 +533,10 @@
 #defer PHAVE_DRFFTW_H $[libtest $[FFTW_LPATH],drfftw]
 
 // Is libsquish installed, and where?
-#define SQUISH_IPATH /usr/local/include
-#define SQUISH_LPATH /usr/local/lib
-#define SQUISH_LIBS squish
+#define SQUISH_IPATH $[DEFAULT_IPATH]
+#define SQUISH_LPATH $[DEFAULT_LPATH]
+#define SQUISH_LIBS $[if $[WINDOWS_PLATFORM], squish.lib, squish]
 #defer HAVE_SQUISH $[libtest $[SQUISH_LPATH],$[SQUISH_LIBS]]
-
-
-// Is Berkeley DB installed, and where?  Presently, this is only used
-// for some applications (egg-optchar in particular) in Pandatool, and
-// it is completely optional there.  If available, egg-optchar takes
-// advantage of it to allow the optimization of very large numbers of
-// models in one pass, that might otherwise exceed available memory.
-
-// Actually, this isn't even true anymore.  At the time of this writing,
-// no system in Panda makes use of Berkeley DB.  So don't bother to
-// define this.
-#define BDB_IPATH
-#define BDB_LPATH
-#define BDB_LIBS db db_cxx
-#defer HAVE_BDB $[libtest $[BDB_LPATH],$[BDB_LIBS]]
 
 // Is Cg installed, and where?
 #if $[WINDOWS_PLATFORM]
@@ -557,8 +544,8 @@
   #define CG_LPATH
   #define CG_LIBS cg.lib
 #else
-  #define CG_IPATH
-  #define CG_LPATH
+  #define CG_IPATH $[DEFAULT_IPATH]
+  #define CG_LPATH $[DEFAULT_LPATH]
   #define CG_LIBS Cg
 #endif
 #define CG_FRAMEWORK
@@ -576,40 +563,27 @@
 #define CGDX9_LIBS $[if $[WINDOWS_PLATFORM],cgD3D9.lib,CgDX9]
 #defer HAVE_CGDX9 $[and $[HAVE_CG],$[libtest $[CGDX9_LPATH],$[CGDX9_LIBS]]]
 
-// Is CgDX10 installed, and where?
-#defer CGDX10_IPATH $[CG_IPATH]
-#defer CGDX10_LPATH $[CG_LPATH]
-#define CGDX10_LIBS $[if $[WINDOWS_PLATFORM],cgD3D10.lib,CgDX10]
-#defer HAVE_CGDX10 $[and $[HAVE_CG],$[libtest $[CGDX10_LPATH],$[CGDX10_LIBS]]]
-
 // Is VRPN installed, and where?
-#define VRPN_IPATH
-#define VRPN_LPATH
-#define VRPN_LIBS
+#define VRPN_IPATH $[DEFAULT_IPATH]
+#define VRPN_LPATH $[DEFAULT_LPATH]
+#define VRPN_LIBS $[if $[WINDOWS_PLATFORM], quat.lib vrpn.lib, quat vrpn]
 #defer HAVE_VRPN $[libtest $[VRPN_LPATH],$[VRPN_LIBS]]
 
-// Is HELIX installed, and where?
-#define HELIX_IPATH
-#define HELIX_LPATH
-#define HELIX_LIBS
-#defer HAVE_HELIX $[libtest $[HELIX_LPATH],$[HELIX_LIBS]]
-
 // Is ZLIB installed, and where?
-#define ZLIB_IPATH
-#define ZLIB_LPATH
-#define ZLIB_LIBS z
+#define ZLIB_IPATH $[DEFAULT_IPATH]
+#define ZLIB_LPATH $[DEFAULT_LPATH]
+#define ZLIB_LIBS $[if $[WINDOWS_PLATFORM], zlibstatic.lib, z]
 #defer HAVE_ZLIB $[libtest $[ZLIB_LPATH],$[ZLIB_LIBS]]
 
 // Is OpenGL installed, and where?
-#defer GL_IPATH /usr/include
-#defer GL_LPATH
+#defer GL_IPATH $[DEFAULT_IPATH]
+#defer GL_LPATH $[DEFAULT_LPATH]
 #defer GL_LIBS
 #if $[WINDOWS_PLATFORM]
   #define GL_LIBS opengl32.lib
 #elif $[OSX_PLATFORM]
   #defer GL_FRAMEWORK OpenGL
 #else
-  #defer GL_LPATH /usr/X11R6/lib
   #defer GL_LIBS GL
 #endif
 #defer HAVE_GL $[libtest $[GL_LPATH],$[GL_LIBS]]
@@ -639,63 +613,42 @@
 
 // Is OpenGL ES 1.x installed, and where? This is a minimal subset of
 // OpenGL for mobile devices.
-#define GLES_IPATH
-#define GLES_LPATH
+#define GLES_IPATH $[DEFAULT_IPATH]
+#define GLES_LPATH $[DEFAULT_LPATH]
 #define GLES_LIBS GLES_cm
 #defer HAVE_GLES $[libtest $[GLES_LPATH],$[GLES_LIBS]]
 
 // OpenGL ES 2.x is a version of OpenGL ES but without fixed-function
 // pipeline - everything is programmable there.
-#define GLES2_IPATH
-#define GLES2_LPATH
+#define GLES2_IPATH $[DEFAULT_IPATH]
+#define GLES2_LPATH $[DEFAULT_LPATH]
 #define GLES2_LIBS GLESv2
 #defer HAVE_GLES2 $[libtest $[GLES2_LPATH],$[GLES2_LIBS]]
 
 // EGL is like GLX, but for OpenGL ES.
-#defer EGL_IPATH
-#defer EGL_LPATH
+#defer EGL_IPATH $[DEFAULT_IPATH]
+#defer EGL_LPATH $[DEFAULT_LPATH]
 #defer EGL_LIBS EGL
 #defer HAVE_EGL $[libtest $[EGL_LPATH],$[EGL_LIBS]]
 
 // The SDL library is useful only for tinydisplay, and is not even
 // required for that, as tinydisplay is also supported natively on
 // each supported platform.
-#define SDL_IPATH
-#define SDL_LPATH
+#define SDL_IPATH $[DEFAULT_IPATH]
+#define SDL_LPATH $[DEFAULT_LPATH]
 #define SDL_LIBS
 #defer HAVE_SDL $[libtest $[SDL_LPATH],$[SDL_LIBS]]
 
 // X11 may need to be linked against for tinydisplay, but probably
 // only on a Linux platform.
-#define X11_IPATH
-#define X11_LPATH /usr/X11R6/lib
+#define X11_IPATH $[DEFAULT_IPATH]
+#define X11_LPATH $[DEFAULT_LPATH]
 #define X11_LIBS X11
 #defer HAVE_X11 $[and $[UNIX_PLATFORM],$[libtest $[X11_LPATH],$[X11_LIBS]]]
 
-// This defines if we have XF86DGA installed. This enables smooth
-// FPS-style mouse in x11display, when mouse mode M_relative is used.
-#define XF86DGA_IPATH /usr/include/X11/extensions
-#define XF86DGA_LPATH /usr/lib
-#define XF86DGA_LIBS Xxf86dga
-#defer HAVE_XF86DGA $[libtest $[XF86DGA_LPATH],$[XF86DGA_LIBS]]
-
-// This defines if we have XRANDR installed. This
-// enables resolution switching in x11display.
-#define XRANDR_IPATH /usr/include/X11/extensions
-#define XRANDR_LPATH /usr/lib
-#define XRANDR_LIBS Xrandr
-#defer HAVE_XRANDR $[libtest $[XRANDR_LPATH],$[XRANDR_LIBS]]
-
-// This defines if we have XCURSOR installed. This
-// enables custom cursor support in x11display.
-#define XCURSOR_IPATH /usr/include/X11/extensions
-#define XCURSOR_LPATH /usr/lib
-#define XCURSOR_LIBS Xcursor
-#defer HAVE_XCURSOR $[libtest $[XCURSOR_LPATH],$[XCURSOR_LIBS]]
-
 // How about GLX?
-#define GLX_IPATH
-#define GLX_LPATH
+#define GLX_IPATH $[DEFAULT_IPATH]
+#define GLX_LPATH $[DEFAULT_LPATH]
 #defer HAVE_GLX $[and $[HAVE_GL],$[HAVE_X11]]
 
 // glXGetProcAddress() is the function used to query OpenGL extensions
@@ -732,14 +685,14 @@
 #define OPENCV_VER_23 1
 
 // Is OpenCV installed, and where?
-#define OPENCV_IPATH
-#define OPENCV_LPATH
+#define OPENCV_IPATH $[DEFAULT_IPATH]
+#define OPENCV_LPATH $[DEFAULT_LPATH]
 #defer OPENCV_LIBS $[if $[OPENCV_VER_23], opencv_highgui opencv_core, cv highgui cxcore]
 #defer HAVE_OPENCV $[libtest $[OPENCV_LPATH],$[OPENCV_LIBS]]
 
 // Is FFMPEG installed, and where?
-#define FFMPEG_IPATH /usr/include/ffmpeg
-#define FFMPEG_LPATH
+#define FFMPEG_IPATH $[DEFAULT_IPATH]
+#define FFMPEG_LPATH $[DEFAULT_LPATH]
 #define FFMPEG_LIBS $[if $[WINDOWS_PLATFORM],avcodec.lib avformat.lib avutil.lib swscale.lib swresample.lib,avcodec avformat avutil swscale swresample]
 #defer HAVE_FFMPEG $[libtest $[FFMPEG_LPATH],$[FFMPEG_LIBS]]
 // Define this if you compiled ffmpeg with libswscale enabled.
@@ -747,32 +700,11 @@
 #define HAVE_SWRESAMPLE 1
 
 // Is ODE installed, and where?
-#define ODE_IPATH
-#define ODE_LPATH
-#define ODE_LIBS $[if $[WINDOWS_PLATFORM],ode.lib,ode]
+#define ODE_IPATH $[DEFAULT_IPATH]
+#define ODE_LPATH $[DEFAULT_LPATH]
+#define ODE_LIBS $[if $[WINDOWS_PLATFORM],ode_single.lib,ode]
 #define ODE_CFLAGS
 #defer HAVE_ODE $[libtest $[ODE_LPATH],$[ODE_LIBS]]
-
-// Is Awesomium installed, and where?
-#define AWESOMIUM_IPATH
-#define AWESOMIUM_LPATH
-#if $[OSX_PLATFORM]
-  #define AWESOMIUM_LIBS
-#else
-  #define AWESOMIUM_LIBS $[if $[WINDOWS_PLATFORM],awesomium.lib,awesomium]
-#endif
-#define AWESOMIUM_FRAMEWORK
-#defer HAVE_AWESOMIUM $[libtest $[AWESOMIUM_LPATH],$[AWESOMIUM_LIBS]]
-
-// Mozilla's so-called Gecko SDK, a.k.a. Xulrunner SDK, implements
-// NPAPI.  So does the OSX WebKit framework.  Either implementation
-// can be used to build a web plugin for Firefox, Safari, Chrome, and
-// other non-Microsoft browsers.
-#define NPAPI_IPATH
-#define NPAPI_LPATH
-#define NPAPI_LIBS
-#define NPAPI_FRAMEWORK
-#define HAVE_NPAPI
 
 #define HAVE_ACTIVEX $[WINDOWS_PLATFORM]
 
@@ -899,20 +831,20 @@
 
 // Info for the RAD game tools, Miles Sound System
 // note this may be overwritten in wintools Config.pp
-#define RAD_MSS_IPATH /usr/include/Miles6/include
-#define RAD_MSS_LPATH /usr/lib/Miles6/lib/win
+#define RAD_MSS_IPATH $[DEFAULT_IPATH]
+#define RAD_MSS_LPATH $[DEFAULT_LPATH]
 #define RAD_MSS_LIBS Mss32
 #defer HAVE_RAD_MSS $[libtest $[RAD_MSS_LPATH],$[RAD_MSS_LIBS]]
 
 // Info for the Fmod audio engine
-#define FMODEX_IPATH /usr/local/fmod/api/inc
-#define FMODEX_LPATH /usr/local/fmod/api/lib
+#define FMODEX_IPATH $[DEFAULT_IPATH]
+#define FMODEX_LPATH $[DEFAULT_LPATH]
 #define FMODEX_LIBS $[if $[libtest $[FMODEX_LPATH],fmodex64],fmodex64,fmodex]
 #defer HAVE_FMODEX $[libtest $[FMODEX_LPATH],$[FMODEX_LIBS]]
 
 // Info for the OpenAL audio engine
-#define OPENAL_IPATH
-#define OPENAL_LPATH
+#define OPENAL_IPATH $[DEFAULT_IPATH]
+#define OPENAL_LPATH $[DEFAULT_LPATH]
 #if $[OSX_PLATFORM]
   #define OPENAL_LIBS
   #define OPENAL_FRAMEWORK OpenAL
@@ -922,38 +854,11 @@
 #endif
 #defer HAVE_OPENAL $[or $[OPENAL_FRAMEWORK],$[libtest $[OPENAL_LPATH],$[OPENAL_LIBS]]]
 
-// Info for the SpeedTree tree and terrain rendering library.  This is
-// a commercial library that specializes in rendering trees and other
-// foliage.
-
-// This may be either "OpenGL" or "DirectX9".  Case is important, due
-// to the naming of the SpeedTree libraries.
-#define SPEEDTREE_API OpenGL
-// The local directory in which the SpeedTree SDK has been installed.
-#define SPEEDTREE_SDK_DIR
-// The default directory in which to find the SpeedTree installation at runtime.
-#defer SPEEDTREE_BIN_DIR $[SPEEDTREE_SDK_DIR]/Bin
-
-#defer SPEEDTREE_IPATH $[SPEEDTREE_SDK_DIR]/Include
-#defer SPEEDTREE_LPATH $[SPEEDTREE_SDK_DIR]/Lib/Windows/VC9$[if $[WIN64_PLATFORM],.x64]
-#defer SPEEDTREE_DEBUG $[if $[< $[OPTIMIZE], 3],_d]
-#defer SPEEDTREE_64 $[if $[WIN64_PLATFORM],64]
-
-// These names are used to build up the names of the SpeedTree libraries.
-#defer SPEEDTREE_VERSION 5.1
-#defer SPEEDTREE_LIB_SUFFIX _v$[SPEEDTREE_VERSION]_VC90MT$[SPEEDTREE_64]_Static$[SPEEDTREE_DEBUG].lib
-#if $[WINDOWS_PLATFORM]
-#defer SPEEDTREE_LIBS SpeedTreeCore$[SPEEDTREE_LIB_SUFFIX] SpeedTreeForest$[SPEEDTREE_LIB_SUFFIX] SpeedTree$[SPEEDTREE_API]Renderer$[SPEEDTREE_LIB_SUFFIX] SpeedTreeRenderInterface$[SPEEDTREE_LIB_SUFFIX] $[if $[eq $[SPEEDTREE_API],OpenGL],glew32.lib glu32.lib]
-#else
-#defer SPEEDTREE_LIBS
-#endif
-#defer HAVE_SPEEDTREE $[isdir $[SPEEDTREE_SDK_DIR]]
-
 // Is gtk+-2 installed?  This is needed to build the pstats program on
 // Unix (or non-Windows) platforms.  It is also used to provide
 // support for XEmbed for the web plugin system, which is necessary to
 // support Chromium on Linux.
-#define PKG_CONFIG pkg-config
+#define PKG_CONFIG $[if $[not $[WINDOWS_PLATFORM]], pkg-config]
 #define HAVE_GTK
 
 // Do we have Freetype 2.0 (or better)?  If available, this package is
@@ -966,9 +871,9 @@
 #defer HAVE_FREETYPE $[or $[libtest $[FREETYPE_LPATH],$[FREETYPE_LIBS]],$[bintest $[FREETYPE_CONFIG]]]
 
 #define FREETYPE_CFLAGS
-#define FREETYPE_IPATH
-#define FREETYPE_LPATH
-#define FREETYPE_LIBS
+#define FREETYPE_IPATH $[DEFAULT_IPATH]/freetype2
+#define FREETYPE_LPATH $[DEFAULT_LPATH]
+#define FREETYPE_LIBS $[if $[WINDOWS_PLATFORM],freetype.lib,freetype]
 
 // Define this true to compile in a default font, so every TextNode
 // will always have a font available without requiring the user to
@@ -988,30 +893,6 @@
 // vertices-float64.
 #define STDFLOAT_DOUBLE
 
-// We use wxWidgets--the C++ library, not the Python library--for
-// building the application p3dcert, which is needed only when
-// building the plugin/runtime system.  This uses a wx-config program,
-// similar to freetype, above.
-#defer WX_CONFIG $[if $[not $[WINDOWS_PLATFORM]],wx-config]
-#defer HAVE_WX $[or $[libtest $[WX_LPATH],$[WX_LIBS]],$[bintest $[WX_CONFIG]]]
-
-#define WX_CFLAGS
-#define WX_IPATH
-#define WX_LPATH
-#define WX_LIBS
-
-// We use FLTK--the C++ library, not the Python library--for
-// building the application p3dcert, which is needed only when
-// building the plugin/runtime system.  This uses a fltk-config program,
-// similar to freetype, above.
-#defer FLTK_CONFIG $[if $[not $[WINDOWS_PLATFORM]],fltk-config]
-#defer HAVE_FLTK $[or $[libtest $[FLTK_LPATH],$[FLTK_LIBS]],$[bintest $[FLTK_CONFIG]]]
-
-#define FLTK_CFLAGS
-#define FLTK_IPATH
-#define FLTK_LPATH
-#define FLTK_LIBS
-
 // Is Maya installed?  This matters only to programs in PANDATOOL.
 
 // Also, as of Maya 5.0 it seems the Maya library will not compile
@@ -1028,44 +909,27 @@
 
 #define MAYA2EGG maya2egg
 
-// In the same fashion as mayaegg converter above, set softimage to egg converter as well
-#define SOFTIMAGE_LOCATION /c/Softimage/sdk_18sp2/SDK_1.8SP2/SAAPHIRE
-#defer SOFTIMAGE_LIBS SAA.lib
-#defer HAVE_SOFTIMAGE $[isdir $[SOFTIMAGE_LOCATION]/h]
-
 // Is FCollada installed? This is for the daeegg converter.
-#define FCOLLADA_IPATH /usr/local/include/fcollada
-#define FCOLLADA_LPATH /usr/local/lib
-#define FCOLLADA_LIBS FColladaSD
+#define FCOLLADA_IPATH $[DEFAULT_IPATH]
+#define FCOLLADA_LPATH $[DEFAULT_LPATH]
+#define FCOLLADA_LIBS FCollada
 #defer HAVE_FCOLLADA $[libtest $[FCOLLADA_LPATH],$[FCOLLADA_LIBS]]
 
-// Is the COLLADA DOM installed? This is for the native COLLADA loader.
-// This defines the versions that your copy of COLLADA DOM supports.
-#define COLLADA14DOM_IPATH /usr/local/include/collada-dom /usr/local/include/collada-dom/1.4
-#define COLLADA14DOM_LPATH /usr/local/lib
-#define COLLADA14DOM_LIBS collada14dom xml2 boost_filesystem
-#defer HAVE_COLLADA14DOM $[libtest $[COLLADA14DOM_LPATH],$[COLLADA14DOM_LIBS]]
-
-#define COLLADA15DOM_IPATH /usr/local/include/collada-dom /usr/local/include/collada-dom/1.5
-#define COLLADA15DOM_LPATH /usr/local/lib
-#define COLLADA15DOM_LIBS collada15dom xml2 boost_filesystem
-#defer HAVE_COLLADA15DOM $[libtest $[COLLADA15DOM_LPATH],$[COLLADA15DOM_LIBS]]
-
 // The Assimp library loads various model formats.
-#define ASSIMP_IPATH /usr/local/include/assimp
-#define ASSIMP_LPATH /usr/local/lib
+#define ASSIMP_IPATH $[DEFAULT_IPATH]
+#define ASSIMP_LPATH $[DEFAULT_LPATH]
 #define ASSIMP_LIBS assimp
 #define HAVE_ASSIMP $[libtest $[ASSIMP_LPATH],$[ASSIMP_LIBS]]
 
 // Also for the ARToolKit library, for augmented reality
-#define ARTOOLKIT_IPATH
-#define ARTOOLKIT_LPATH
+#define ARTOOLKIT_IPATH $[DEFAULT_IPATH]
+#define ARTOOLKIT_LPATH $[DEFAULT_LPATH]
 #define ARTOOLKIT_LIBS $[if $[WINDOWS_PLATFORM],libAR.lib,AR]
 #defer HAVE_ARTOOLKIT $[libtest $[ARTOOLKIT_LPATH],$[ARTOOLKIT_LIBS]]
 
 // libRocket is a GUI library
-#define ROCKET_IPATH /usr/local/include
-#define ROCKET_LPATH /usr/local/lib
+#define ROCKET_IPATH $[DEFAULT_IPATH]
+#define ROCKET_LPATH $[DEFAULT_LPATH]
 #define ROCKET_LIBS RocketCore RocketDebugger boost_python
 #defer HAVE_ROCKET $[libtest $[ROCKET_LPATH],$[ROCKET_LIBS]]
 #defer HAVE_ROCKET_DEBUGGER $[< $[OPTIMIZE],4]
@@ -1073,11 +937,9 @@
 #defer HAVE_ROCKET_PYTHON $[and $[HAVE_ROCKET],$[HAVE_PYTHON]]
 
 // Bullet is a physics engine
-#define BULLET_IPATH /usr/local/include/bullet
-#define BULLET_LPATH /usr/local/lib
-#if $[WIN64_PLATFORM]
-#define BULLET_LIBS BulletSoftBody_x64.lib BulletDynamics_x64.lib BulletCollision_x64.lib LinearMath_x64.lib
-#elif $[WINDOWS_PLATFORM]
+#define BULLET_IPATH $[DEFAULT_IPATH]
+#define BULLET_LPATH $[DEFAULT_LPATH]
+#if $[WINDOWS_PLATFORM]
 #define BULLET_LIBS BulletSoftBody.lib BulletDynamics.lib BulletCollision.lib LinearMath.lib
 #else
 #define BULLET_LIBS BulletSoftBody BulletDynamics BulletCollision LinearMath
@@ -1085,10 +947,32 @@
 #defer HAVE_BULLET $[libtest $[BULLET_LPATH],$[BULLET_LIBS]]
 
 // libvorbisfile is used for reading Ogg Vorbis audio files (.ogg).
-#define VORBIS_IPATH
-#define VORBIS_LPATH
+#define VORBIS_IPATH $[DEFAULT_IPATH]
+#define VORBIS_LPATH $[DEFAULT_LPATH]
 #define VORBIS_LIBS $[if $[WINDOWS_PLATFORM],libogg_static.lib libvorbis_static.lib libvorbisfile_static.lib,ogg vorbis vorbisfile]
 #defer HAVE_VORBIS $[libtest $[VORBIS_LPATH],$[VORBIS_LIBS]]
+
+// libopusfile is used for reading Opus audio files (.opus).
+#define OPUS_IPATH $[DEFAULT_IPATH] $[DEFAULT_IPATH]/opus
+#define OPUS_LPATH $[DEFAULT_LPATH]
+#define OPUS_LIBS $[if $[WINDOWS_PLATFORM], ogg.lib opus.lib opusfile.lib, ogg opus opusfile]
+#defer HAVE_OPUS $[libtest $[OPUS_LPATH],$[OPUS_LIBS]]
+
+// Is HarfBuzz installed?
+#define HARFBUZZ_IPATH $[DEFAULT_IPATH]
+#define HARFBUZZ_LPATH $[DEFAULT_LPATH]
+#define HARFBUZZ_LIBS $[if $[WINDOWS_PLATFORM], harfbuzz.lib, harfbuzz]
+#defer HAVE_HARFBUZZ $[libtest $[HARFBUZZ_LPATH], $[HARFBUZZ_LIBS]]
+
+// Is OpenEXR installed?
+#define OPENEXR_IPATH $[DEFAULT_IPATH]/OpenEXR
+#define OPENEXR_LPATH $[DEFAULT_LPATH]
+#if $[WINDOWS_PLATFORM]
+#define OPENEXR_LIBS IlmImf.lib Half.lib Imath.lib Iex.lib IlmThread.lib
+#else
+#define OPENEXR_LIBS IlmImf Imath Half Iex IlmThread
+#endif
+#defer HAVE_OPENEXR $[libtest $[OPENEXR_LPATH],$[OPENEXR_LIBS]]
 
 // Define this to explicitly indicate the given platform string within
 // the resulting Panda runtime.  Normally it is best to leave this

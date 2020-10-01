@@ -152,11 +152,6 @@
 #set TIFF_LIBS $[TIFF_LIBS]
 #set HAVE_TIFF $[HAVE_TIFF]
 
-#set TAR_IPATH $[unixfilename $[TAR_IPATH]]
-#set TAR_LPATH $[unixfilename $[TAR_LPATH]]
-#set TAR_LIBS $[TAR_LIBS]
-#set HAVE_TAR $[HAVE_TAR]
-
 #set FFTW_IPATH $[unixfilename $[FFTW_IPATH]]
 #set FFTW_LPATH $[unixfilename $[FFTW_LPATH]]
 #set FFTW_LIBS $[FFTW_LIBS]
@@ -166,11 +161,6 @@
 #set SQUISH_LPATH $[unixfilename $[SQUISH_LPATH]]
 #set SQUISH_LIBS $[SQUISH_LIBS]
 #set HAVE_SQUISH $[HAVE_SQUISH]
-
-#set BDB_IPATH $[unixfilename $[BDB_IPATH]]
-#set BDB_LPATH $[unixfilename $[BDB_LPATH]]
-#set BDB_LIBS $[BDB_LIBS]
-#set HAVE_BDB $[HAVE_BDB]
 
 #set CG_IPATH $[unixfilename $[CG_IPATH]]
 #set CG_LPATH $[unixfilename $[CG_LPATH]]
@@ -187,20 +177,10 @@
 #set CGDX9_LIBS $[CGDX9_LIBS]
 #set HAVE_CGDX9 $[HAVE_CGDX9]
 
-#set CGDX10_IPATH $[unixfilename $[CGDX10_IPATH]]
-#set CGDX10_LPATH $[unixfilename $[CGDX10_LPATH]]
-#set CGDX10_LIBS $[CGDX10_LIBS]
-#set HAVE_CGDX10 $[HAVE_CGDX10]
-
 #set VRPN_IPATH $[unixfilename $[VRPN_IPATH]]
 #set VRPN_LPATH $[unixfilename $[VRPN_LPATH]]
 #set VRPN_LIBS $[VRPN_LIBS]
 #set HAVE_VRPN $[HAVE_VRPN]
-
-#set HELIX_IPATH $[unixfilename $[HELIX_IPATH]]
-#set HELIX_LPATH $[unixfilename $[HELIX_LPATH]]
-#set HELIX_LIBS $[HELIX_LIBS]
-#set HAVE_HELIX $[HAVE_HELIX]
 
 #set ZLIB_IPATH $[unixfilename $[ZLIB_IPATH]]
 #set ZLIB_LPATH $[unixfilename $[ZLIB_LPATH]]
@@ -256,17 +236,6 @@
 #set ODE_LIBS $[ODE_LIBS]
 #set HAVE_ODE $[HAVE_ODE]
 
-#set AWESOMIUM_IPATH $[unixfilename $[AWESOMIUM_IPATH]]
-#set AWESOMIUM_LPATH $[unixfilename $[AWESOMIUM_LPATH]]
-#set AWESOMIUM_LIBS $[AWESOMIUM_LIBS]
-#set AWESOMIUM_FRAMEWORK $[unixfilename $[AWESOMIUM_FRAMEWORK]]
-#set HAVE_AWESOMIUM $[HAVE_AWESOMIUM]
-
-#set NPAPI_IPATH $[unixfilename $[NPAPI_IPATH]]
-#set NPAPI_LPATH $[unixfilename $[NPAPI_LPATH]]
-#set NPAPI_LIBS $[NPAPI_LIBS]
-#set HAVE_NPAPI $[HAVE_NPAPI]
-
 #set HAVE_THREADS $[HAVE_THREADS]
 #set DEBUG_THREADS $[DEBUG_THREADS]
 #set MUTEX_SPINLOCK $[MUTEX_SPINLOCK]
@@ -289,56 +258,22 @@
 #set OPENAL_FRAMEWORK $[unixfilename $[OPENAL_FRAMEWORK]]
 #set HAVE_OPENAL $[HAVE_OPENAL]
 
-#set SPEEDTREE_IPATH $[unixfilename $[SPEEDTREE_IPATH]]
-#set SPEEDTREE_LPATH $[unixfilename $[SPEEDTREE_LPATH]]
-#set SPEEDTREE_LIBS $[SPEEDTREE_LIBS]
-#set HAVE_SPEEDTREE $[HAVE_SPEEDTREE]
-
 #set PKG_CONFIG $[PKG_CONFIG]
 #set HAVE_GTK $[HAVE_GTK]
 
-#set FREETYPE_CONFIG $[FREETYPE_CONFIG]
 #set HAVE_FREETYPE $[HAVE_FREETYPE]
 #set FREETYPE_CFLAGS $[FREETYPE_CFLAGS]
 #set FREETYPE_IPATH $[unixfilename $[FREETYPE_IPATH]]
 #set FREETYPE_LPATH $[unixfilename $[FREETYPE_LPATH]]
 #set FREETYPE_LIBS $[FREETYPE_LIBS]
 
-#set WX_CONFIG $[WX_CONFIG]
-#set HAVE_WX $[HAVE_WX]
-#set WX_CFLAGS $[WX_CFLAGS]
-#set WX_IPATH $[unixfilename $[WX_IPATH]]
-#set WX_LPATH $[unixfilename $[WX_LPATH]]
-#set WX_LIBS $[WX_LIBS]
-
-#set FLTK_CONFIG $[FLTK_CONFIG]
-#set HAVE_FLTK $[HAVE_FLTK]
-#set FLTK_CFLAGS $[FLTK_CFLAGS]
-#set FLTK_IPATH $[unixfilename $[FLTK_IPATH]]
-#set FLTK_LPATH $[unixfilename $[FLTK_LPATH]]
-#set FLTK_LIBS $[FLTK_LIBS]
-
-
 #set MAYA_LOCATION $[unixfilename $[MAYA_LOCATION]]
 #set HAVE_MAYA $[HAVE_MAYA]
-
-#set SOFTIMAGE_LOCATION $[unixfilename $[SOFTIMAGE_LOCATION]]
-#set HAVE_SOFTIMAGE $[HAVE_SOFTIMAGE]
 
 #set FCOLLADA_IPATH $[unixfilename $[FCOLLADA_IPATH]]
 #set FCOLLADA_LPATH $[unixfilename $[FCOLLADA_LPATH]]
 #set FCOLLADA_LIBS $[FCOLLADA_LIBS]
 #set HAVE_FCOLLADA $[HAVE_FCOLLADA]
-
-#set COLLADA14DOM_IPATH $[unixfilename $[COLLADA14DOM_IPATH]]
-#set COLLADA14DOM_LPATH $[unixfilename $[COLLADA14DOM_LPATH]]
-#set COLLADA14DOM_LIBS $[COLLADA14DOM_LIBS]
-#set HAVE_COLLADA14DOM $[HAVE_COLLADA14DOM]
-
-#set COLLADA15DOM_IPATH $[unixfilename $[COLLADA15DOM_IPATH]]
-#set COLLADA15DOM_LPATH $[unixfilename $[COLLADA15DOM_LPATH]]
-#set COLLADA15DOM_LIBS $[COLLADA15DOM_LIBS]
-#set HAVE_COLLADA15DOM $[HAVE_COLLADA15DOM]
 
 #set ASSIMP_IPATH $[unixfilename $[ASSIMP_IPATH]]
 #set ASSIMP_LPATH $[unixfilename $[ASSIMP_LPATH]]
@@ -366,6 +301,21 @@
 #set VORBIS_LIBS $[VORBIS_LIBS]
 #set HAVE_VORBIS $[HAVE_VORBIS]
 
+#set OPUS_IPATH $[unixfilename $[OPUS_IPATH]]
+#set OPUS_LPATH $[unixfilename $[OPUS_LPATH]]
+#set OPUS_LIBS $[OPUS_LIBS]
+#set HAVE_OPUS $[HAVE_OPUS]
+
+#set HARFBUZZ_IPATH $[unixfilename $[HARFBUZZ_IPATH]]
+#set HARFBUZZ_LPATH $[unixfilename $[HARFBUZZ_LPATH]]
+#set HARFBUZZ_LIBS $[HARFBUZZ_LIBS]
+#set HAVE_HARFBUZZ $[HAVE_HARFBUZZ]
+
+#set OPENEXR_IPATH $[unixfilename $[OPENEXR_IPATH]]
+#set OPENEXR_LPATH $[unixfilename $[OPENEXR_LPATH]]
+#set OPENEXR_LIBS $[OPENEXR_LIBS]
+#set HAVE_OPENEXR $[HAVE_OPENEXR]
+
 // Now infer a few more variables based on what was defined.
 #if $[and $[HAVE_GTK],$[PKG_CONFIG]]
   #define cflags $[shell $[PKG_CONFIG] gtk+-2.0 --cflags]
@@ -377,36 +327,14 @@
   #define GTK_LIBS $[patsubst -l%,%,$[filter -l%,$[libs]]]
 #endif
 
-#if $[and $[HAVE_FREETYPE],$[FREETYPE_CONFIG]]
-  #define cflags $[shell $[FREETYPE_CONFIG] --cflags]
-  #define libs $[shell $[FREETYPE_CONFIG] --libs]
+#if $[and $[HAVE_FREETYPE],$[PKG_CONFIG]]
+  #define cflags $[shell $[PKG_CONFIG] freetype2 --cflags]
+  #define libs $[shell $[PKG_CONFIG] freetype2 --libs]
 
   #define FREETYPE_CFLAGS $[filter-out -I%,$[cflags]]
   #define FREETYPE_IPATH $[unique $[patsubst -I%,%,$[filter -I%,$[cflags]]]]
   #define FREETYPE_LPATH $[unique $[patsubst -L%,%,$[filter -L%,$[libs]]]]
   #define FREETYPE_LIBS $[patsubst -l%,%,$[filter -l%,$[libs]]]
-#endif
-
-#if $[and $[HAVE_WX],$[WX_CONFIG]]
-  #define cflags $[shell $[WX_CONFIG] --cflags]
-  #define libs $[shell $[WX_CONFIG] --libs core,base]
-
-  #define WX_CFLAGS $[filter-out -I%,$[cflags]]
-  #define WX_IPATH $[unique $[patsubst -I%,%,$[filter -I%,$[cflags]]]]
-  #define WX_LPATH $[unique $[patsubst -L%,%,$[filter -L%,$[libs]]]]
-  #define WX_LFLAGS $[filter-out -l%,$[libs]]
-  #define WX_LIBS $[patsubst -l%,%,$[filter -l%,$[libs]]]
-#endif
-
-#if $[and $[HAVE_FLTK],$[FLTK_CONFIG]]
-  #define cflags $[shell $[FLTK_CONFIG] --cflags]
-  #define libs $[shell $[FLTK_CONFIG] --ldflags]
-
-  #define FLTK_CFLAGS $[filter-out -I%,$[cflags]]
-  #define FLTK_IPATH $[unique $[patsubst -I%,%,$[filter -I%,$[cflags]]]]
-  #define FLTK_LPATH $[unique $[patsubst -L%,%,$[filter -L%,$[libs]]]]
-  #define FLTK_LFLAGS $[filter-out -l%,$[libs]]
-  #define FLTK_LIBS $[patsubst -l%,%,$[filter -l%,$[libs]]]
 #endif
 
 // Finally, include the system configure file.

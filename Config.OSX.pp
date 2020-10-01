@@ -25,7 +25,7 @@
 
 #define CC gcc
 #define CXX g++
-#define C++FLAGS_GEN -ftemplate-depth-30
+#define C++FLAGS_GEN -ftemplate-depth=30
 
 // Configure for universal binaries on OSX.
 #defer ARCH_FLAGS $[if $[UNIVERSAL_BINARIES],-arch i386 -arch ppc -arch x86_64,]

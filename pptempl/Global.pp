@@ -58,16 +58,6 @@
 // And this lets us look up source directories by dirname.
 #map dirnames DIRNAME(*/)
 
-// This is used by Template.models.pp.
-#if $[HAVE_SOFTIMAGE]
-  #define SOFT2EGG soft -D libsoftegg soft2egg
-#else
-  // We used to use the old converter from pre-Panda days.  Now this
-  // is no longer supported.
-  //  #define SOFT2EGG soft2egg
-  #define SOFT2EGG soft -D libsoftegg soft2egg
-#endif
-
 // Define some various compile flags, derived from the variables set
 // in Config.pp.
 #set INTERROGATE_PYTHON_INTERFACE $[and $[HAVE_PYTHON],$[INTERROGATE_PYTHON_INTERFACE]]
@@ -110,25 +100,11 @@
   #define openssl_libs $[OPENSSL_LIBS]
 #endif
 
-#if $[HAVE_OPENSSL_MT]
-  #define openssl_mt_ipath $[wildcard $[OPENSSL_MT_IPATH]]
-  #define openssl_mt_lpath $[wildcard $[OPENSSL_MT_LPATH]]
-  #define openssl_mt_cflags $[OPENSSL_MT_CFLAGS]
-  #define openssl_mt_libs $[OPENSSL_MT_LIBS]
-#endif
-
 #if $[HAVE_ZLIB]
   #define zlib_ipath $[wildcard $[ZLIB_IPATH]]
   #define zlib_lpath $[wildcard $[ZLIB_LPATH]]
   #define zlib_cflags $[ZLIB_CFLAGS]
   #define zlib_libs $[ZLIB_LIBS]
-#endif
-
-#if $[HAVE_ZLIB_MT]
-  #define zlib_mt_ipath $[wildcard $[ZLIB_MT_IPATH]]
-  #define zlib_mt_lpath $[wildcard $[ZLIB_MT_LPATH]]
-  #define zlib_mt_cflags $[ZLIB_MT_CFLAGS]
-  #define zlib_mt_libs $[ZLIB_MT_LIBS]
 #endif
 
 #if $[HAVE_GL]
@@ -167,27 +143,6 @@
   #define x11_cflags $[X11_CFLAGS]
   #define x11_libs $[X11_LIBS]
   #define x11_framework $[X11_FRAMEWORK]
-#endif
-
-#if $[HAVE_XF86DGA]
-  #define xf86dga_ipath $[wildcard $[XF86DGA_IPATH]]
-  #define xf86dga_lpath $[wildcard $[XF86DGA_LPATH]]
-  #define xf86dga_cflags $[XF86DGA_CFLAGS]
-  #define xf86dga_libs $[XF86DGA_LIBS]
-#endif
-
-#if $[HAVE_XRANDR]
-  #define xrandr_ipath $[wildcard $[XRANDR_IPATH]]
-  #define xrandr_lpath $[wildcard $[XRANDR_LPATH]]
-  #define xrandr_cflags $[XRANDR_CFLAGS]
-  #define xrandr_libs $[XRANDR_LIBS]
-#endif
-
-#if $[HAVE_XCURSOR]
-  #define xcursor_ipath $[wildcard $[XCURSOR_IPATH]]
-  #define xcursor_lpath $[wildcard $[XCURSOR_LPATH]]
-  #define xcursor_cflags $[XCURSOR_CFLAGS]
-  #define xcursor_libs $[XCURSOR_LIBS]
 #endif
 
 #if $[HAVE_GLX]
@@ -233,33 +188,11 @@
   #define ode_libs $[ODE_LIBS]
 #endif
 
-#if $[HAVE_AWESOMIUM]
-  #define awesomium_ipath $[wildcard $[AWESOMIUM_IPATH]]
-  #define awesomium_lpath $[wildcard $[AWESOMIUM_LPATH]]
-  #define awesomium_libs $[AWESOMIUM_LIBS]
-  #define awesomium_framework $[AWESOMIUM_FRAMEWORK]
-#endif
-
-#if $[HAVE_NPAPI]
-  #define npapi_ipath $[wildcard $[NPAPI_IPATH]]
-  #define npapi_lpath $[wildcard $[NPAPI_LPATH]]
-  #define npapi_cflags $[NPAPI_CFLAGS]
-  #define npapi_libs $[NPAPI_LIBS]
-  #define npapi_framework $[NPAPI_FRAMEWORK]
-#endif
-
 #if $[HAVE_JPEG]
   #define jpeg_ipath $[wildcard $[JPEG_IPATH]]
   #define jpeg_lpath $[wildcard $[JPEG_LPATH]]
   #define jpeg_cflags $[JPEG_CFLAGS]
   #define jpeg_libs $[JPEG_LIBS]
-#endif
-
-#if $[HAVE_JPEG_MT]
-  #define jpeg_mt_ipath $[wildcard $[JPEG_MT_IPATH]]
-  #define jpeg_mt_lpath $[wildcard $[JPEG_MT_LPATH]]
-  #define jpeg_mt_cflags $[JPEG_MT_CFLAGS]
-  #define jpeg_mt_libs $[JPEG_MT_LIBS]
 #endif
 
 #if $[HAVE_PNG]
@@ -269,25 +202,11 @@
   #define png_libs $[PNG_LIBS]
 #endif
 
-#if $[HAVE_PNG_MT]
-  #define png_mt_ipath $[wildcard $[PNG_MT_IPATH]]
-  #define png_mt_lpath $[wildcard $[PNG_MT_LPATH]]
-  #define png_mt_cflags $[PNG_MT_CFLAGS]
-  #define png_mt_libs $[PNG_MT_LIBS]
-#endif
-
 #if $[HAVE_TIFF]
   #define tiff_ipath $[wildcard $[TIFF_IPATH]]
   #define tiff_lpath $[wildcard $[TIFF_LPATH]]
   #define tiff_cflags $[TIFF_CFLAGS]
   #define tiff_libs $[TIFF_LIBS]
-#endif
-
-#if $[HAVE_TAR]
-  #define tar_ipath $[wildcard $[TAR_IPATH]]
-  #define tar_lpath $[wildcard $[TAR_LPATH]]
-  #define tar_cflags $[TAR_CFLAGS]
-  #define tar_libs $[TAR_LIBS]
 #endif
 
 #if $[HAVE_FFTW]
@@ -302,13 +221,6 @@
   #define squish_lpath $[wildcard $[SQUISH_LPATH]]
   #define squish_cflags $[SQUISH_CFLAGS]
   #define squish_libs $[SQUISH_LIBS]
-#endif
-
-#if $[HAVE_BDB]
-  #define bdb_ipath $[wildcard $[BDB_IPATH]]
-  #define bdb_lpath $[wildcard $[BDB_LPATH]]
-  #define bdb_cflags $[BDB_CFLAGS]
-  #define bdb_libs $[BDB_LIBS]
 #endif
 
 #if $[HAVE_CG]
@@ -334,32 +246,11 @@
   #define cgdx9_libs $[CGDX9_LIBS]
 #endif
 
-#if $[HAVE_CGDX10]
-  #define cgdx10_ipath $[wildcard $[CGDX10_IPATH]]
-  #define cgdx10_lpath $[wildcard $[CGDX10_LPATH]]
-  #define cgdx10_cflags $[CGDX10_CFLAGS]
-  #define cgdx10_libs $[CGDX10_LIBS]
-#endif
-
 #if $[HAVE_VRPN]
   #define vrpn_ipath $[wildcard $[VRPN_IPATH]]
   #define vrpn_lpath $[wildcard $[VRPN_LPATH]]
   #define vrpn_cflags $[VRPN_CFLAGS]
   #define vrpn_libs $[VRPN_LIBS]
-#endif
-
-#if $[HAVE_HELIX]
-  #define helix_ipath $[wildcard $[HELIX_IPATH]]
-  #define helix_lpath $[wildcard $[HELIX_LPATH]]
-  #define helix_cflags $[HELIX_CFLAGS]
-  #define helix_libs $[HELIX_LIBS]
-#endif
-
-#if $[HAVE_MIKMOD]
-  #define mikmod_ipath $[wildcard $[MIKMOD_IPATH]]
-  #define mikmod_lpath $[wildcard $[MIKMOD_LPATH]]
-  #define mikmod_cflags $[MIKMOD_CFLAGS]
-  #define mikmod_libs $[MIKMOD_LIBS]
 #endif
 
 #if $[HAVE_GTK]
@@ -377,35 +268,11 @@
   #define freetype_framework $[FREETYPE_FRAMEWORK]
 #endif
 
-#if $[HAVE_WX]
-  #define wx_ipath $[wildcard $[WX_IPATH]]
-  #define wx_lpath $[wildcard $[WX_LPATH]]
-  #define wx_cflags $[WX_CFLAGS]
-  #define wx_lflags $[WX_LFLAGS]
-  #define wx_libs $[WX_LIBS]
-  #define wx_framework $[WX_FRAMEWORK]
-#endif
-
-#if $[HAVE_FLTK]
-  #define fltk_ipath $[wildcard $[FLTK_IPATH]]
-  #define fltk_lpath $[wildcard $[FLTK_LPATH]]
-  #define fltk_cflags $[FLTK_CFLAGS]
-  #define fltk_lflags $[FLTK_LFLAGS]
-  #define fltk_libs $[FLTK_LIBS]
-  #define fltk_framework $[FLTK_FRAMEWORK]
-#endif
-
 #if $[and $[HAVE_MAYA],$[MAYA_LOCATION]]
   #define maya_ipath $[MAYA_LOCATION]/include
   #define maya_lpath $[MAYA_LOCATION]/lib
   #define maya_ld $[wildcard $[MAYA_LOCATION]/bin/mayald]
   #define maya_libs $[MAYA_LIBS]
-#endif
-
-#if $[and $[HAVE_SOFTIMAGE],$[SOFTIMAGE_LOCATION]]
-  #define softimage_ipath $[SOFTIMAGE_LOCATION]/h
-  #define softimage_lpath $[SOFTIMAGE_LOCATION]/dso
-  #define softimage_libs $[SOFTIMAGE_LIBS]
 #endif
 
 #if $[HAVE_NET]
@@ -440,28 +307,10 @@
   #define openal_framework $[OPENAL_FRAMEWORK]
 #endif
 
-#if $[HAVE_SPEEDTREE]
-  #define speedtree_ipath $[wildcard $[SPEEDTREE_IPATH]]
-  #define speedtree_lpath $[wildcard $[SPEEDTREE_LPATH]]
-  #define speedtree_libs $[SPEEDTREE_LIBS]
-#endif
-
 #if $[HAVE_FCOLLADA]
   #define fcollada_ipath $[wildcard $[FCOLLADA_IPATH]]
   #define fcollada_lpath $[wildcard $[FCOLLADA_LPATH]]
   #define fcollada_libs $[FCOLLADA_LIBS]
-#endif
-
-#if $[HAVE_COLLADA14DOM]
-  #define collada14dom_ipath $[wildcard $[COLLADA14DOM_IPATH]]
-  #define collada14dom_lpath $[wildcard $[COLLADA14DOM_LPATH]]
-  #define collada14dom_libs $[COLLADA14DOM_LIBS]
-#endif
-
-#if $[HAVE_COLLADA15DOM]
-  #define collada15dom_ipath $[wildcard $[COLLADA15DOM_IPATH]]
-  #define collada15dom_lpath $[wildcard $[COLLADA15DOM_LPATH]]
-  #define collada15dom_libs $[COLLADA15DOM_LIBS]
 #endif
 
 #if $[HAVE_ASSIMP]
@@ -492,6 +341,24 @@
   #define vorbis_ipath $[wildcard $[VORBIS_IPATH]]
   #define vorbis_lpath $[wildcard $[VORBIS_LPATH]]
   #define vorbis_libs $[VORBIS_LIBS]
+#endif
+
+#if $[HAVE_OPUS]
+  #define opus_ipath $[wildcard $[OPUS_IPATH]]
+  #define opus_lpath $[wildcard $[OPUS_LPATH]]
+  #define opus_libs $[OPUS_LIBS]
+#endif
+
+#if $[HAVE_HARFBUZZ]
+  #define harfbuzz_ipath $[wildcard $[HARFBUZZ_IPATH]]
+  #define harfbuzz_lpath $[wildcard $[HARFBUZZ_LPATH]]
+  #define harfbuzz_libs $[HARFBUZZ_LIBS]
+#endif
+
+#if $[HAVE_OPENEXR]
+  #define openexr_ipath $[wildcard $[OPENEXR_IPATH]]
+  #define openexr_lpath $[wildcard $[OPENEXR_LPATH]]
+  #define openexr_libs $[OPENEXR_LIBS]
 #endif
 
 // We define these two variables true here in the global scope; a
@@ -726,7 +593,7 @@
     #set alt_cflags $[alt_cflags] $[$[package]_cflags]
   #end package
 
-  $[alt_cflags]
+  $[unique $[alt_cflags]]
 #end get_cflags
 
 // This function returns the appropriate lflags for the target, based
@@ -740,7 +607,7 @@
     #set alt_lflags $[alt_lflags] $[$[package]_lflags]
   #end package
 
-  $[alt_lflags]
+  $[unique $[alt_lflags]]
 #end get_lflags
 
 // This function returns the appropriate include path for the target,
@@ -750,12 +617,11 @@
 #defun get_ipath
   // hack to add stl,python.  should be removed
   #define alt_ipath $[if $[IGNORE_LIB_DEFAULTS_HACK],,$[stl_ipath] $[python_ipath] $[tau_ipath] $[if $[HAVE_EIGEN],$[eigen_ipath]]]
-
   #foreach package $[use_packages]
     #set alt_ipath $[alt_ipath] $[$[package]_ipath]
   #end package
 
-  $[alt_ipath]
+  $[unique $[alt_ipath]]
 #end get_ipath
 
 // This function returns the appropriate library search path for the
@@ -773,7 +639,7 @@
     #set alt_lpath $[alt_lpath] $[$[package]_lpath]
   #end package
 
-  $[alt_lpath]
+  $[unique $[alt_lpath]]
 #end get_lpath
 
 // This function returns the appropriate framework search path for the
@@ -787,7 +653,7 @@
     #set alt_fpath $[alt_fpath] $[$[package]_fpath]
   #end package
 
-  $[alt_fpath]
+  $[unique $[alt_fpath]]
 #end get_fpath
 
 // This function returns the appropriate framework for the
@@ -805,7 +671,7 @@
     #set alt_frameworks $[alt_frameworks] $[$[package]_framework]
   #end package
 
-  $[alt_frameworks]
+  $[unique $[alt_frameworks]]
 #end get_frameworks
 
 // This function returns the appropriate set of library names to link
@@ -832,7 +698,7 @@
     #set alt_libs $[alt_libs] $[$[package]_libs]
   #end package
 
-  $[alt_libs]
+  $[unique $[alt_libs]]
 #end get_libs
 
 // This function returns the appropriate value for ld for the target.
