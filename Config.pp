@@ -937,7 +937,7 @@
 #defer HAVE_ROCKET_PYTHON $[and $[HAVE_ROCKET],$[HAVE_PYTHON]]
 
 // Bullet is a physics engine
-#define BULLET_IPATH $[DEFAULT_IPATH]
+#define BULLET_IPATH $[DEFAULT_IPATH]/bullet
 #define BULLET_LPATH $[DEFAULT_LPATH]
 #if $[WINDOWS_PLATFORM]
 #define BULLET_LIBS BulletSoftBody.lib BulletDynamics.lib BulletCollision.lib LinearMath.lib
@@ -959,7 +959,7 @@
 #defer HAVE_OPUS $[libtest $[OPUS_LPATH],$[OPUS_LIBS]]
 
 // Is HarfBuzz installed?
-#define HARFBUZZ_IPATH $[DEFAULT_IPATH]
+#define HARFBUZZ_IPATH $[DEFAULT_IPATH]/harfbuzz
 #define HARFBUZZ_LPATH $[DEFAULT_LPATH]
 #define HARFBUZZ_LIBS $[if $[WINDOWS_PLATFORM], harfbuzz.lib, harfbuzz]
 #defer HAVE_HARFBUZZ $[libtest $[HARFBUZZ_LPATH], $[HARFBUZZ_LIBS]]
