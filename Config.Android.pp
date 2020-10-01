@@ -56,7 +56,7 @@
 #defer AR $[TOOLCHAIN_PATH]/$[TOOLCHAIN_PREFIX]-ar
 #define C++FLAGS_GEN -fno-exceptions -fno-rtti
 
-#defer SYSROOT $[ANDROID_NDK_HOME]/platforms/$[ANDROID_PLATFORM]/arch-$[ANDROID_ARCH]
+#defer SYSROOT $[ANDROID_NDK_HOME]/platforms/$[ANDROID_NDK_PLATFORM]/arch-$[ANDROID_ARCH]
 #defer SYSROOT_FLAGS --sysroot=$[subst \,/,$[osfilename $[SYSROOT]]]
 
 #defer EXTRA_IPATH $[ANDROID_NDK_HOME]/sources/android/native_app_glue $[SYSROOT]/usr/include

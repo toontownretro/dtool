@@ -64,8 +64,9 @@
   #define INSTALL_HEADERS \
     config_dtoolutil.h \
     dSearchPath.I dSearchPath.h \
-    executionEnvironment.I executionEnvironment.h filename.I \
+    executionEnvironment.I executionEnvironment.h filename.I  \
     filename.h \
+    filename_assist.h \
     globPattern.I globPattern.h \
     lineStream.I lineStream.h \
     lineStreamBuf.I lineStreamBuf.h \
@@ -80,8 +81,13 @@
     stringDecoder.h stringDecoder.I \
     textEncoder.h textEncoder.I \
     unicodeLatinMap.h \
+    vector_double.h \
+    vector_float.h \
+    vector_int.h \
+    vector_stdfloat.h \
     vector_string.h \
-    vector_src.cxx vector_src.h \
+    vector_uchar.h \
+    vector_src.h \
     win32ArgParser.h
 
 #end lib_target

@@ -394,7 +394,7 @@
 #define ANDROID_NDK_HOME
 #define ANDROID_ABI armeabi
 #define ANDROID_STL gnustl_shared
-#define ANDROID_PLATFORM android-9
+#define ANDROID_NDK_PLATFORM android-9
 #define ANDROID_ARCH arm
 #defer ANDROID_TOOLCHAIN $[if $[eq $[ANDROID_ARCH],arm],arm-linux-androideabi]
 

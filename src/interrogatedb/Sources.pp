@@ -16,7 +16,8 @@
     interrogateManifest.I interrogateManifest.h \
     interrogateType.I interrogateType.h  \
     interrogate_datafile.I interrogate_datafile.h  \
-    interrogate_interface.h interrogate_request.h
+    interrogate_interface.h interrogate_request.h  \
+    extension.h
 
  #define COMPOSITE_SOURCES  \
     config_interrogatedb.cxx \
@@ -34,7 +35,8 @@
     config_interrogatedb.h \
     py_panda.h \
     py_panda.I py_compat.h \
-    py_wrappers.h
+    py_wrappers.h \
+    extension.h
 
 #end lib_target
 

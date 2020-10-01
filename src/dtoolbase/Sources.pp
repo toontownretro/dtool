@@ -17,12 +17,10 @@
     atomicAdjustPosixImpl.h atomicAdjustPosixImpl.I \
     atomicAdjustWin32Impl.h atomicAdjustWin32Impl.I \
     cmath.I cmath.h \
-    dcast.h dcast.T \
     deletedBufferChain.h deletedBufferChain.I \
     deletedChain.h deletedChain.T \
     dtoolbase.h dtoolbase_cc.h dtoolsymbols.h \
     dtool_platform.h \
-    extension.h \
     fakestringstream.h \
     indent.I indent.h indent.cxx \
     memoryBase.h \
@@ -56,7 +54,6 @@
     atomicAdjustI386Impl.cxx \
     atomicAdjustPosixImpl.cxx \
     atomicAdjustWin32Impl.cxx \
-    dcast.cxx \
     deletedBufferChain.cxx \
     dtoolbase.cxx \
     memoryBase.cxx \
@@ -84,12 +81,10 @@
     atomicAdjustPosixImpl.h atomicAdjustPosixImpl.I \
     atomicAdjustWin32Impl.h atomicAdjustWin32Impl.I \
     cmath.I cmath.h \
-    dcast.h dcast.T \
     deletedBufferChain.h deletedBufferChain.I \
     deletedChain.h deletedChain.T \
     dtoolbase.h dtoolbase_cc.h dtoolsymbols.h \
     dtool_platform.h \
-    extension.h \
     fakestringstream.h \
     indent.I indent.h \
     memoryBase.h \

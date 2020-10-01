@@ -185,7 +185,6 @@
   // Sources.pp.
   #define DEPEND_DIRS \
     $[sort $[EXTRA_DEPENDS] $[all_libs $[DIRNAME],$[get_depend_libs]]]
-  #print $[DIRNAME] depends on $[DEPEND_DIRS]
   #set DEPENDABLE_HEADERS $[sort $[DEPENDABLE_HEADERS] $[EXTRA_DEPENDABLE_HEADERS]]
 #endif
 

@@ -339,8 +339,6 @@ igate : $[get_igatedb(python_module_target lib_target ss_lib_target)]
 // we define BUILDING_DLL directly for the target.
 #define building_var $[or $[BUILDING_DLL],$[module $[BUILDING_DLL],$[TARGET]]]
 
-#print $[building_var]
-
 // $[igatescan] is the set of C++ headers and source files that we
 // need to scan for interrogate.  $[igateoutput] is the name of the
 // generated .cxx file that interrogate will produce (and which we

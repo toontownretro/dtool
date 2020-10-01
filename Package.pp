@@ -78,6 +78,8 @@
 // True if we are building on some flavor of Unix.
 #define UNIX_PLATFORM $[and $[not $[WINDOWS_PLATFORM]],$[not $[OSX_PLATFORM]]]
 
+// True if we are building on Android.
+#define ANDROID_PLATFORM $[eq $[PLATFORM], Android]
 
 
 // Pull in the package-level Config file.  This contains a lot of
