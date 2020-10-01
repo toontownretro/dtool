@@ -521,7 +521,8 @@
 // target.
 
 #defer get_sources \
-  $[SOURCES]
+  $[SOURCES] \
+  $[COMPOSITE_SOURCES]
 
 #defer composite_sources $[COMPOSITE_SOURCES]
 

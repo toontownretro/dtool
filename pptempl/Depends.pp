@@ -123,7 +123,7 @@
       #print Warning: Lib(s) $[nonexisting], referenced in $[DIRNAME]/$[TARGET], not found.
     #endif
 
-    #set DEPENDABLE_HEADERS $[DEPENDABLE_HEADERS] $[filter %.h %.I %.T %_src.cxx,$[get_sources]] $[composite_sources]
+    #set DEPENDABLE_HEADERS $[DEPENDABLE_HEADERS] $[filter %.h %.I %.T %_src.cxx,$[get_sources]]
 
     // Now compute the source files.
     #define c_sources $[filter-out %_src.c,$[filter %.c,$[get_sources]]]
@@ -149,6 +149,11 @@
       #push 2 $[composite_file]_sources
       #push 2 $[composite_file]_obj
       #set cxx_sources $[cxx_sources] $[composite_file]
+      #set get_sources $[get_sources] $[composite_file]
+
+      // Now remove the composited source files from the list
+      #set cxx_sources $[filter-out $[composite_sources], $[cxx_sources]]
+      #set get_sources $[filter-out $[composite_sources], $[get_sources]]
     #endif
 
     // Add the bison- and flex-generated .cxx files, as well as the
@@ -161,6 +166,7 @@
       #define $[generated_file]_sources $[source_file]
       #push 1 $[generated_file]_obj
       #set cxx_sources $[cxx_sources] $[generated_file]
+      #set get_sources $[get_sources] $[generated_file]
     #end source_file
 
     // If this is a Python module, then it should have a list of
@@ -175,6 +181,7 @@
         #define $[generated_file]_obj $[patsubst %.cxx,$[ODIR]/%$[OBJ], $[notdir $[generated_file]]]
         #push 2 $[generated_file]_obj
         #set cxx_sources $[cxx_sources] $[generated_file]
+        #set get_sources $[get_sources] $[generated_file]
       #end igate_code
     #endif
 
