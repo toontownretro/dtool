@@ -107,7 +107,7 @@
 #defer lpath $[sort $[complete_lpath]] $[other_trees_lib] $[install_lib_dir] $[get_lpath]
 
 // And $[libs] is the set of libraries we will link with.
-#defer nonunique_libs $[nonunique_complete_local_libs:%=%$[dllext]] $[patsubst %:m,,%:c %,%$[dllext],$[OTHER_LIBS]] $[get_libs]
+#defer nonunique_libs $[nonunique_complete_local_libs:%=%$[dllext]] $[get_libs]
 
 // Don't use $[unique] here, since some libraries actually do need to be
 // named multiple times (when linking static).

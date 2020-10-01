@@ -461,7 +461,12 @@
   $[all_libs $[if $[and $[build_directory],$[build_target],$[not $[is_interface]]],$[TARGET]],$[COMPONENT_LIBS]]
 #defer active_igate_libs \
   $[all_libs $[if $[and $[build_directory],$[build_target],$[not $[is_interface]]],$[TARGET]],$[IGATE_LIBS]]
-#defer active_libs $[active_local_libs] $[active_component_libs] $[active_igate_libs]
+#defer active_other_libs \
+  $[if $[BUILD_COMPONENTS], \
+    $[patsubst %:m,,%:c,%,$[OTHER_LIBS]], \
+    $[patsubst %:c,,%:m,%,$[OTHER_LIBS]]]
+
+#defer active_libs $[active_local_libs] $[active_component_libs] $[active_igate_libs] $[active_other_libs]
 
 // We define $[complete_local_libs] as the full set of libraries (from
 // within this tree) that we must link a particular target with.  It

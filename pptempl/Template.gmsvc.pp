@@ -144,7 +144,7 @@
 #defer lpath $[sort $[complete_lpath]] $[other_trees_lib] $[get_lpath]
 
 // $[libs] is the set of libraries we will link with.
-#defer libs $[unique $[actual_local_libs:%=%$[dllext]] $[patsubst %:c,,%:m %,%$[dllext],$[OTHER_LIBS]] $[get_libs]]
+#defer libs $[unique $[actual_local_libs:%=%$[dllext]] $[get_libs]]
 
 // This is the set of files we might copy into *.prebuilt, if we have
 // bison and flex (or copy from *.prebuilt if we don't have them).

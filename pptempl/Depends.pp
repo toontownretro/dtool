@@ -172,7 +172,7 @@
       #define py_module_sources $[get_igatemout] $[get_igatemcode]
       #foreach igate_code $[py_module_sources]
         #define generated_file $[igate_code]
-        #define $[generated_file]_obj $[generated_file:%=%$[OBJ]]
+        #define $[generated_file]_obj $[patsubst %.cxx,%$[OBJ], $[generated_file]]
         #push 2 $[generated_file]_obj
         #set cxx_sources $[cxx_sources] $[generated_file]
       #end igate_code

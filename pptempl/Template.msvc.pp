@@ -173,7 +173,7 @@
 #defer converted_lpath $[join ;,$[osfilename $[lpath]]]
 
 // And $[libs] is the set of libraries we will link with.
-#defer libs $[unique $[actual_local_libs:%=%$[dllext]] $[patsubst %:c,,%:m %,%$[dllext],$[OTHER_LIBS]] $[get_libs]]
+#defer libs $[unique $[actual_local_libs:%=%$[dllext]] $[get_libs]]
 
 #defer converted_libs $[patsubst %.lib,%.lib,%,lib%.lib,$[libs]]
 

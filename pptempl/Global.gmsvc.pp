@@ -26,7 +26,7 @@
       #endif
     #endif
   #end lib
-  #set actual_libs $[unique $[actual_libs]] $[patsubst %:m,%,$[filter %:m,$[OTHER_LIBS]]]
+  #set actual_libs $[unique $[actual_libs]]
   $[actual_libs]
 #end get_metalibs
 
