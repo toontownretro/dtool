@@ -521,17 +521,15 @@
 // target.
 
 #defer get_sources \
-  $[SOURCES] \
-  $[COMPOSITE_SOURCES]
+  $[SOURCES]
 
 #defer composite_sources $[COMPOSITE_SOURCES]
 
 // This variable returns whether or not a composite source file should be
 // created for a particular target.
 #defer should_composite_sources \
-  $[and $[not $[DONT_COMPOSITE]], \
-    $[and $[> $[words $[composite_sources]], 1], \
-      $[or $[USE_SINGLE_COMPOSITE_SOURCEFILE],$[USE_TAU]]]]
+  $[and $[not $[DONT_COMPOSITE]], $[> $[words $[composite_sources]], 1], \
+      $[or $[USE_SINGLE_COMPOSITE_SOURCEFILE],$[USE_TAU]]]
 
 // This variable returns the set of sources that are to be
 // interrogated for the current target.  The target will only

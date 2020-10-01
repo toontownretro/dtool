@@ -1006,6 +1006,11 @@
 // 100% supported yet.
 #define BUILD_COMPONENTS $[not $[WINDOWS_PLATFORM]]
 
+// Define this variable to generate a composite source file for each
+// library, and compile that instead of the individual source files.
+// This increases build speed, but uses more memory.
+#define USE_SINGLE_COMPOSITE_SOURCEFILE 1
+
 // Define this to export the templates from the DLL.  This is only
 // meaningful if LINK_ALL_STATIC is not defined, and we are building
 // on Windows.  Some Windows compilers may not support this syntax.

@@ -146,9 +146,9 @@
       #set composite_list $[composite_list] $[composite_file]
       #define $[composite_file]_sources $[composite_sources]
       #define $[composite_file]_obj $[ODIR]/$[get_output_name]_composite$[OBJ]
-      #push 1 $[composite_file]_sources
-      #push 1 $[composite_file]_obj
-      #set cxx_sources $[composite_file]
+      #push 2 $[composite_file]_sources
+      #push 2 $[composite_file]_obj
+      #set cxx_sources $[cxx_sources] $[composite_file]
     #endif
 
     // Add the bison- and flex-generated .cxx files, as well as the
