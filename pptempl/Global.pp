@@ -662,9 +662,10 @@
       $[or $[USE_SINGLE_COMPOSITE_SOURCEFILE],$[USE_TAU]]]]
 
 // This variable returns the set of sources that are to be
-// interrogated for the current target.
+// interrogated for the current target.  The target will only
+// be interrogated if it is part of a module.
 #defer get_igatescan \
-  $[if $[and $[run_interrogate],$[IGATESCAN]], \
+  $[if $[and $[run_interrogate],$[IGATESCAN],$[python_module $[TARGET],$[TARGET]]], \
      $[if $[eq $[IGATESCAN], all], \
       $[filter-out %.I %.T %.lxx %.yxx %.N %_src.cxx %_src.h %_src.c,$[get_sources]], \
       $[IGATESCAN]]]
@@ -681,14 +682,14 @@
 // that will be generated for a particular target, or empty string if
 // the target is not to be interrogated.
 #defer get_igatedb \
-  $[if $[and $[run_interrogate],$[IGATESCAN]], \
+  $[if $[and $[run_interrogate],$[get_igatescan]], \
     $[ODIR]/$[get_output_name]$[dllext].in]
 
 // This variable returns the name of the interrogate code file
 // that will be generated for a particular target, or empty string if
 // the target is not to be interrogated.
 #defer get_igateoutput \
-  $[if $[and $[run_interrogate],$[IGATESCAN]], \
+  $[if $[and $[run_interrogate],$[get_igatescan]], \
     $[ODIR]/$[get_output_name]_igate.cxx]
 
 // This variable returns the complete set of code files that are to
