@@ -72,6 +72,8 @@ PUBLISHED:
 
   EXTENSION(PyObject *readline());
   EXTENSION(PyObject *readlines());
+  EXTENSION(PyObject *readline_str());
+  EXTENSION(PyObject *readlines_str());
 
 public:
   BLOCKING vector_uchar extract_bytes(size_t size);
