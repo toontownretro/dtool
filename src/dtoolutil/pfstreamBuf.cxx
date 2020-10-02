@@ -84,7 +84,7 @@ int PipeStreamBuf::sync(void) {
     if (n != 0) {
       gbump(n);  // flush all our stored input away
 #ifndef NDEBUG
-      cerr << "pfstream tossed out " << n << " bytes" << endl;
+      cerr << "pfstream tossed out " << n << " bytes" << std::endl;
 #endif
     }
   }
@@ -154,7 +154,7 @@ void PipeStreamBuf::write_chars(const char* start, int length, bool flush) {
 #ifndef NDEBUG
   if (wrote != line.length())
     cerr << "wrote only " << wrote << " of " << line.length()
-         << " bytes to pipe" << endl;
+         << " bytes to pipe" << std::endl;
 #endif
 }
 
