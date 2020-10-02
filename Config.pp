@@ -1006,6 +1006,13 @@
 // 100% supported yet.
 #define BUILD_COMPONENTS $[not $[WINDOWS_PLATFORM]]
 
+// We need this linker flag when building component libraries and stub
+// metalibraries on Unix, so that the static initialization functions
+// are called in the metalibraries when imported via a Python module.
+// I don't know if this is the best place for this, but seems to work.
+#define NO_LINK_WHAT_YOU_USE -Wl,--no-as-needed
+#defer LFLAGS $[if $[and $[not $[WINDOWS_PLATFORM]], $[BUILD_COMPONENTS]], $[NO_LINK_WHAT_YOU_USE]]
+
 // Define this variable to generate a composite source file for each
 // library, and compile that instead of the individual source files.
 // This increases build speed, but uses more memory.
