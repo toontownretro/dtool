@@ -39,9 +39,3 @@
     extension.h
 
 #end lib_target
-
-#begin python_target
-  #define TARGET panda3d.interrogatedb
-  #define LOCAL_LIBS p3interrogatedb
-  #define SOURCES pydtool.cxx
-#end python_target
