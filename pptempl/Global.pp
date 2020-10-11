@@ -293,11 +293,11 @@
   #define rad_mss_libs $[RAD_MSS_LIBS]
 #endif
 
-#if $[HAVE_FMODEX]
-  #define fmodex_ipath $[wildcard $[FMODEX_IPATH]]
-  #define fmodex_lpath $[wildcard $[FMODEX_LPATH]]
-  #define fmodex_cflags $[FMODEX_CFLAGS]
-  #define fmodex_libs $[FMODEX_LIBS]
+#if $[HAVE_FMOD]
+  #define fmod_ipath $[wildcard $[FMOD_IPATH]]
+  #define fmod_lpath $[wildcard $[FMOD_LPATH]]
+  #define fmod_cflags $[FMOD_CFLAGS]
+  #define fmod_libs $[FMOD_LIBS]
 #endif
 
 #if $[HAVE_OPENAL]
@@ -359,6 +359,13 @@
   #define openexr_ipath $[wildcard $[OPENEXR_IPATH]]
   #define openexr_lpath $[wildcard $[OPENEXR_LPATH]]
   #define openexr_libs $[OPENEXR_LIBS]
+#endif
+
+#if $[HAVE_VALVE_STEAMNET]
+  #define valve_steamnet_ipath $[wildcard $[VALVE_STEAMNET_IPATH]]
+  #define valve_steamnet_lpath $[wildcard $[VALVE_STEAMNET_LPATH]]
+  #define valve_steamnet_cflags $[VALVE_STEAMNET_CFLAGS]
+  #define valve_steamnet_libs $[VALVE_STEAMNET_LIBS]
 #endif
 
 // We define these two variables true here in the global scope; a

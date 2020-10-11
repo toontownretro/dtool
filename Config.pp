@@ -836,11 +836,11 @@
 #define RAD_MSS_LIBS Mss32
 #defer HAVE_RAD_MSS $[libtest $[RAD_MSS_LPATH],$[RAD_MSS_LIBS]]
 
-// Info for the Fmod audio engine
-#define FMODEX_IPATH $[DEFAULT_IPATH]
-#define FMODEX_LPATH $[DEFAULT_LPATH]
-#define FMODEX_LIBS $[if $[libtest $[FMODEX_LPATH],fmodex64],fmodex64,fmodex]
-#defer HAVE_FMODEX $[libtest $[FMODEX_LPATH],$[FMODEX_LIBS]]
+// Info for the FMOD audio engine
+#define FMOD_IPATH $[DEFAULT_IPATH]
+#define FMOD_LPATH $[DEFAULT_LPATH]
+#define FMOD_LIBS fmod
+#defer HAVE_FMOD $[libtest $[FMOD_LPATH],$[FMOD_LIBS]]
 
 // Info for the OpenAL audio engine
 #define OPENAL_IPATH $[DEFAULT_IPATH]
@@ -973,6 +973,13 @@
 #define OPENEXR_LIBS IlmImf Imath Half Iex IlmThread
 #endif
 #defer HAVE_OPENEXR $[libtest $[OPENEXR_LPATH],$[OPENEXR_LIBS]]
+
+// Is Valve's Game/SteamNetworkingSockets installed?
+#define VALVE_STEAMNET_IPATH $[DEFAULT_IPATH]
+#define VALVE_STEAMNET_LPATH $[DEFAULT_LPATH]
+#define VALVE_STEAMNET_LIBS $[if $[WINDOWS_PLATFORM], GameNetworkingSockets.lib, GameNetworkingSockets]
+#defer VALVE_STEAMNET_CFLAGS $[if $[or $[UNIX_PLATFORM],$[OSX_PLATFORM]], -DPOSIX]
+#defer HAVE_VALVE_STEAMNET $[libtest $[VALVE_STEAMNET_LPATH], $[VALVE_STEAMNET_LIBS]]
 
 // Define this to explicitly indicate the given platform string within
 // the resulting Panda runtime.  Normally it is best to leave this

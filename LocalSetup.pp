@@ -81,10 +81,10 @@
 #else
 #print - Did not find Miles Sound System
 #endif
-#if $[HAVE_FMODEX]
-#print + FMOD Ex sound library
+#if $[HAVE_FMOD]
+#print + FMOD sound library
 #else
-#print - Did not find FMOD Ex sound library
+#print - Did not find FMOD sound library
 #endif
 #if $[HAVE_OPENAL]
 #print + OpenAL sound library
@@ -199,6 +199,11 @@
 #print + OpenEXR
 #else
 #print - Did not find OpenEXR
+#endif
+#if $[HAVE_VALVE_STEAMNET]
+#print + SteamNetworkingSockets
+#else
+#print - Did not find SteamNetworkingSockets
 #endif
 
 #print

@@ -247,10 +247,10 @@
 #set RAD_MSS_LIBS $[RAD_MSS_LIBS]
 #set HAVE_RAD_MSS $[HAVE_RAD_MSS]
 
-#set FMODEX_IPATH $[unixfilename $[FMODEX_IPATH]]
-#set FMODEX_LPATH $[unixfilename $[FMODEX_LPATH]]
-#set FMODEX_LIBS $[FMODEX_LIBS]
-#set HAVE_FMODEX $[HAVE_FMODEX]
+#set FMOD_IPATH $[unixfilename $[FMOD_IPATH]]
+#set FMOD_LPATH $[unixfilename $[FMOD_LPATH]]
+#set FMOD_LIBS $[FMOD_LIBS]
+#set HAVE_FMOD $[HAVE_FMOD]
 
 #set OPENAL_IPATH $[unixfilename $[OPENAL_IPATH]]
 #set OPENAL_LPATH $[unixfilename $[OPENAL_LPATH]]
@@ -315,6 +315,11 @@
 #set OPENEXR_LPATH $[unixfilename $[OPENEXR_LPATH]]
 #set OPENEXR_LIBS $[OPENEXR_LIBS]
 #set HAVE_OPENEXR $[HAVE_OPENEXR]
+
+#set VALVE_STEAMNET_IPATH $[unixfilename $[VALVE_STEAMNET_IPATH]]
+#set VALVE_STEAMNET_LPATH $[unixfilename $[VALVE_STEAMNET_LPATH]]
+#set VALVE_STEAMNET_LIBS $[VALVE_STEAMNET_LIBS]
+#set HAVE_VALVE_STEAMNET $[HAVE_VALVE_STEAMNET]
 
 // Now infer a few more variables based on what was defined.
 #if $[and $[HAVE_GTK],$[PKG_CONFIG]]
