@@ -25,7 +25,7 @@
 
 #define CC gcc
 #define CXX g++
-#define C++FLAGS_GEN -ftemplate-depth=30
+#define C++FLAGS_GEN -ftemplate-depth-70 -std=gnu++11
 
 // Configure for universal binaries on OSX.
 #defer ARCH_FLAGS $[if $[UNIVERSAL_BINARIES],-arch i386 -arch ppc -arch x86_64,]
@@ -54,7 +54,7 @@
 // What flags should be passed to both C and C++ compilers to enable
 // compiler optimizations?  This will be supplied when OPTIMIZE
 // (above) is set to 2, 3, or 4.
-#defer OPTFLAGS -O2
+#defer OPTFLAGS -O3
 
 // By convention, any source file that contains the string _no_opt_ in
 // its filename won't have the above compiler optimizations run for it.

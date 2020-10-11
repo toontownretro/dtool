@@ -31,7 +31,7 @@
 
   // gcc might run into template limits on some parts of Panda.
   // I upped this from 25 to build on OS X (GCC 3.3) -- skyler.
-  #define C++FLAGS_GEN -ftemplate-depth=256
+  #define C++FLAGS_GEN -ftemplate-depth-70 -std=gnu++11
 #else
   #define CC cc
   #define CXX CC
@@ -57,7 +57,7 @@
 // What flags should be passed to both C and C++ compilers to enable
 // compiler optimizations?  This will be supplied when OPTIMIZE
 // (above) is set to 2, 3, or 4.
-#defer OPTFLAGS -O2
+#defer OPTFLAGS -O3
 
 // By convention, any source file that contains the string _no_opt_ in
 // its filename won't have the above compiler optimizations run for it.
