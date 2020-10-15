@@ -1,10 +1,10 @@
 #define BUILD_DIRECTORY $[HAVE_INTERROGATE]
 
-#define LOCAL_LIBS p3dtoolutil p3dtoolbase
+#define LOCAL_LIBS dtoolutil dtoolbase
 #define YACC_PREFIX cppyy
 
 #begin static_lib_target
-  #define TARGET p3cppParser
+  #define TARGET cppParser
 
   #define SOURCES \
      cppArrayType.h cppBison.yxx cppBisonDefs.h  \

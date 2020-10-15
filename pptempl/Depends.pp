@@ -62,7 +62,7 @@
 
   #forscopes python_module_target
     #define BUILD_TARGET $[and $[HAVE_INTERROGATE], $[INTERROGATE_PYTHON_INTERFACE]]
-    #define OTHER_LIBS $[OTHER_LIBS] p3interrogatedb
+    #define OTHER_LIBS $[OTHER_LIBS] interrogatedb
   #end python_module_target
 
   #forscopes python_target

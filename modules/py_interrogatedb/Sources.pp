@@ -4,6 +4,6 @@
 // a python module.  Thus, we use python_target instead of python_module_target.
 #begin python_target
   #define TARGET panda3d.interrogatedb
-  #define LOCAL_LIBS p3interrogatedb
+  #define LOCAL_LIBS interrogatedb
   #define SOURCES pydtool.cxx
 #end python_target

@@ -1,6 +1,6 @@
 #define BUILD_DIRECTORY $[HAVE_INTERROGATE]
 
-#define LOCAL_LIBS p3cppParser p3interrogatedb
+#define LOCAL_LIBS cppParser interrogatedb
 #define USE_PACKAGES openssl
 
 #begin bin_target

@@ -2,7 +2,7 @@
 #define USE_PACKAGES threads eigen
 
 #begin lib_target
-  #define TARGET p3dtoolbase
+  #define TARGET dtoolbase
 
   #define BUILDING_DLL BUILDING_DTOOL_DTOOLBASE
 

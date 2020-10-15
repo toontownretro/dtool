@@ -1,8 +1,8 @@
-#define LOCAL_LIBS p3dtoolutil p3dtoolbase
+#define LOCAL_LIBS dtoolutil dtoolbase
 #define USE_PACKAGES openssl
 
 #begin lib_target
-  #define TARGET p3prc
+  #define TARGET prc
 
   #define BUILDING_DLL BUILDING_DTOOL_PRC
 

@@ -1,7 +1,7 @@
 #begin lib_target
-  #define TARGET p3interrogatedb
+  #define TARGET interrogatedb
 
-  #define LOCAL_LIBS p3dconfig p3prc p3dtoolbase p3dtoolutil
+  #define LOCAL_LIBS dconfig prc dtoolbase dtoolutil
 
   #define BUILDING_DLL BUILDING_INTERROGATEDB
 

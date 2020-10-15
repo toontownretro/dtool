@@ -1,4 +1,4 @@
-#define LOCAL_LIBS p3dtoolutil p3dtoolbase p3prc p3dconfig p3interrogatedb
+#define LOCAL_LIBS dtoolutil dtoolbase prc dconfig interrogatedb
 
 #begin bin_target
   #define BUILD_TARGET $[HAVE_OPENSSL]

@@ -1,6 +1,6 @@
 #begin lib_target
-  #define TARGET p3dtoolutil
-  #define LOCAL_LIBS p3dtoolbase
+  #define TARGET dtoolutil
+  #define LOCAL_LIBS dtoolbase
   #if $[ne $[PLATFORM], FreeBSD]
     #define UNIX_SYS_LIBS dl
   #endif
@@ -87,21 +87,21 @@
     vector_stdfloat.h \
     vector_string.h \
     vector_uchar.h \
-    vector_src.h \
+    vector_src.cxx vector_src.h \
     win32ArgParser.h
 
 #end lib_target
 
 #begin test_bin_target
   #define TARGET test_pfstream
-  #define LOCAL_LIBS p3dtoolbase p3dtoolutil
+  #define LOCAL_LIBS dtoolbase dtoolutil
 
   #define SOURCES test_pfstream.cxx
 #end test_bin_target
 
 #begin test_bin_target
   #define TARGET test_touch
-  #define LOCAL_LIBS p3dtoolbase p3dtoolutil
+  #define LOCAL_LIBS dtoolbase dtoolutil
 
   #define SOURCES test_touch.cxx
 #end test_bin_target
