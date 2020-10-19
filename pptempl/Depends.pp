@@ -123,7 +123,7 @@
       #print Warning: Lib(s) $[nonexisting], referenced in $[DIRNAME]/$[TARGET], not found.
     #endif
 
-    #set DEPENDABLE_HEADERS $[DEPENDABLE_HEADERS] $[filter %.h %.I %.T %_src.cxx,$[get_sources]]
+    #set DEPENDABLE_HEADERS $[DEPENDABLE_HEADERS] $[filter %.hpp %.h %.I %.T %_src.cxx,$[get_sources]]
 
     // Now compute the source files.
     #define c_sources $[filter-out %_src.c,$[filter %.c,$[get_sources]]]

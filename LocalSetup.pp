@@ -205,6 +205,21 @@
 #else
 #print - Did not find SteamNetworkingSockets
 #endif
+#if $[HAVE_GLSLANG]
+#print + GLslang
+#else
+#print - Did not find GLslang
+#endif
+#if $[HAVE_SPIRV_TOOLS]
+#print + SPIR-V Tools
+#else
+#print - Did not find SPIR-V Tools
+#endif
+#if $[HAVE_SPIRV_CROSS]
+#print + SPIR-V Cross
+#else
+#print - Did not find SPIR-V Cross
+#endif
 
 #print
 #if $[and $[HAVE_INTERROGATE],$[HAVE_PYTHON]]

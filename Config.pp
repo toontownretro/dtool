@@ -981,6 +981,30 @@
 #defer VALVE_STEAMNET_CFLAGS $[if $[or $[UNIX_PLATFORM],$[OSX_PLATFORM]], -DPOSIX]
 #defer HAVE_VALVE_STEAMNET $[libtest $[VALVE_STEAMNET_LPATH], $[VALVE_STEAMNET_LIBS]]
 
+// Is GLslang installed, and where?
+#define GLSLANG_IPATH $[DEFAULT_IPATH]
+#define GLSLANG_LPATH $[DEFAULT_LPATH]
+#define GLSLANG_LIBS \
+  $[if $[WINDOWS_PLATFORM], \
+    glslang.lib HLSL.lib OGLCompiler.lib OSDependent.lib SPIRV.lib, \
+    glslang HLSL OGLCompiler OSDependent SPIRV]
+#defer HAVE_GLSLANG $[libtest $[GLSLANG_LPATH], $[GLSLANG_LIBS]]
+
+// Is spirv-tools installed, and where?
+#define SPIRV_TOOLS_IPATH $[DEFAULT_IPATH]
+#define SPIRV_TOOLS_LPATH $[DEFAULT_LPATH]
+#define SPIRV_TOOLS_LIBS \
+  $[if $[WINDOWS_PLATFORM], \
+    SPIRV-Tools.lib SPIRV-Tools-opt.lib, \
+    SPIRV-Tools SPIRV-Tools-opt]
+#defer HAVE_SPIRV_TOOLS $[libtest $[SPIRV_TOOLS_LPATH], $[SPIRV_TOOLS_LIBS]]
+
+// Is spirv-cross installed, and where?
+#define SPIRV_CROSS_IPATH $[DEFAULT_IPATH]
+#define SPIRV_CROSS_LPATH $[DEFAULT_LPATH]
+#define SPIRV_CROSS_LIBS $[if $[WINDOWS_PLATFORM], spirv-cross-core.lib spirv-cross-glsl.lib, spirv-cross-core spirv-cross-glsl]
+#defer HAVE_SPIRV_CROSS $[libtest $[SPIRV_CROSS_LPATH], $[SPIRV_CROSS_LIBS]]
+
 // Define this to explicitly indicate the given platform string within
 // the resulting Panda runtime.  Normally it is best to leave this
 // undefined, in which case Panda will determine the best value

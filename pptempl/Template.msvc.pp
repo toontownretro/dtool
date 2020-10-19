@@ -99,7 +99,7 @@
   // These are the source files that our dependency cache file will
   // depend on.  If it's an empty list, we won't bother writing rules to
   // freshen the cache file.
-  #define dep_sources $[sort $[filter %.c %.cxx %.yxx %.lxx %.h %.I %.I,$[so_sources] $[st_sources]]]
+  #define dep_sources $[sort $[filter %.c %.cxx %.yxx %.lxx %.h %.hpp %.I %.I,$[so_sources] $[st_sources]]]
 
   #if $[eq $[so_dir],$[st_dir]]
     // If the static and shared directories are the same, we have to use the

@@ -368,6 +368,24 @@
   #define valve_steamnet_libs $[VALVE_STEAMNET_LIBS]
 #endif
 
+#if $[HAVE_GLSLANG]
+  #define glslang_ipath $[wildcard $[GLSLANG_IPATH]]
+  #define glslang_lpath $[wildcard $[GLSLANG_LPATH]]
+  #define glslang_libs $[GLSLANG_LIBS]
+#endif
+
+#if $[HAVE_SPIRV_TOOLS]
+  #define spirv_tools_ipath $[wildcard $[SPIRV_TOOLS_IPATH]]
+  #define spirv_tools_lpath $[wildcard $[SPIRV_TOOLS_LPATH]]
+  #define spirv_tools_libs $[SPIRV_TOOLS_LIBS]
+#endif
+
+#if $[HAVE_SPIRV_CROSS]
+  #define spirv_cross_ipath $[wildcard $[SPIRV_CROSS_IPATH]]
+  #define spirv_cross_lpath $[wildcard $[SPIRV_CROSS_LPATH]]
+  #define spirv_cross_libs $[SPIRV_CROSS_LIBS]
+#endif
+
 // We define these two variables true here in the global scope; a
 // particular Sources.pp file can redefine these to be false to
 // prevent a particular directory or target from being built in

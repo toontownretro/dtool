@@ -321,6 +321,21 @@
 #set VALVE_STEAMNET_LIBS $[VALVE_STEAMNET_LIBS]
 #set HAVE_VALVE_STEAMNET $[HAVE_VALVE_STEAMNET]
 
+#set GLSLANG_IPATH $[unixfilename $[GLSLANG_IPATH]]
+#set GLSLANG_LPATH $[unixfilename $[GLSLANG_LPATH]]
+#set GLSLANG_LIBS $[GLSLANG_LIBS]
+#set HAVE_GLSLANG $[HAVE_GLSLANG]
+
+#set SPIRV_TOOLS_IPATH $[unixfilename $[SPIRV_TOOLS_IPATH]]
+#set SPIRV_TOOLS_LPATH $[unixfilename $[SPIRV_TOOLS_LPATH]]
+#set SPIRV_TOOLS_LIBS $[SPIRV_TOOLS_LIBS]
+#set HAVE_SPIRV_TOOLS $[HAVE_SPIRV_TOOLS]
+
+#set SPIRV_CROSS_IPATH $[unixfilename $[SPIRV_CROSS_IPATH]]
+#set SPIRV_CROSS_LPATH $[unixfilename $[SPIRV_CROSS_LPATH]]
+#set SPIRV_CROSS_LIBS $[SPIRV_CROSS_LIBS]
+#set HAVE_SPIRV_CROSS $[HAVE_SPIRV_CROSS]
+
 // Now infer a few more variables based on what was defined.
 #if $[and $[HAVE_GTK],$[PKG_CONFIG]]
   #define cflags $[shell $[PKG_CONFIG] gtk+-2.0 --cflags]
