@@ -220,6 +220,11 @@
 #else
 #print - Did not find SPIR-V Cross
 #endif
+#if $[HAVE_EMBREE]
+#print + Intel Embree
+#else
+#print - Did not find Intel Embree
+#endif
 
 #print
 #if $[and $[HAVE_INTERROGATE],$[HAVE_PYTHON]]

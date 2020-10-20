@@ -1005,6 +1005,12 @@
 #define SPIRV_CROSS_LIBS $[if $[WINDOWS_PLATFORM], spirv-cross-core.lib spirv-cross-glsl.lib, spirv-cross-core spirv-cross-glsl]
 #defer HAVE_SPIRV_CROSS $[libtest $[SPIRV_CROSS_LPATH], $[SPIRV_CROSS_LIBS]]
 
+// Is Intel Embree installed, and where?
+#define EMBREE_IPATH $[DEFAULT_IPATH]
+#define EMBREE_LPATH $[DEFAULT_LPATH]
+#define EMBREE_LIBS $[if $[WINDOWS_PLATFORM], embree3.lib tbb.lib, embree3 tbb]
+#defer HAVE_EMBREE $[libtest $[EMBREE_LPATH], $[EMBREE_LIBS]]
+
 // Define this to explicitly indicate the given platform string within
 // the resulting Panda runtime.  Normally it is best to leave this
 // undefined, in which case Panda will determine the best value

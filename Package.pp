@@ -336,6 +336,11 @@
 #set SPIRV_CROSS_LIBS $[SPIRV_CROSS_LIBS]
 #set HAVE_SPIRV_CROSS $[HAVE_SPIRV_CROSS]
 
+#set EMBREE_IPATH $[unixfilename $[EMBREE_IPATH]]
+#set EMBREE_LPATH $[unixfilename $[EMBREE_LPATH]]
+#set EMBREE_LIBS $[EMBREE_LIBS]
+#set HAVE_EMBREE $[HAVE_EMBREE]
+
 // Now infer a few more variables based on what was defined.
 #if $[and $[HAVE_GTK],$[PKG_CONFIG]]
   #define cflags $[shell $[PKG_CONFIG] gtk+-2.0 --cflags]

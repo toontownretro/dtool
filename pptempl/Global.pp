@@ -386,6 +386,12 @@
   #define spirv_cross_libs $[SPIRV_CROSS_LIBS]
 #endif
 
+#if $[HAVE_EMBREE]
+  #define embree_ipath $[wildcard $[EMBREE_IPATH]]
+  #define embree_lpath $[wildcard $[EMBREE_LPATH]]
+  #define embree_libs $[EMBREE_LIBS]
+#endif
+
 // We define these two variables true here in the global scope; a
 // particular Sources.pp file can redefine these to be false to
 // prevent a particular directory or target from being built in
