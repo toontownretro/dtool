@@ -97,10 +97,13 @@ typedef std::ios::seekdir ios_seekdir;
 
 #ifdef _MSC_VER
 #define ALWAYS_INLINE __forceinline
+#define FASTCALL __fastcall
 #elif defined(__GNUC__)
 #define ALWAYS_INLINE __attribute__((always_inline)) inline
+#define FASTCALL
 #else
 #define ALWAYS_INLINE inline
+#define FASTCALL
 #endif
 
 #ifdef FORCE_INLINING

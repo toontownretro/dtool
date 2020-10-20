@@ -336,6 +336,14 @@ typedef struct _object PyObject;
 #define NATIVE_WORDSIZE 32
 #endif
 
+#if NATIVE_WORDSIZE == 64
+#define PLATFORM_64BIT 1
+#elif NATIVE_WORDSIZE == 32
+#define PLATFORM_32BIT 1
+#elif NATIVE_WORDSIZE == 16
+#define PLATFORM_16BIT 1
+#endif
+
 /* Some byte-alignment macros. */
 #ifdef CPPPARSER
 #define ALIGN_4BYTE
