@@ -374,6 +374,14 @@
 // on DirectX rendering.
 #defer SUPPORT_IMMEDIATE_MODE $[<= $[OPTIMIZE], 3]
 
+// This option compiles in support for legacy fixed-function OpenGL
+// rendering.  You may want to turn this off if your application is
+// completely shader-based.  Note that turning this off compiles out
+// fixed-function support completely.  Alternatively, you can disable
+// fixed-function support at runtime by setting gl-version 3 2 in your
+// Config.prc.
+#define SUPPORT_FIXED_FUNCTION 1
+
 // These are two optional alternative memory-allocation schemes
 // available within Panda.  You can experiment with either of them to
 // see if they give better performance than the system malloc(), but
@@ -898,7 +906,7 @@
 // Also, as of Maya 5.0 it seems the Maya library will not compile
 // properly with optimize level 4 set (we get link errors with ostream).
 
-#define MAYA_LOCATION /usr/aw/maya
+#define MAYA_LOCATION /usr/autodesk/maya
 #defer MAYA_LIBS $[if $[WINDOWS_PLATFORM],Foundation.lib OpenMaya.lib OpenMayaAnim.lib OpenMayaUI.lib,Foundation OpenMaya OpenMayaAnim OpenMayaUI]
 // Optionally define this to the value of LM_LICENSE_FILE that should
 // be set before invoking Maya.
