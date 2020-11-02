@@ -46,7 +46,6 @@
 // We don't have these, of course, so let's disable
 // them for convenience in case they were autodetected.
 #define HAVE_DX9
-#define HAVE_CG
 
 // Compiler flags
 #defer TOOLCHAIN_PATH $[ANDROID_NDK_HOME]/toolchains/$[ANDROID_TOOLCHAIN]/prebuilt/windows/bin

@@ -162,21 +162,6 @@
 #set SQUISH_LIBS $[SQUISH_LIBS]
 #set HAVE_SQUISH $[HAVE_SQUISH]
 
-#set CG_IPATH $[unixfilename $[CG_IPATH]]
-#set CG_LPATH $[unixfilename $[CG_LPATH]]
-#set CG_LIBS $[CG_LIBS]
-#set HAVE_CG $[HAVE_CG]
-
-#set CGGL_IPATH $[unixfilename $[CGGL_IPATH]]
-#set CGGL_LPATH $[unixfilename $[CGGL_LPATH]]
-#set CGGL_LIBS $[CGGL_LIBS]
-#set HAVE_CGGL $[HAVE_CGGL]
-
-#set CGDX9_IPATH $[unixfilename $[CGDX9_IPATH]]
-#set CGDX9_LPATH $[unixfilename $[CGDX9_LPATH]]
-#set CGDX9_LIBS $[CGDX9_LIBS]
-#set HAVE_CGDX9 $[HAVE_CGDX9]
-
 #set VRPN_IPATH $[unixfilename $[VRPN_IPATH]]
 #set VRPN_LPATH $[unixfilename $[VRPN_LPATH]]
 #set VRPN_LIBS $[VRPN_LIBS]

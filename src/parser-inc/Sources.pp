@@ -2,8 +2,6 @@
     android/asset_manager.h \
     AR/ar.h \
     arpa/inet.h \
-    Cg/cg.h \
-    Cg/cgGL.h \
     Eigen/Dense \
     Eigen/StdVector \
     embree3/rtcore.h \

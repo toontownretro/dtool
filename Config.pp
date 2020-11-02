@@ -546,31 +546,6 @@
 #define SQUISH_LIBS $[if $[WINDOWS_PLATFORM], squish.lib, squish]
 #defer HAVE_SQUISH $[libtest $[SQUISH_LPATH],$[SQUISH_LIBS]]
 
-// Is Cg installed, and where?
-#if $[WINDOWS_PLATFORM]
-  #define CG_IPATH
-  #define CG_LPATH
-  #define CG_LIBS cg.lib
-#else
-  #define CG_IPATH $[DEFAULT_IPATH]
-  #define CG_LPATH $[DEFAULT_LPATH]
-  #define CG_LIBS Cg
-#endif
-#define CG_FRAMEWORK
-#defer HAVE_CG $[or $[CG_FRAMEWORK],$[libtest $[CG_LPATH],$[CG_LIBS]]]
-
-// Is CgGL installed, and where?
-#defer CGGL_IPATH $[CG_IPATH]
-#defer CGGL_LPATH $[CG_LPATH]
-#define CGGL_LIBS $[if $[WINDOWS_PLATFORM],cgGL.lib,CgGL]
-#defer HAVE_CGGL $[or $[CGGL_FRAMEWORK],$[and $[HAVE_CG],$[libtest $[CGGL_LPATH],$[CGGL_LIBS]]]]
-
-// Is CgDX9 installed, and where?
-#defer CGDX9_IPATH $[CG_IPATH]
-#defer CGDX9_LPATH $[CG_LPATH]
-#define CGDX9_LIBS $[if $[WINDOWS_PLATFORM],cgD3D9.lib,CgDX9]
-#defer HAVE_CGDX9 $[and $[HAVE_CG],$[libtest $[CGDX9_LPATH],$[CGDX9_LIBS]]]
-
 // Is VRPN installed, and where?
 #define VRPN_IPATH $[DEFAULT_IPATH]
 #define VRPN_LPATH $[DEFAULT_LPATH]

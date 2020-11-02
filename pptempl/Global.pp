@@ -223,29 +223,6 @@
   #define squish_libs $[SQUISH_LIBS]
 #endif
 
-#if $[HAVE_CG]
-  #define cg_ipath $[wildcard $[CG_IPATH]]
-  #define cg_lpath $[wildcard $[CG_LPATH]]
-  #define cg_cflags $[CG_CFLAGS]
-  #define cg_libs $[CG_LIBS]
-  #define cg_framework $[CG_FRAMEWORK]
-#endif
-
-#if $[HAVE_CGGL]
-  #define cggl_ipath $[wildcard $[CGGL_IPATH]]
-  #define cggl_lpath $[wildcard $[CGGL_LPATH]]
-  #define cggl_cflags $[CGGL_CFLAGS]
-  #define cggl_libs $[CGGL_LIBS]
-  #define cggl_framework $[CGGL_FRAMEWORK]
-#endif
-
-#if $[HAVE_CGDX9]
-  #define cgdx9_ipath $[wildcard $[CGDX9_IPATH]]
-  #define cgdx9_lpath $[wildcard $[CGDX9_LPATH]]
-  #define cgdx9_cflags $[CGDX9_CFLAGS]
-  #define cgdx9_libs $[CGDX9_LIBS]
-#endif
-
 #if $[HAVE_VRPN]
   #define vrpn_ipath $[wildcard $[VRPN_IPATH]]
   #define vrpn_lpath $[wildcard $[VRPN_LPATH]]

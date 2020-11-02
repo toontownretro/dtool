@@ -51,21 +51,6 @@
 #else
 #print - Did not find squish
 #endif
-#if $[HAVE_CG]
-#print + Nvidia Cg High Level Shading Language
-#else
-#print - Did not find Nvidia Cg High Level Shading Language
-#endif
-#if $[HAVE_CGGL]
-#print + Cg OpenGL API
-#else
-#print - Did not find Cg OpenGL API
-#endif
-#if $[HAVE_CGDX9]
-#print + Cg DX9 API
-#else
-#print - Did not find Cg DX9 API
-#endif
 #if $[HAVE_VRPN]
 #print + VRPN
 #else
@@ -358,15 +343,6 @@ $[cdefine HAVE_FFTW]
 
 /* Define if we have libsquish installed.  */
 $[cdefine HAVE_SQUISH]
-
-/* Define if we have CG installed.  */
-$[cdefine HAVE_CG]
-
-/* Define if we have CGGL installed.  */
-$[cdefine HAVE_CGGL]
-
-/* Define if we have CGDX9 installed.  */
-$[cdefine HAVE_CGDX9]
 
 /* Define if we have zlib installed.  */
 $[cdefine HAVE_ZLIB]
