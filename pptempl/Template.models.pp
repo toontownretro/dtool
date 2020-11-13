@@ -186,6 +186,14 @@
 #define install_other_dirs $[sort $[forscopes install_audio install_icons install_shader install_misc,$[install_model_dir]]]
 #define installed_other $[sort $[forscopes install_audio install_icons install_shader install_misc,$[SOURCES:%=$[install_model_dir]/%]]]
 
+#define build_txos \
+  $[forscopes install_txo, \
+    $[if $[SINGLE], \
+      $[TARGET], \
+      $[foreach source,$[SOURCES],$[basename $[source]].txo]]]
+
+#define install_txo_dirs $[sort $[forscopes install_txo, $[install_model_dir]]]
+#define installed_txo $[sort $[foreach txo,$[build_txos],$[patsubst %,$[install_model_dir]/%,$[txo]]]]
 
 #define pal_egg_targets $[sort $[patsubst %,$[pal_egg_dir]/%,$[notdir $[install_pal_eggs]]]]
 #define bam_targets $[install_eggs:%.egg=$[bam_dir]/%.bam]
@@ -200,8 +208,10 @@
     $[texattrib_dir] \
     $[filter_dirs] \
     $[optchar_dirs] \
-    egg bam
+    txo egg bam
 all : $[all_targets]
+
+txo : $[build_txos]
 
 egg : $[build_eggs]
 
@@ -223,6 +233,8 @@ unpack-soft : $[soft_scenes]
     $[if $[INSTALL_EGG_FILES],$[installed_generic_eggs],$[installed_generic_bams] $[installed_language_bams]]
 install-bam : $[install_bam_targets]
 
+install-txo : $[install_txo_dirs] $[installed_txo]
+
 #define install_other_targets \
     $[install_dna_dirs] \
     $[installed_generic_dna] $[installed_language_dna] \
@@ -230,8 +242,13 @@ install-bam : $[install_bam_targets]
     $[installed_other]
 install-other : $[install_other_targets]
 
-install : all install-other install-bam
-uninstall : uninstall-other uninstall-bam
+install : all install-other install-txo install-bam
+uninstall : uninstall-other uninstall-txo uninstall-bam
+
+clean-txo :
+#if $[build_txos]
+$[TAB]$[DEL_CMD] $[build_txos]
+#endif
 
 clean-bam :
 #if $[bam_targets]
@@ -300,6 +317,7 @@ $[TAB]rm -rf $[filter_dirs]
     $[install_egg_dirs] \
     $[install_dna_dirs] \
     $[install_other_dirs] \
+    $[install_txo_dirs] \
     ]
 $[directory] :
 #if $[eq $[BUILD_TYPE], nmake]
@@ -335,6 +353,27 @@ $[TAB]gunzip $[GUNZIP_OPTS] < $[source] > $[target]
 
   #end gz
 #end gz
+
+// TXO file generation from source image files.
+#forscopes install_txo
+  #if $[SINGLE]
+    #define target $[TARGET]
+    #if $[not $[target]]
+      #error A SINGLE install_txo scope must define TARGET!
+    #endif
+    #define sources $[SOURCES]
+$[target] : $[sources]
+$[TAB]make-txo $[TXO_OPTS] -o $[target] $[sources]
+  #else
+    #foreach img $[SOURCES]
+      #define source $[img]
+      #define target $[basename $[source]].txo
+$[target] : $[source]
+$[TAB]make-txo $[TXO_OPTS] -o $[target] $[source]
+    #end img
+  #endif
+
+#end install_txo
 
 // Egg file generation from Flt files.
 #forscopes flt_egg
@@ -383,9 +422,9 @@ $[target] : $[source]
 $[TAB]$[MAYA2EGG] $[MAYA2EGG_OPTS] -a model -cn "$[CHAR_NAME]" -o $[target] $[source]
   #elif $[not $[or $[MODEL], $[POLY_MODEL], $[ANIMS]]]
     #define target $[EGG_PREFIX].egg
-    #define source $[MAYA_PREFIX]$[MAYA_EXTENSION]    
+    #define source $[MAYA_PREFIX]$[MAYA_EXTENSION]
 $[target] : $[source]
-$[TAB]$[MAYA2EGG] $[MAYA2EGG_OPTS] -p -a model -cn "$[CHAR_NAME]" -o $[target] $[source]    
+$[TAB]$[MAYA2EGG] $[MAYA2EGG_OPTS] -p -a model -cn "$[CHAR_NAME]" -o $[target] $[source]
   #endif
 
 #end maya_char_egg
@@ -492,7 +531,7 @@ $[TARGET_DIR]/$[egg] : $[target] $[TARGET_DIR]/stamp
 $[TAB]$[TOUCH_CMD] $[osfilename $[TARGET_DIR]/$[egg]]
  #else
 $[TAB]$[TOUCH_CMD] $[TARGET_DIR]/$[egg]
- #endif 
+ #endif
   #end egg
 
    // And this is the actual optchar pass.
@@ -757,7 +796,53 @@ $[TAB]$[DEL_CMD] $[files]
   #endif
 #end install_dna
 
+// TXO file installation.
+#forscopes install_txo
+  #if $[SINGLE]
+    #define local $[TARGET]
+    #define remote $[notdir $[local]]
+    #define dest $[install_model_dir]
+$[dest]/$[remote] : $[local]
+    #if $[eq $[BUILD_TYPE], nmake]
+$[TAB]$[DEL_CMD] $[osfilename $[dest]/$[remote]]
+$[TAB]$[COPY_CMD] $[osfilename $[local]] $[osfilename $[dest]]
+    #else
+$[TAB]$[DEL_CMD] $[dest]/$[remote]
+$[TAB]$[COPY_CMD] $[local] $[dest]
+    #endif
+  #else
+    #foreach file $[SOURCES]
+      #define local $[basename $[file]].txo
+      #define remote $[notdir $[local]]
+      #define dest $[install_model_dir]
+$[dest]/$[remote] : $[local]
+      #if $[eq $[BUILD_TYPE], nmake]
+$[TAB]$[DEL_CMD] $[osfilename $[dest]/$[remote]]
+$[TAB]$[COPY_CMD] $[osfilename $[local]] $[osfilename $[dest]]
+      #else
+$[TAB]$[DEL_CMD] $[dest]/$[remote]
+$[TAB]$[COPY_CMD] $[local] $[dest]
+      #endif
+    #end file
+  #endif
+#end install_txo
 
+// TXO file uninstallation.
+uninstall-txo :
+#forscopes install_txo
+  #define files \
+    $[if $[SINGLE], \
+      $[install_model_dir]/$[TARGET], \
+      $[foreach img,$[SOURCES],$[install_model_dir]/$[basename $[img]].txo]]
+  #if $[files]
+    #if $[eq $[BUILD_TYPE], nmake]
+$[TAB]$[DEL_CMD] $[osfilename $[files]]
+    #else
+$[TAB]$[DEL_CMD] $[files]
+    #endif
+  #endif
+
+#end install_txo
 
 // Miscellaneous file installation.
 #forscopes install_audio install_icons install_shader install_misc
@@ -779,7 +864,7 @@ $[TAB]$[COPY_CMD] $[local] $[dest]
 #end install_audio install_icons install_shader install_misc
 
 // Miscellaneous file uninstallation.
-uninstall-other:
+uninstall-other :
 #forscopes install_audio install_icons install_shader install_misc
   #define files $[patsubst %,$[install_model_dir]/%,$[SOURCES]]
   #if $[files]
@@ -830,11 +915,15 @@ $[TAB]$[DEL_CMD] $[files]
 #### Generated automatically by $[PPREMAKE] $[PPREMAKE_VERSION] from $[SOURCEFILE].
 ################################# DO NOT EDIT ###########################
 
-all : egg pal repal $[subdirs]
+all : txo egg pal repal $[subdirs]
 
 install : all $[subdirs:%=install-%]
 
-#define sub_targets egg flt lwo maya soft bam pal clean-bam clean-pal clean-flt clean-lwo clean-maya clean-soft clean-optchar clean cleanall unpack-soft install-bam install-other uninstall-bam uninstall-other uninstall
+#define sub_targets \
+  txo egg flt lwo maya soft bam pal clean-txo clean-bam \
+  clean-pal clean-flt clean-lwo  clean-maya clean-soft clean-optchar clean \
+  cleanall unpack-soft install-txo install-bam install-other uninstall-txo \
+  uninstall-bam uninstall-other uninstall
 
 // Define the rules to propogate these targets to the Makefile within
 // each directory.
@@ -888,7 +977,7 @@ pi :
 $[TAB]egg-palettize $[PALETTIZE_OPTS] -af $[texattrib_file] -dm $[install_dir]/%g/maps -pi
 
 .PHONY: pi.txt
-pi.txt : 
+pi.txt :
 $[TAB]egg-palettize $[PALETTIZE_OPTS] -af $[texattrib_file] -dm $[install_dir]/%g/maps -pi >pi.txt
 
 #
