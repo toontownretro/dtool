@@ -41,7 +41,7 @@
 #defer LDFLAGS_OPT4 $[LDFLAGS_OPT4] $[nodefaultlib_cstatic]
 
 //////////////////////////////////////////////////////////////////////
-#if $[or $[eq $[DIR_TYPE], src], $[or $[eq $[DIR_TYPE], metalib], $[eq $[DIR_TYPE], module]]]
+#if $[or $[eq $[DIR_TYPE], src],$[eq $[DIR_TYPE], metalib],$[eq $[DIR_TYPE], module]]
 //////////////////////////////////////////////////////////////////////
 // For a source directory, build a single Makefile with rules to build
 // each target.
@@ -74,7 +74,9 @@
   // asked for.
 
   #define lib_targets \
-    $[forscopes python_module_target metalib_target noinst_lib_target test_lib_target static_lib_target dynamic_lib_target ss_lib_target, \
+    $[forscopes python_target python_module_target metalib_target \
+                noinst_lib_target test_lib_target static_lib_target \
+                dynamic_lib_target ss_lib_target, \
       $[if $[build_target],$[ODIR]/$[lib_prefix]$[TARGET]$[dllext]$[lib_ext]]] $[real_lib_target_libs]
 
   #define bin_targets \
@@ -98,10 +100,10 @@
 
   // These are the various sources collected from all targets within the
   // directory.
-  #define st_sources $[sort $[compile_sources(python_module_target metalib_target lib_target noinst_lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target test_bin_target test_lib_target csharp_target)]]
+  #define st_sources $[sort $[compile_sources(python_target python_module_target metalib_target lib_target noinst_lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target test_bin_target test_lib_target csharp_target)]]
   #define yxx_st_sources $[sort $[yxx_sources(metalib_target lib_target noinst_lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target test_bin_target test_lib_target)]]
   #define lxx_st_sources $[sort $[lxx_sources(metalib_target lib_target noinst_lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target test_bin_target test_lib_target)]]
-  #define dep_sources_1  $[sort $[get_sources(python_module_target metalib_target lib_target noinst_lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target test_bin_target test_lib_target)]]
+  #define dep_sources_1  $[sort $[get_sources(interface_target python_target python_module_target metalib_target lib_target noinst_lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target test_bin_target test_lib_target)]]
 
   // If there is an __init__.py in the directory, then all Python
   // files in the directory just get installed without having to be
@@ -110,6 +112,8 @@
     #define py_sources $[wildcard $[TOPDIR]/$[DIRPREFIX]*.py]
   #endif
   #define install_py $[py_sources:$[TOPDIR]/$[DIRPREFIX]%=%]
+
+  #define install_py_module $[active_target(python_module_target python_target)]
 
   // These are the source files that our dependency cache file will
   // depend on.  If it's an empty list, we won't bother writing rules to
@@ -163,6 +167,7 @@
     $[if $[install_config],$[install_config_dir]] \
     $[if $[install_igatedb],$[install_igatedb_dir]] \
     $[if $[install_py],$[install_py_dir] $[install_py_package_dir]] \
+    $[if $[install_py_module],$[install_py_module_dir]] \
     ]
 
 // Similarly, we need to ensure that $[ODIR] exists.  Trying to make
@@ -226,11 +231,11 @@ all : $[all_targets]
 test : $[test_bin_targets] $[test_lib_targets]
 
 clean : clean-igate
-#forscopes python_module_target metalib_target lib_target noinst_lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target test_bin_target test_lib_target
+#forscopes python_target python_module_target metalib_target lib_target noinst_lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target test_bin_target test_lib_target
 #if $[compile_sources]
 $[TAB] rm -f $[patsubst %,$[%_obj],$[compile_sources]]
 #endif
-#end python_module_target metalib_target lib_target noinst_lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target test_bin_target test_lib_target
+#end python_target python_module_target metalib_target lib_target noinst_lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target test_bin_target test_lib_target
 #if $[deferred_objs]
 $[TAB] rm -f $[deferred_objs]
 #endif
@@ -293,7 +298,7 @@ $[TAB] rm -f $[igatemout] $[$[igatemout]_obj]
      $[get_igatedb(python_module_target lib_target ss_lib_target):$[ODIR]/%=$[install_igatedb_dir]/%]
 
 #define install_targets \
-     $[active_target(python_module_target metalib_target lib_target static_lib_target \
+     $[active_target(interface_target python_target python_module_target metalib_target lib_target static_lib_target \
                      dynamic_lib_target ss_lib_target):%=install-lib%] \
      $[active_target(bin_target sed_bin_target csharp_target):%=install-%] \
      $[installed_files]
@@ -302,7 +307,7 @@ install : all $[install_targets]
 
 install-igate : $[sort $[installed_igate_files]]
 
-uninstall : $[active_target(python_module_target metalib_target lib_target static_lib_target \
+uninstall : $[active_target(interface_target python_target python_module_target metalib_target lib_target static_lib_target \
                             dynamic_lib_target ss_lib_target):%=uninstall-lib%] $[active_target(bin_target):%=uninstall-%]
 #if $[installed_files]
 $[TAB] rm -f $[sort $[installed_files]]
@@ -331,7 +336,7 @@ igate : $[get_igatedb(python_module_target lib_target ss_lib_target)]
 // First, the dynamic and static libraries.
 /////////////////////////////////////////////////////////////////////
 
-#forscopes python_module_target metalib_target lib_target static_lib_target dynamic_lib_target ss_lib_target
+#forscopes python_target python_module_target metalib_target lib_target static_lib_target dynamic_lib_target ss_lib_target
 
 // We might need to define a BUILDING_ symbol for win32.  We use the
 // BUILDING_DLL variable name, defined typically in the metalib, for
