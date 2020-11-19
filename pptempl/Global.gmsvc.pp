@@ -14,16 +14,22 @@
 
   #define actual_libs
   #foreach lib $[complete_libs]
-    // Only consider libraries that we're actually building.
-    #if $[all_libs $[and $[build_directory],$[build_target]],$[lib]]
-      #define modmeta $[module $[TARGET],$[lib]]
-      #if $[ne $[modmeta],]
-        #if $[ne $[modmeta],$[target]]  // We don't link with ourselves.
-          #set actual_libs $[actual_libs] $[modmeta]
+    #if $[all_libs $[TARGET],$[lib]]
+      // This is a local library (within this tree).  Only link with it if
+      // it's actually being built and it's not part of a metalib.
+      #if $[all_libs $[and $[build_directory],$[build_target]],$[lib]]
+        #define modmeta $[module $[TARGET],$[lib]]
+        #if $[ne $[modmeta],]
+          #if $[ne $[modmeta],$[target]]  // We don't link with ourselves.
+            #set actual_libs $[actual_libs] $[modmeta]
+          #endif
+        #else
+          #set actual_libs $[actual_libs] $[lib]
         #endif
-      #else
-        #set actual_libs $[actual_libs] $[lib]
       #endif
+    #else
+      // This library isn't local to this tree, link with it.
+      #set actual_libs $[actual_libs] $[lib]
     #endif
   #end lib
   #set actual_libs $[unique $[actual_libs]]
@@ -104,7 +110,7 @@
 // '#defer extra_cflags $[extra_cflags] /STUFF' will never work because extra_cflags hasnt been
 // defined yet, so this just evaluates the reference to null and removes the reference and the
 // the defining extra_cflags in individual sources.pp's will not picked up.  use END_FLAGS instead
-#if $[eq $[USE_COMPILER], MSVC9x64]
+#if $[eq $[USE_COMPILER], MSVC14.2x64]
   #defer extra_cflags /EHsc /Zm500 /DWIN64_VC /DWIN64=1 $[WARNING_LEVEL_FLAG] $[END_CFLAGS]
 #else
   #defer extra_cflags /EHsc /Zm500 /DWIN32_VC /DWIN32=1 $[WARNING_LEVEL_FLAG] $[END_CFLAGS]
@@ -131,7 +137,7 @@
 #defer STATIC_LIB_C $[LIBBER] /nologo $[sources] /OUT:"$[osfilename $[target]]"
 #defer STATIC_LIB_C++ $[STATIC_LIB_C]
 
-#if $[eq $[USE_COMPILER], MSVC9x64]
+#if $[eq $[USE_COMPILER], MSVC14.2x64]
   #defer COMPILE_IDL midl /nologo /env win64 /Oicf $[DECYGWINED_INC_PATHLIST_ARGS]
 #else
   #defer COMPILE_IDL midl /nologo /env win32 /Oicf $[DECYGWINED_INC_PATHLIST_ARGS]
@@ -140,15 +146,15 @@
 #defer COMPILE_RC rc /R /L 0x409 $[DECYGWINED_INC_PATHLIST_ARGS]
 
 // if we're attached, use dllbase.txt.  otherwise let OS loader resolve dll addrspace collisions
-#if $[ne $[CTPROJS],]
+//#if $[ne $[CTPROJS],]
 // use predefined bases to speed dll loading and simplify debugging
-#defer DLLNAMEBASE $[lib_prefix]$[TARGET]
-#defer DLLBASEADDRFILENAME dllbase.txt
-#defer DLLBASEARG "/BASE:@$[dtool_ver_dir]\$[DLLBASEADDRFILENAME],$[DLLNAMEBASE]"
-#else
+//#defer DLLNAMEBASE $[lib_prefix]$[TARGET]
+//#defer DLLBASEADDRFILENAME dllbase.txt
+//#defer DLLBASEARG "/BASE:@$[dtool_ver_dir]\$[DLLBASEADDRFILENAME],$[DLLNAMEBASE]"
+//#else
 // requires dtool envvar
 #define GENERATE_BUILDDATE
-#endif
+//#endif
 
 #defer LINKER_DEF_FILE_ARG $[if $[LINKER_DEF_FILE],/DEF:"$[LINKER_DEF_FILE]",]
 

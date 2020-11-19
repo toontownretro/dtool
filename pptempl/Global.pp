@@ -591,6 +591,7 @@
 #defer use_packages $[unique $[USE_PACKAGES] $[all_libs $[USE_PACKAGES], $[complete_local_libs]]]
 
 #defer get_output_name $[lib_prefix]$[if $[OUTPUT],$[OUTPUT],$[TARGET]]
+#defer get_output_file_noext $[get_output_name]$[dllext]
 #defer get_output_file $[get_output_name]$[dllext]$[lib_ext]
 #defer get_output_bundle_file $[get_output_name]$[dllext]$[bundle_ext]
 
