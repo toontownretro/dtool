@@ -412,7 +412,6 @@ $[TAB] $[link_lib_c]
 
 $[target] : $[sources] $[DLLBASEADDRFILENAME:%=$[dtool_ver_dir_cyg]/%]
   #if $[filter %.cxx %.cpp %.yxx %.lxx,$[get_sources]]
-	#print Libs for $[TARGET] : $[libs]
 $[TAB] $[link_lib_c++]
   #else
 $[TAB] $[link_lib_c]
