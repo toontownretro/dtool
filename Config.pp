@@ -69,7 +69,6 @@
 // allowable choices, at present, are:
 //
 //  unix      - Generate makefiles suitable for most Unix platforms.
-//  msvc      - Generate Visual C++ project files (still a work in progress)
 //  nmake     - Generate makefiles for Microsoft Visual C++, using
 //              Microsoft's nmake utility.
 //  gmsvc     - Generate makefiles similar to the above, using Microsoft
@@ -80,9 +79,9 @@
 //              not taking advantage of distributed make, because of
 //              the overhead associated with Cygwin fork() calls.
 
-#if $[eq $[PLATFORM], Win32]
+#if $[or $[eq $[PLATFORM], Win32],$[eq $[PLATFORM], Win64]]
   #define BUILD_TYPE nmake
-#elif $[eq $[PLATFORM], Cygwin]
+#elif $[or $[eq $[PLATFORM], Cygwin],$[eq $[PLATFORM], Cygwin64]]
   #define BUILD_TYPE gmsvc
 #elif $[OSX_PLATFORM]
   #define BUILD_TYPE unix
@@ -1045,7 +1044,7 @@
 
 // Define this to generate .bat files when a Sources.pp makes a
 // script; leave it clear to generate Unix-style sh scripts.
-#defer MAKE_BAT_SCRIPTS $[eq $[PLATFORM],Win32]
+#defer MAKE_BAT_SCRIPTS $[or $[eq $[PLATFORM],Win32],$[eq $[PLATFORM],Win64]]
 
 // Define USE_COMPILER to switch the particular compiler that should
 // be used.  A handful of tokens are recognized, depending on BUILD_TYPE.
