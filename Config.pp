@@ -325,7 +325,7 @@
 // impact memory usage on very-low-memory platforms.)  Currently
 // experimental.
 #define EIGEN_IPATH $[DEFAULT_IPATH]/eigen3
-#defer EIGEN_CFLAGS $[if $[WINDOWS_PLATFORM],/arch:SSE2,-msse2]
+#defer EIGEN_CFLAGS $[if $[X86_PLATFORM],$[if $[WINDOWS_PLATFORM],/arch:SSE2,-msse2]]
 #defer HAVE_EIGEN $[isdir $[EIGEN_IPATH]/Eigen]
 #define LINMATH_ALIGN 1
 
@@ -483,7 +483,7 @@
 #define OPENSSL_IPATH $[DEFAULT_IPATH]
 #define OPENSSL_LPATH $[DEFAULT_LPATH]
 #if $[WINDOWS_PLATFORM]
-#define OPENSSL_LIBS libeay32.lib ssleay32.lib
+#define OPENSSL_LIBS libssl.lib libcrypto.lib
 #else
 #define OPENSSL_LIBS ssl crypto
 #endif
@@ -496,7 +496,7 @@
 // Is libjpeg installed, and where?
 #define JPEG_IPATH $[DEFAULT_IPATH]
 #define JPEG_LPATH $[DEFAULT_LPATH]
-#define JPEG_LIBS jpeg
+#define JPEG_LIBS $[if $[WINDOWS_PLATFORM],jpeg-static.lib,jpeg]
 #defer HAVE_JPEG $[libtest $[JPEG_LPATH],$[JPEG_LIBS]]
 
 // Some versions of libjpeg did not provide jpegint.h.  Redefine this
@@ -830,6 +830,9 @@
 #if $[OSX_PLATFORM]
   #define OPENAL_LIBS
   #define OPENAL_FRAMEWORK OpenAL
+#elif $[WINDOWS_PLATFORM]
+  #define OPENAL_LIBS OpenAL32.lib
+  #define OPENAL_FRAMEWORK
 #else
   #define OPENAL_LIBS openal
   #define OPENAL_FRAMEWORK
@@ -931,7 +934,7 @@
 // libvorbisfile is used for reading Ogg Vorbis audio files (.ogg).
 #define VORBIS_IPATH $[DEFAULT_IPATH]
 #define VORBIS_LPATH $[DEFAULT_LPATH]
-#define VORBIS_LIBS $[if $[WINDOWS_PLATFORM],libogg_static.lib libvorbis_static.lib libvorbisfile_static.lib,ogg vorbis vorbisfile]
+#define VORBIS_LIBS $[if $[WINDOWS_PLATFORM],ogg.lib vorbis.lib vorbisfile.lib,ogg vorbis vorbisfile]
 #defer HAVE_VORBIS $[libtest $[VORBIS_LPATH],$[VORBIS_LIBS]]
 
 // libopusfile is used for reading Opus audio files (.opus).
