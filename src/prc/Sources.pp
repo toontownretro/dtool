@@ -7,6 +7,7 @@
   #define BUILDING_DLL BUILDING_DTOOL_PRC
 
   #define ANDROID_SYS_LIBS log
+  #define WIN_SYS_LIBS ws2_32.lib user32.lib advapi32.lib crypt32.lib
 
   #define SOURCES \
     androidLogStream.h \
