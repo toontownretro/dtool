@@ -82,7 +82,7 @@
     #define is_interface 1
   #end interface_target
 
-  #forscopes python_target python_module_target metalib_target lib_target noinst_lib_target test_lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target test_bin_target
+  #forscopes interface_target python_target python_module_target metalib_target lib_target noinst_lib_target test_lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target test_bin_target
 
     ///////////////////////////////////////////////////////////////////////
     // We can optimize quite a bit by evaluating now several of the key
@@ -187,7 +187,7 @@
 
     #define compile_sources $[c_sources] $[mm_sources] $[cxx_sources]
 
-  #end python_target python_module_target metalib_target lib_target noinst_lib_target test_lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target test_bin_target
+  #end interface_target python_target python_module_target metalib_target lib_target noinst_lib_target test_lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target test_bin_target
 
   // Allow the user to define additional EXTRA_DEPENDS targets in each
   // Sources.pp.
