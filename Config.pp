@@ -654,7 +654,7 @@
 // Is DirectX9 available, and should we try to build with it?
 #define DX9_IPATH
 #define DX9_LPATH
-#define DX9_LIBS d3d9.lib d3dx9.lib dxerr9.lib
+#define DX9_LIBS d3d9.lib d3dx9.lib
 #defer HAVE_DX9 $[libtest $[DX9_LPATH],$[DX9_LIBS]]
 
 // Set this nonempty to use <dxerr.h> instead of <dxerr9.h>.  The
