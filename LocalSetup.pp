@@ -9,8 +9,20 @@
 // configure.
 //
 
+#defsub report_package package_name,display_name
+  #if $[HAVE_$[package_name]]
+    #print + $[display_name]
+  #else
+    #print - Did not find $[display_name]
+    //#if $[$[package_name]_MISSING]
+    //  #print   Missing libraries: $[$[package_name]_MISSING]
+    //#endif
+  #endif
+#end report_package
+
 #print
 #print Configuring support for the following optional third-party packages:
+
 #if $[HAVE_EIGEN]
 #print + Eigen linear algebra library
 #if $[LINMATH_ALIGN]
@@ -21,136 +33,34 @@
 #else
 #print - Did not find Eigen linear algebra library
 #endif
-#if $[HAVE_OPENSSL]
-#print + OpenSSL
-#else
-#print - Did not find OpenSSL
-#endif
-#if $[HAVE_JPEG]
-#print + libjpeg
-#else
-#print - Did not find libjpeg
-#endif
-#if $[HAVE_PNG]
-#print + libpng
-#else
-#print - Did not find libpng
-#endif
-#if $[HAVE_TIFF]
-#print + libtiff
-#else
-#print - Did not find libtiff
-#endif
-#if $[HAVE_FFTW]
-#print + fftw
-#else
-#print - Did not find fftw
-#endif
-#if $[HAVE_SQUISH]
-#print + squish
-#else
-#print - Did not find squish
-#endif
-#if $[HAVE_VRPN]
-#print + VRPN
-#else
-#print - Did not find VRPN
-#endif
-#if $[HAVE_ZLIB]
-#print + zlib
-#else
-#print - Did not find zlib
-#endif
-#if $[HAVE_RAD_MSS]
-#print + Miles Sound System
-#else
-#print - Did not find Miles Sound System
-#endif
-#if $[HAVE_FMOD]
-#print + FMOD sound library
-#else
-#print - Did not find FMOD sound library
-#endif
-#if $[HAVE_OPENAL]
-#print + OpenAL sound library
-#else
-#print - Did not find OpenAL sound library
-#endif
-#if $[HAVE_GTK]
-#print + gtk+-2
-#else
-#print - Did not find gtk+-2
-#endif
-#if $[HAVE_FREETYPE]
-#print + Freetype
-#else
-#print - Did not find Freetype
-#endif
-#if $[HAVE_GL]
-#print + OpenGL
-#else
-#print - Did not find OpenGL
-#endif
-#if $[HAVE_GLES]
-#print + OpenGL ES 1
-#else
-#print - Did not find OpenGL ES 1
-#endif
-#if $[HAVE_GLES2]
-#print + OpenGL ES 2
-#else
-#print - Did not find OpenGL ES 2
-#endif
-#if $[HAVE_DX9]
-#print + DirectX9
-#else
-#print - Did not find DirectX9
-#endif
-#if $[HAVE_TINYDISPLAY]
-#print + Tinydisplay
-#else
-#print - Not building Tinydisplay
-#endif
-#if $[HAVE_X11]
-#print + X11
-#else
-#print - Did not find X11
-#endif
-#if $[HAVE_OPENCV]
-#print + OpenCV
-#else
-#print - Did not find OpenCV
-#endif
-#if $[HAVE_FFMPEG]
-#print + FFMPEG
-#else
-#print - Did not find FFMPEG
-#endif
-#if $[HAVE_ODE]
-#print + ODE
-#else
-#print - Did not find ODE
-#endif
-#if $[HAVE_MAYA]
-#print + OpenMaya
-#else
-#print - Did not find OpenMaya
-#endif
-#if $[HAVE_FCOLLADA]
-#print + FCollada
-#else
-#print - Did not find FCollada
-#endif
-#if $[HAVE_ASSIMP]
-#print + Assimp
-#else
-#print - Did not find Assimp
-#endif
-#if $[HAVE_ARTOOLKIT]
-#print + ARToolKit
-#else
-#print - Did not find ARToolKit
-#endif
+
+#call report_package OPENSSL,OpenSSL
+#call report_package JPEG,libjpeg
+#call report_package PNG,libpng
+#call report_package TIFF,libtiff
+#call report_package FFTW,fftw
+#call report_package SQUISH,squish
+#call report_package VRPN,VRPN
+#call report_package ZLIB,zlib
+#call report_package RAD_MSS,Miles Sound System
+#call report_package FMOD,FMOD sound library
+#call report_package OPENAL,OpenAL sound library
+#call report_package GTK,gtk+-2
+#call report_package FREETYPE,Freetype
+#call report_package GL,OpenGL
+#call report_package GLES,OpenGL ES 1
+#call report_package GLES2,OpenGL ES 2
+#call report_package DX9,DirectX9
+#call report_package TINYDISPLAY,Tinydisplay
+#call report_package X11,X11
+#call report_package OPENCV,OpenCV
+#call report_package FFMPEG,FFMPEG
+#call report_package ODE,ODE Physics
+#call report_package MAYA,Autodesk Maya
+#call report_package FCOLLADA,FCollada
+#call report_package ASSIMP,Assimp
+#call report_package ARTOOLKIT,ARToolKit
+
 #if $[HAVE_ROCKET]
 #if $[HAVE_ROCKET_PYTHON]
 #print + libRocket with Python bindings
@@ -160,56 +70,17 @@
 #else
 #print - Did not find libRocket
 #endif
-#if $[HAVE_BULLET]
-#print + Bullet Physics
-#else
-#print - Did not find Bullet Physics
-#endif
-#if $[HAVE_VORBIS]
-#print + Vorbis (Ogg Vorbis Decoder)
-#else
-#print - Did not find Vorbis (Ogg Vorbis Decoder)
-#endif
-#if $[HAVE_OPUS]
-#print + Opus
-#else
-#print - Did not find Opus
-#endif
-#if $[HAVE_HARFBUZZ]
-#print + HarfBuzz
-#else
-#print - Did not find HarfBuzz
-#endif
-#if $[HAVE_OPENEXR]
-#print + OpenEXR
-#else
-#print - Did not find OpenEXR
-#endif
-#if $[HAVE_VALVE_STEAMNET]
-#print + SteamNetworkingSockets
-#else
-#print - Did not find SteamNetworkingSockets
-#endif
-#if $[HAVE_GLSLANG]
-#print + GLslang
-#else
-#print - Did not find GLslang
-#endif
-#if $[HAVE_SPIRV_TOOLS]
-#print + SPIR-V Tools
-#else
-#print - Did not find SPIR-V Tools
-#endif
-#if $[HAVE_SPIRV_CROSS]
-#print + SPIR-V Cross
-#else
-#print - Did not find SPIR-V Cross
-#endif
-#if $[HAVE_EMBREE]
-#print + Intel Embree
-#else
-#print - Did not find Intel Embree
-#endif
+
+#call report_package BULLET,Bullet Physics
+#call report_package VORBIS,Vorbis (Ogg Vorbis Decoder)
+#call report_package OPUS,Opus
+#call report_package HARFBUZZ,HarfBuzz
+#call report_package OPENEXR,OpenEXR
+#call report_package VALVE_STEAMNET,Valve GameNetworkingSockets
+#call report_package GLSLANG,GLslang
+#call report_package SPIRV_TOOLS,SPIR-V Tools
+#call report_package SPIRV_CROSS,SPIR-V Cross
+#call report_package EMBREE,Intel Embree
 
 #print
 #if $[and $[HAVE_INTERROGATE],$[HAVE_PYTHON]]
