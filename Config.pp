@@ -971,7 +971,7 @@
 #define GLSLANG_LPATH $[DEFAULT_LPATH]
 #define GLSLANG_LIBS \
   $[if $[WINDOWS_PLATFORM], \
-    glslang.lib HLSL.lib OGLCompiler.lib OSDependent.lib SPIRV.lib, \
+    GenericCodeGen.lib glslang.lib HLSL.lib MachineIndependent.lib OGLCompiler.lib OSDependent.lib SPIRV.lib, \
     glslang HLSL OGLCompiler OSDependent SPIRV]
 #defer HAVE_GLSLANG $[libtest $[GLSLANG_LPATH], $[GLSLANG_LIBS]]
 
