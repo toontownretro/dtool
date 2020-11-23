@@ -334,10 +334,11 @@
 #define PYTHON_IPATH $[DEFAULT_IPATH]/python3.8
 #define PYTHON_LPATH $[DEFAULT_LPATH]
 #define PYTHON_FPATH
+#define PYTHON_LIBS python38
 #define PYTHON_COMMAND python
 #defer PYTHON_DEBUG_COMMAND $[PYTHON_COMMAND]$[if $[WINDOWS_PLATFORM],_d]
 #define PYTHON_FRAMEWORK
-#defer HAVE_PYTHON $[or $[PYTHON_FRAMEWORK],$[isdir $[PYTHON_IPATH]]]
+#defer HAVE_PYTHON $[or $[PYTHON_FRAMEWORK],$[and $[isdir $[PYTHON_IPATH]],$[libtest $[PYTHON_LPATH],$[PYTHON_LIBS]]]]
 
 // By default, we'll assume the user only wants to run with Debug
 // python if he has to--that is, on Windows when building a debug build.
