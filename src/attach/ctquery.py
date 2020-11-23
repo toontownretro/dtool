@@ -2,8 +2,8 @@ import os
 
 # Return the attached flavor of given project (or empty string).
 def query_proj(proj):
-    projs = os.environ.get("CTPROJS")
-    projlist = projs.split(" +")
+    projs = os.environ.get("CTPROJS", "")
+    projlist = projs.replace("+", "*").split("*")
     ret = ""
     for pair in projlist:
         pairlist = pair.split(":")
@@ -14,8 +14,8 @@ def query_proj(proj):
 
 # Return all projects attached with a given flavor.
 def query_flav(flav):
-    projs = os.environ.get("CTPROJS")
-    projlist = projs.split(" +")
+    projs = os.environ.get("CTPROJS", "")
+    projlist = projs.replace("+", "*").split("*")
 
     ret = []
     for pair in projlist:

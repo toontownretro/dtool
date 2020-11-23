@@ -10,27 +10,152 @@
 
 import sys
 import os
+import re
+import tempfile
 from pathlib import Path
 
 import ctvspec
 import ctquery
 import ctutils
 
-def usage():
-    print("Usage: ctattach -def project flavor  -or-")
-    print("       ctattach project [flavor]     -or-")
-    print("       ctattach project -            -or-")
-    print("       ctattach - [flavor]")
-    sys.exit(0)
-
 docnt = 0
 attachqueue = []
+
+newenv = {}
+envpostpend = {}
+envsep = {}
+envcmd = {}
+envdo = {}
+
+# Write a script NOT to change the environment.
+def attach_write_null_script(filename):
+    outfile = open(filename, "w")
+
+    if ctutils.shell_type == "bat":
+        outfile.write("@echo off\n")
+
+    outfile.write("echo No attachment actions performed\n")
+
+    outfile.close()
+
+    print(filename)
+
+# Write a script to setup the environment.
+def attach_write_script(filename):
+    outfile = open(filename, "w")
+
+    if ctutils.shell_type == "bat":
+        outfile.write("@echo off\n")
+
+    for item, value in newenv.items():
+        sep = ctutils.get_env_sep(False)
+        if envsep.get(item):
+            sep = envsep[item]
+
+        splitlist = value.replace("+", "*").split("*")
+        outval = sep.join(splitlist)
+
+        if ctutils.shell_type == "bash":
+            outfile.write(f"{item}={outval}\n")
+            if envcmd.get(item) != "set":
+                outfile.write(f"export {item}\n")
+        elif ctutils.shell_type == "bat":
+            outfile.write(f"set {item}={outval}\n")
+
+    for i in range(docnt):
+        outfile.write(f"{envdo[i]}\n")
+
+    outfile.close()
+
+    print(filename)
+
+# Force set a variable in the 'new' environment.
+def attach_set(var, value):
+    if var != "" and value != "":
+        newenv[var] = ctutils.to_os_specific(value, False)
+
+# Get a variable from the environment and split it out to unified format.
+def spool_env(var):
+    value = os.environ.get(var, "")
+    sep = ctutils.get_env_sep(True)
+    splitlist = value.split(sep)
+    for i in range(len(splitlist)):
+        split = splitlist[i]
+        val = ctutils.to_os_specific(split, False)
+        if re.search("\s", val) and not re.search("\"", val):
+            val = "\"" + val + "\""
+        value += val
+        if i < len(splitlist) - 1:
+            value += "*"
+
+    #value = value.replace("\\", "\\\\")
+    return value
 
 # Modify a possibly existing variable to have a value in the 'new' environment.
 def attach_mod(var, value, root, proj):
     if var == "CTPROJS":
         # As part of the system, this one is special
-        pass
+        if not newenv.get(var):
+            newenv[var] = os.environ.get(var, "")
+
+        proj_lower = proj.lower()
+
+        curflav = ctquery.query_proj(proj_lower)
+        if curflav != "":
+            tmp = proj + ":" + curflav
+            if re.search(tmp, newenv[var]):
+                hold = newenv[var]
+                hold = re.sub(tmp, value, hold)
+                newenv[var] = hold
+            else:
+                newenv[var] = value + "*" + newenv[var]
+        else:
+            if newenv[var] == "":
+                newenv[var] = value
+            else:
+                newenv[var] = value + "*" + newenv[var]
+
+    elif var != "" and value != "":
+        value = ctutils.to_os_specific(value, False)
+        if re.search("\s", value):
+            value = "\"" + value + "\""
+
+        dosimple = False
+        if not newenv.get(var):
+            # Not in our 'new' environment, add it.  May still be empty.
+            newenv[var] = spool_env(var)
+        search = re.search(value.replace("\\", "\\\\"), newenv[var])
+        if not search:
+            # If it's in there already, we're done before we started.
+            root = ctutils.to_os_specific(root, False)
+            search  = re.search(f"^{root}".replace("\\", "\\\\"), value)
+            if search:
+                # New values contains root
+                # damn, might need to do an in-place edit
+                curroot = os.environ.get(proj, "")
+                if curroot == "":
+                    dosimple = True
+                else:
+                    test = re.sub(f"^{root}".replace("\\", "\\\\"), "", value)
+                    test = curroot + test
+                    search = re.search(test.replace("\\", "\\\\"), newenv[var])
+                    if search:
+                        # There is it.  In-place edit
+                        foo = re.sub(test, value, newenv[var])
+                        newenv[var] = ctutils.to_os_specific(foo, False)
+                    else:
+                        dosimple = True
+            else:
+                # Don't have to sweat in-place edits
+                dosimple = True
+
+        if dosimple:
+            if newenv[var] == "":
+                newenv[var] = value
+            elif envpostpend.get(var):
+                newenv[var] = newenv[var] + "*" + value
+            else:
+                newenv[var] = value + "*" + newenv[var]
 
 # Given the project and flavor, build the lists of variables to set/modify.
 def attach_compute(proj, flav, anydef):
@@ -49,8 +174,8 @@ def attach_compute(proj, flav, anydef):
         spec = ctvspec.resolve_spec(proj, flav)
 
         if spec != "":
-            root = Path(ctvspec.compute_root(proj, flav, spec))
-            if root.exists():
+            root = ctvspec.compute_root(proj, flav, spec)
+            if os.path.exists(ctutils.to_os_specific(root)):
                 break
         else:
             print(f"could not resolve '{flav}'")
@@ -82,7 +207,8 @@ def attach_compute(proj, flav, anydef):
 
         # We scan the .init file first because if there are needed sub-attaches
         # they must happen before the rest of our work.
-        init = root / f"built/etc/{proj}.init"
+        init = root + f"/built/etc/{proj}.init"
+        init = ctutils.to_os_specific(init)
 
         localmod = {}
         localset = {}
@@ -92,7 +218,7 @@ def attach_compute(proj, flav, anydef):
         localpost = {}
         localdocnt = 0
 
-        if init.exists():
+        if os.path.exists(init):
             print(f"scanning {proj}.init")
             initfile = open(str(init), 'r')
             initlines = initfile.readlines()
@@ -100,76 +226,76 @@ def attach_compute(proj, flav, anydef):
                 line = line.rstrip("\n")
                 linesplit = line.split("\#")
                 kw = linesplit[0].upper()
-                if kw == "MODABS":
+                if re.search("^MODABS", kw):
                     linesplit = kw.split(" ")
                     linetmp = linesplit[1]
                     linesplit.pop(0)
                     linesplit.pop(0)
                     if not localmod.get(linetmp):
-                        localmod[linetmp] = " ".join(linesplit)
+                        localmod[linetmp] = "*".join(linesplit)
                     else:
-                        localmod[linetmp] = localmod[linetmp] + " " + " ".join(linesplit)
-                elif kw == "MODREL":
+                        localmod[linetmp] = localmod[linetmp] + "*" + "*".join(linesplit)
+                elif re.search("^MODREL", kw):
                     linesplit = kw.split(" ")
                     linetmp = linesplit[1]
                     linesplit.pop(0)
                     linesplit.pop(0)
                     for loop in linesplit:
-                        looptmp = root / ctutils.shell_eval(loop)
-                        if looptmp.exists():
+                        looptmp = root + "/" + ctutils.shell_eval(loop)
+                        if os.path.exists(ctutils.to_os_specific(looptmp)):
                             if not localmod.get(linetmp):
                                 localmod[linetmp] = looptmp
                             else:
-                                localmod[linetmp] = localcmd[linetmp] + " " + looptmp
-                elif kw == "SETABS":
+                                localmod[linetmp] = localcmd[linetmp] + "*" + looptmp
+                elif re.search("^SETABS", kw):
                     linesplit = kw.split(" ")
                     linetmp = linesplit[1]
                     linesplit.pop(0)
                     linesplit.pop(0)
                     if not localset.get(linetmp):
-                        localset[linetmp] = " ".join(linesplit)
+                        localset[linetmp] = "*".join(linesplit)
                     else:
-                        localset[linetmp] = localset[linetmp] + " " + " ".join(linesplit)
-                elif kw == "SETREL":
+                        localset[linetmp] = localset[linetmp] + "*" + "*".join(linesplit)
+                elif re.search("^SETREL", kw):
                     linesplit = kw.split(" ")
                     linetmp = linesplit[1]
                     linesplit.pop(0)
                     linesplit.pop(0)
                     for loop in linesplit:
-                        looptmp = root / ctutils.shell_eval(loop)
-                        if looptmp.exists():
+                        looptmp = root + "/" + ctutils.shell_eval(loop)
+                        if os.path.exists(ctutils.to_os_specific(looptmp)):
                             if not localset.get(linetmp):
                                 localset[linetmp] = looptmp
                             else:
-                                localset[linetmp] = localset[linetmp] + " " + looptmp
-                elif kw == "SEP":
+                                localset[linetmp] = localset[linetmp] + "*" + looptmp
+                elif re.search("^SEP", kw):
                     linesplit = kw.split(" ")
-                    localset[linesplit[1]] = linesplit[2]
-                elif kw == "CMD":
+                    localsep[linesplit[1]] = linesplit[2]
+                elif re.search("^CMD", kw):
                     linesplit = kw.split(" ")
                     localcmd[linesplit[1]] = linesplit[2]
-                elif kw == "DOCSH":
+                elif re.search("^DOCSH", kw):
                     if 0:
                         linesplit = kw.split(" ")
                         linesplit.pop(0)
-                        localdo[localdocnt] = " ".join(linesplit)
+                        localdo[localdocnt] = "*".join(linesplit)
                         localdocnt += 1
-                elif kw == "DOSH":
+                elif re.search("^DOSH", kw):
                     if 1:
                         linesplit = kw.split(" ")
                         linesplit.pop(0)
-                        localdo[localdocnt] = " ".join(linesplit)
+                        localdo[localdocnt] = "*".join(linesplit)
                         localdocnt += 1
-                elif kw == "DO":
+                elif re.search("^DO", kw):
                     linesplit = kw.split(" ")
                     linesplit.pop(0)
-                    localdo[localdocnt] = " ".join(linesplit)
+                    localdo[localdocnt] = "*".join(linesplit)
                     localdocnt += 1
-                elif kw == "POSTPEND":
+                elif re.search("^POSTPEND", kw):
                     linesplit = kw.split(" ")
                     linesplit.pop(0)
                     localpost[linesplit[1]] = 1
-                elif kw == "ATTACH":
+                elif re.search("^ATTACH", kw):
                     linesplit = kw.split(" ")
                     linesplit.pop(0)
                     for loop in linesplit:
@@ -198,28 +324,56 @@ def attach_compute(proj, flav, anydef):
         # "MODELS".  These don't have subdirectories that we care about
         # in the normal sense.
 
-        if not proj.endswith("MODELS"):
-            item = str(root / "built/bin")
-            attach_mod("PATH", item, root, proj)
+        if not re.search("MODELS$", proj_up):
+            item = root + "/built/bin"
 
-            item = str(root / "built/lib")
-            attach_mod("PATH", item, root, proj)
-            attach_mod("LD_LIBRARY_PATH", item, root, proj)
-            attach_mod("DYLD_LIBRARY_PATH", item, root, proj)
+            attach_mod("PATH", item, root, proj_up)
 
-            item = str(root / "built/include")
-            attach_mod("CT_INCLUDE_PATH", item, root, proj)
+            item = root + "/built/lib"
+            attach_mod("PATH", item, root, proj_up)
+            attach_mod("LD_LIBRARY_PATH", item, root, proj_up)
+            attach_mod("DYLD_LIBRARY_PATH", item, root, proj_up)
 
-            item = str(root / "build/etc")
-            attach_mod("ETC_PATH", item, root, proj)
+            item = root + "/built/include"
+            attach_mod("CT_INCLUDE_PATH", item, root, proj_up)
 
-        attach_mod("CTPROJS", proj + ":" + flav, root, proj)
-        attach_set(proj, root)
+            item = root + "/built/etc"
+            attach_mod("ETC_PATH", item, root, proj_up)
 
+        attach_mod("CTPROJS", proj_up + ":" + flav, root, proj_up)
+        attach_set(proj_up, root)
+
+        # Run thru the stuff saved up from the .init file
+        envsep.update(localsep)
+        envpostpend.update(localpost)
+        for k, v in localmod.items():
+            splitthis = v.replace("+", "*").split("*")
+            for thing in splitthis:
+                attach_mod(k, thing, root, proj)
+        for k, v in localset.items():
+            attach_set(k, v)
+        envcmd.update(localcmd)
+        for i in range(localdocnt):
+            envdo[docnt] = localdo[i]
+            docnt += 1
+
+    return spec
+
+tmpname = str(Path(tempfile.gettempdir()) / f"script.{os.getpid()}.{ctutils.shell_type}")
+
+def usage():
+    print("Usage: ctattach -def project flavor  -or-")
+    print("       ctattach project [flavor]     -or-")
+    print("       ctattach project -            -or-")
+    print("       ctattach - [flavor]")
+    attach_write_null_script(tmpname)
+    sys.exit()
 
 tool = os.environ.get("DTOOL")
 if not tool:
-    raise StandardError("DTOOL environment must be set to use CTtools")
+    print("DTOOL environment must be set to use CTtools")
+    attach_write_null_script(tmpname)
+    sys.exit()
 
 argc = len(sys.argv)
 
@@ -254,7 +408,7 @@ proj = sys.argv[idx]
 if defflav == "":
     defflav = "default"
 
-if argc > idx:
+if argc > idx + 1:
     flav = sys.argv[idx + 1]
 else:
     if proj != "-":
@@ -289,9 +443,15 @@ if (proj == "-") or (flav == "-"):
         flavlist = ctvspec.list_all_flavors(proj)
         for item in flavlist:
             print("   " + item)
+    attach_write_null_script(tmpname)
 else:
     # Output a real attachment.
     curflav = ctquery.query_proj(proj)
     if (curflav == "") or (noflav == 0):
         spec = attach_compute(proj, flav, anydef)
-
+        if spec == "":
+            attach_write_null_script(tmpname)
+        else:
+            attach_write_script(tmpname)
+    else:
+        attach_write_null_script(tmpname)
