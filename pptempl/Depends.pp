@@ -73,6 +73,13 @@
     #define USE_PACKAGES python
     #define LIB_PREFIX
     #define DYNAMIC_LIB_EXT $[PYTHON_MODULE_EXT]
+    
+    // Link Python modules as bundles on OSX.
+    #if $[OSX_PLATFORM]
+      #define LINK_AS_BUNDLE 1
+      #define BUNDLE_EXT $[PYTHON_MODULE_EXT]
+    #endif
+    
     #define install_lib_dir $[install_py_module_dir]
     #define OUTPUT $[TARGET:panda3d.%=%]
     #define dllext
