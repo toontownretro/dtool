@@ -47,13 +47,12 @@ def attach_write_script(filename):
     if ctutils.shell_type == "bat":
         outfile.write("@echo off\n")
 
-    for item, value in newenv.items():
+    for item, vals in newenv.items():
         sep = ctutils.get_env_sep(False)
         if envsep.get(item):
             sep = envsep[item]
 
-        splitlist = value.replace("+", "*").split("*")
-        outval = sep.join(splitlist)
+        outval = sep.join(vals)
 
         if ctutils.shell_type == "bash":
             outfile.write(f"{item}={outval}\n")
@@ -72,11 +71,16 @@ def attach_write_script(filename):
 # Force set a variable in the 'new' environment.
 def attach_set(var, value):
     if var != "" and value != "":
-        newenv[var] = ctutils.to_os_specific(value, False)
+        newenv[var] = [ctutils.to_os_specific(value, False)]
 
 # Get a variable from the environment and split it out to unified format.
 def spool_env(var):
+    ret = []
+
     value = os.environ.get(var, "")
+    if len(value) == 0:
+        return ret
+
     sep = ctutils.get_env_sep(True)
     splitlist = value.split(sep)
     for i in range(len(splitlist)):
@@ -84,36 +88,30 @@ def spool_env(var):
         val = ctutils.to_os_specific(split, False)
         if re.search("\s", val) and not re.search("\"", val):
             val = "\"" + val + "\""
-        value += val
-        if i < len(splitlist) - 1:
-            value += "*"
+        ret.append(val)
 
     #value = value.replace("\\", "\\\\")
-    return value
+    return ret
 
 # Modify a possibly existing variable to have a value in the 'new' environment.
 def attach_mod(var, value, root, proj):
     if var == "CTPROJS":
         # As part of the system, this one is special
         if not newenv.get(var):
-            newenv[var] = os.environ.get(var, "")
+            newenv[var] = spool_env(var)
 
         proj_lower = proj.lower()
 
         curflav = ctquery.query_proj(proj_lower)
         if curflav != "":
             tmp = proj + ":" + curflav
-            if re.search(tmp, newenv[var]):
-                hold = newenv[var]
-                hold = re.sub(tmp, value, hold)
-                newenv[var] = hold
+            if tmp in newenv[var]:
+                idx = newenv[var].index(tmp)
+                newenv[var][idx] = value
             else:
-                newenv[var] = value + "*" + newenv[var]
+                newenv[var].insert(0, value)
         else:
-            if newenv[var] == "":
-                newenv[var] = value
-            else:
-                newenv[var] = value + "*" + newenv[var]
+            newenv[var].insert(0, value)
 
     elif var != "" and value != "":
         value = ctutils.to_os_specific(value, False)
@@ -124,25 +122,22 @@ def attach_mod(var, value, root, proj):
         if not newenv.get(var):
             # Not in our 'new' environment, add it.  May still be empty.
             newenv[var] = spool_env(var)
-        search = re.search(value.replace("\\", "\\\\"), newenv[var])
-        if not search:
+        if not value in newenv[var]:
             # If it's in there already, we're done before we started.
             root = ctutils.to_os_specific(root, False)
-            search  = re.search(f"^{root}".replace("\\", "\\\\"), value)
-            if search:
+            if value.startswith(root):
                 # New values contains root
                 # damn, might need to do an in-place edit
                 curroot = os.environ.get(proj, "")
                 if curroot == "":
                     dosimple = True
                 else:
-                    test = re.sub(f"^{root}".replace("\\", "\\\\"), "", value)
+                    test = value.replace(root, "")
                     test = curroot + test
-                    search = re.search(test.replace("\\", "\\\\"), newenv[var])
-                    if search:
+                    if test in newenv[var]:
                         # There is it.  In-place edit
-                        foo = re.sub(test, value, newenv[var])
-                        newenv[var] = ctutils.to_os_specific(foo, False)
+                        idx = newenv[var].index(test)
+                        newenv[var][idx] = value
                     else:
                         dosimple = True
             else:
@@ -150,15 +145,15 @@ def attach_mod(var, value, root, proj):
                 dosimple = True
 
         if dosimple:
-            if newenv[var] == "":
-                newenv[var] = value
-            elif envpostpend.get(var):
-                newenv[var] = newenv[var] + "*" + value
+            if envpostpend.get(var):
+                newenv[var].append(value)
             else:
-                newenv[var] = value + "*" + newenv[var]
+                newenv[var].insert(0, value)
 
 # Given the project and flavor, build the lists of variables to set/modify.
 def attach_compute(proj, flav, anydef):
+    global attachqueue
+
     done = 0
     root = ""
     prevflav = ctquery.query_proj(proj)
@@ -253,9 +248,9 @@ def attach_compute(proj, flav, anydef):
                     linesplit.pop(0)
                     linesplit.pop(0)
                     if not localset.get(linetmp):
-                        localset[linetmp] = "*".join(linesplit)
+                        localset[linetmp] = linesplit
                     else:
-                        localset[linetmp] = localset[linetmp] + "*" + "*".join(linesplit)
+                        localset[linetmp] += linesplit
                 elif re.search("^SETREL", kw):
                     linesplit = kw.split(" ")
                     linetmp = linesplit[1]
@@ -267,7 +262,7 @@ def attach_compute(proj, flav, anydef):
                             if not localset.get(linetmp):
                                 localset[linetmp] = looptmp
                             else:
-                                localset[linetmp] = localset[linetmp] + "*" + looptmp
+                                localset[linetmp] += looptmp
                 elif re.search("^SEP", kw):
                     linesplit = kw.split(" ")
                     localsep[linesplit[1]] = linesplit[2]
@@ -278,18 +273,18 @@ def attach_compute(proj, flav, anydef):
                     if 0:
                         linesplit = kw.split(" ")
                         linesplit.pop(0)
-                        localdo[localdocnt] = "*".join(linesplit)
+                        localdo[localdocnt] = linesplit
                         localdocnt += 1
                 elif re.search("^DOSH", kw):
                     if 1:
                         linesplit = kw.split(" ")
                         linesplit.pop(0)
-                        localdo[localdocnt] = "*".join(linesplit)
+                        localdo[localdocnt] = linesplit
                         localdocnt += 1
                 elif re.search("^DO", kw):
                     linesplit = kw.split(" ")
                     linesplit.pop(0)
-                    localdo[localdocnt] = "*".join(linesplit)
+                    localdo[localdocnt] = linesplit
                     localdocnt += 1
                 elif re.search("^POSTPEND", kw):
                     linesplit = kw.split(" ")
@@ -298,8 +293,7 @@ def attach_compute(proj, flav, anydef):
                 elif re.search("^ATTACH", kw):
                     linesplit = kw.split(" ")
                     linesplit.pop(0)
-                    for loop in linesplit:
-                        attachqueue.append(loop)
+                    attachqueue += linesplit
                 elif kw != "":
                     print(f"Unknown .init directive '{kw}'")
 
@@ -339,6 +333,7 @@ def attach_compute(proj, flav, anydef):
 
             item = root + "/built/etc"
             attach_mod("ETC_PATH", item, root, proj_up)
+            attach_mod("PRC_PATH", item, root, proj_up)
 
         attach_mod("CTPROJS", proj_up + ":" + flav, root, proj_up)
         attach_set(proj_up, root)
@@ -347,8 +342,7 @@ def attach_compute(proj, flav, anydef):
         envsep.update(localsep)
         envpostpend.update(localpost)
         for k, v in localmod.items():
-            splitthis = v.replace("+", "*").split("*")
-            for thing in splitthis:
+            for thing in v:
                 attach_mod(k, thing, root, proj)
         for k, v in localset.items():
             attach_set(k, v)
@@ -452,6 +446,7 @@ else:
         if spec == "":
             attach_write_null_script(tmpname)
         else:
+            envsep["CTPROJS"] = "+"
             attach_write_script(tmpname)
     else:
         attach_write_null_script(tmpname)

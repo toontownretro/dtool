@@ -161,7 +161,7 @@ def resolve_spec(proj, flav):
     if ctvspec_read != proj:
         read_vspec(proj)
 
-    spec = ctvspecs[flav]
+    spec = ctvspecs.get(flav, "")
     ret = ""
     if spec != "":
         type = spec_type(spec)
@@ -187,7 +187,7 @@ def resolve_spec_name(proj, flav):
     if ctvspec_read != proj:
         read_vspec(proj)
 
-    spec = ctvspecs[flav]
+    spec = ctvspecs.get("flav", "")
     ret = flav
     if spec != "":
         type = spec_type(spec)
