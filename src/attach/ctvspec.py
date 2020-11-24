@@ -55,7 +55,7 @@ def spec_find_option(line, option):
         itemlist = item.split("=")
         if itemlist[0] == option:
             ret = itemlist[1]
-    return ret
+    return ctutils.shell_eval(ret)
 
 # Validate a spec line.
 def validate_spec(spec):
@@ -216,7 +216,7 @@ def compute_root(proj, flav, spec):
     vname = resolve_spec_name(proj, flav)
 
     if type == "root":
-        return spec_find_option(options, "path")
+        return ctutils.from_os_specific(spec_find_option(options, "path"))
     elif type == "vroot":
         name = spec_find_option(options, "name")
         if name != "":
@@ -224,7 +224,7 @@ def compute_root(proj, flav, spec):
         else:
             return f"/view/{vname}/vobs/{proj}"
     elif type == "croot":
-        return spec_find_option(options, "path")
+        return ctutils.from_os_specific(spec_find_option(options, "path"))
     else:
         print(f"unknown flavor type '{type}'")
         return ""
