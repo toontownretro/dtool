@@ -162,41 +162,28 @@
 
 #defer converted_libs $[patsubst %.lib,%.lib,%,lib%.lib,$[libs]]
 
+#defer get_output_lib $[get_output_file_noext].lib
+#defer get_output_pdb $[get_output_file_noext].pdb
+
 // This is the set of files we might copy into *.prebuilt, if we have
 // bison and flex (or copy from *.prebuilt if we don't have them).
 #define bison_prebuilt $[patsubst %.yxx,%.cxx %.h,$[yxx_st_sources]] $[patsubst %.lxx,%.cxx,$[lxx_st_sources]]
 
-#define vs_platform_name $[if $[WIN64_PLATFORM],x64,Win32]
+// Converts the set of names to suitable MSBuild target names.
+#defun targetname files
+  $[subst -,_,.,_,/,_,$[files]]
+#end targetname
 
-#defer vs_lib_config_type $[if $[lib_is_static],Static Library,Dynamic Library]
+// Converts the space-separated words to semicolon separated words.
+#defun msjoin names
+  $[join ;,$[names]]
+#end msjoin
 
-#defer opt_cxx_flags \
-  $[get_cflags] $[C++FLAGS] $[CFLAGS_OPT$[level]]
-
-// Returns the list of preprocessor definitions.
-#defer vs_preprocessor_definitions \
-  $[join ;,$[patsubst /D%,%,$[filter /D%,$[opt_cxx_flags]]]]
-
-#defer vs_compiler_flags \
-  $[filter-out /D%,$[opt_cxx_flags]]
-
-#define optimize_levels 1 2 3 4
-
-#defun get_optimize_base_config level
-  #define ret
-
-  #if $[eq $[level],1]
-    #set ret Debug
-  #elif $[eq $[level],2]
-    #set ret Debug
-  #elif $[eq $[level], 3]
-    #set ret Release
-  #elif $[eq $[level], 4]
-    #set ret Release
-  #endif
-
-  $[ret]
-#end get_optimize_base_config
+// Converts the space-seperated words to suitable MSBuild target names
+// and separates them with a semicolon.
+#defun jtargetname files
+  $[msjoin $[targetname $[files]]]
+#end jtargetname
 
 // Rather than making a rule to generate each install directory later,
 // we create the directories now.  This reduces problems from
@@ -248,8 +235,8 @@
 #end composite_file
 
 // Okay, we're ready.  Start outputting the Makefile now.
-#output $[DIRNAME].msbuild
-#format straight
+#output $[DIRNAME].proj
+#format collapse
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Generated automatically by $[PPREMAKE] $[PPREMAKE_VERSION] from $[SOURCEFILE]. -->
 <!--                              DO NOT EDIT                                       -->
@@ -258,15 +245,15 @@
 // The 'all' rule makes all the stuff in the directory except for the
 // test_bin_targets.  It doesn't do any installation, however.
 #define all_targets \
-    Makefile \
-    $[if $[dep_sources],$[DEPENDENCY_CACHE_FILENAME]] \
-    $[sort $[lib_targets] $[bin_targets]] \
-    $[deferred_objs]
+    $[targetname Makefile \
+      $[if $[dep_sources],$[DEPENDENCY_CACHE_FILENAME]] \
+      $[sort $[lib_targets] $[bin_targets]] \
+      $[deferred_objs]]
 
-<Target Name="all" DependsOnTargets="$[join ;,$[all_targets]]"/>
+<Target Name="all" DependsOnTargets="$[msjoin $[all_targets]]"/>
 
 // The 'test' rule makes all the test_bin_targets.
-<Target Name="test" DependsOnTargets="$[join ;,$[test_bin_targets] $[test_lib_targets]]"/>
+<Target Name="test" DependsOnTargets="$[jtargetname $[test_bin_targets] $[test_lib_targets]]"/>
 
 <Target Name="clean" DependsOnTargets="clean-igate">
 #forscopes python_target python_module_target metalib_target lib_target noinst_lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target test_bin_target test_lib_target
@@ -343,11 +330,11 @@
      $[active_target(bin_target sed_bin_target csharp_target):%=install-%] \
      $[installed_files]
 
-<Target Name="install" DependsOnTargets="$[join ;,all $[install_targets]]"/>
+<Target Name="install" DependsOnTargets="$[msjoin all $[install_targets]]"/>
 
-<Target Name="install-igate" DependsOnTargets="$[join ;,$[sort $[installed_igate_files]]]"/>
+<Target Name="install-igate" DependsOnTargets="$[jtargetname $[sort $[installed_igate_files]]]"/>
 
-<Target Name="uninstall" DependsOnTargets="$[join ;,$[active_target(interface_target python_target python_module_target metalib_target lib_target static_lib_target dynamic_lib_target ss_lib_target):%=uninstall-lib%] $[active_target(bin_target):%=uninstall-%]]">
+<Target Name="uninstall" DependsOnTargets="$[msjoin $[active_target(interface_target python_target python_module_target metalib_target lib_target static_lib_target dynamic_lib_target ss_lib_target):%=uninstall-lib%] $[active_target(bin_target):%=uninstall-%]]">
 #if $[installed_files]
   <Exec Command="del /f $[osfilename $[sort $[installed_files]]]"/>
 #endif
@@ -360,7 +347,7 @@
 </Target>
 
 #if $[HAVE_BISON]
-<Target Name="prebuild-bison" DependsOnTargets="$[join ;,$[patsubst %,%.prebuilt,$[bison_prebuilt]]]"/>
+<Target Name="prebuild-bison" DependsOnTargets="$[jtargetname $[patsubst %,%.prebuilt,$[bison_prebuilt]]]"/>
 <Target Name="clean-prebuild-bison">
 #if $[bison_prebuilt]
   <Exec Command="del /f $[osfilename $[sort $[patsubst %,%.prebuilt,$[bison_prebuilt]]]]"/>
@@ -370,7 +357,7 @@
 
 // Now it's time to start generating the rules to make our actual
 // targets.
-<Target Name="igate" DependsOnTargets="$[join ;,$[get_igatedb(python_module_target lib_target ss_lib_target)]]"/>
+<Target Name="igate" DependsOnTargets="$[jtargetname $[get_igatedb(python_module_target lib_target ss_lib_target)]]"/>
 
 /////////////////////////////////////////////////////////////////////
 // First, the dynamic and static libraries.
@@ -431,7 +418,14 @@
   #define target $[ODIR]/$[get_output_file]
   #define flags   $[get_cflags] $[C++FLAGS] $[CFLAGS_OPT$[OPTIMIZE]] $[CFLAGS_SHARED] $[building_var:%=/D%]
 
-<Target Name="$[target]" DependsOnTargets="$[join ;,$[sources] $[DLLBASEADDRFILENAME:%=$[dtool_ver_dir_cyg]/%]]">
+  #define extra \
+    $[if $[not $[lib_is_static]], $[ODIR]/$[get_output_lib]] \
+    $[if $[has_pdb], $[ODIR]/$[get_output_pdb]]
+
+<Target Name="$[targetname $[target]]"
+        DependsOnTargets="$[jtargetname $[sources] $[DLLBASEADDRFILENAME:%=$[dtool_ver_dir_cyg]/%]]"
+        Inputs="$[msjoin $[osfilename $[sources] $[DLLBASEADDRFILENAME:%=$[dtool_ver_dir_cyg]/%]]]"
+        Outputs="$[msjoin $[osfilename $[target] $[extra]]]">
   #define sources $[osfilename $[sources]]
   #if $[filter %.cxx %.cpp %.yxx %.lxx,$[get_sources]]
   <Exec Command='$[link_lib_c++]'/>
@@ -441,10 +435,528 @@
 </Target>
 #endif
 
+// Here are the rules to install and uninstall the library and
+// everything that goes along with it.
+#define installed_files \
+    $[if $[build_lib], \
+      $[install_lib_dir]/$[get_output_file] \
+      $[if $[not $[lib_is_static]],$[install_lib_dir]/$[get_output_lib]] \
+      $[if $[has_pdb],$[install_lib_dir]/$[get_output_pdb]] \
+    ] \
+    $[INSTALL_SCRIPTS:%=$[install_bin_dir]/%] \
+    $[INSTALL_MODULES:%=$[install_lib_dir]/%] \
+    $[INSTALL_HEADERS:%=$[install_headers_dir]/%] \
+    $[INSTALL_DATA:%=$[install_data_dir]/%] \
+    $[INSTALL_CONFIG:%=$[install_config_dir]/%] \
+    $[igatedb:$[ODIR]/%=$[install_igatedb_dir]/%]
+
+<Target Name="install-lib$[targetname $[TARGET]]"
+        DependsOnTargets="$[jtargetname $[installed_files]]"/>
+
+<Target Name="uninstall-lib$[targetname $[TARGET]]">
+#if $[installed_files]
+  <Exec Command="del /f $[osfilename $[sort $[installed_files]]]"/>
+#endif
+</Target>
+
+#define local $[get_output_file]
+#define dest $[install_lib_dir]
+#define inputs \
+  $[osfilename $[ODIR]/$[get_output_file]] \
+  $[if $[not $[lib_is_static]],$[osfilename $[ODIR]/$[get_output_lib]]] \
+  $[if $[has_pdb],$[osfilename $[ODIR]/$[get_output_pdb]]]
+#define outputs \
+  $[osfilename $[dest]/$[get_output_file]] \
+  $[if $[not $[lib_is_static]],$[osfilename $[dest]/$[get_output_lib]]] \
+  $[if $[has_pdb], $[osfilename $[dest]/$[get_output_pdb]]]
+<Target Name="$[targetname $[install_lib_dir]/$[get_output_file]]"
+        DependsOnTargets="$[jtargetname $[ODIR]/$[get_output_file]]"
+        Inputs="$[msjoin $[inputs]]"
+        Outputs="$[msjoin $[outputs]]">
+  <Exec Command="copy $[osfilename $[ODIR]/$[local] $[dest]/]"/>
+#if $[not $[lib_is_static]]
+  <Exec Command="copy $[osfilename $[ODIR]/$[get_output_lib] $[dest]/]"/>
+#endif
+#if $[has_pdb]
+  <Exec Command="copy $[osfilename $[ODIR]/$[get_output_pdb] $[dest]/]"/>
+#endif
+</Target>
+
+#if $[igatescan]
+// Now, some additional rules to generate and compile the interrogate
+// data, if needed.
+
+// The library name is based on this library.
+#define igatelib $[get_output_name]
+// The module name comes from the Python module that includes this library.
+#define igatemod $[python_module $[TARGET],$[TARGET]]
+#if $[eq $[igatemod],]
+  // Unless no metalib includes this library.
+  #define igatemod $[TARGET]
+#endif
+
+// Target to install the interrogate database.
+#define out_igatedb $[igatedb:$[ODIR]/%=$[install_igatedb_dir]/%]
+#define local $[igatedb]
+#define dest $[install_igatedb_dir]
+<Target Name="$[targetname $[out_igatedb]]"
+        DependsOnTargets="$[jtargetname $[igatedb]]"
+        Inputs="$[osfilename $[local]]"
+        Outputs=$[osfilename $[dest]/$[out_igatedb]]">
+  <Exec Command="copy $[osfilename $[local] $[dest]/]"/>
+</Target>
+
+// We have to split this out as a separate rule to properly support
+// parallel make.
+<Target Name="$[targetname $[igatedb]]"
+        DependsOnTargets="$[jtargetname $[igateoutput]]"/>
+
+#define igate_inputs $[sort $[patsubst %.h,%.h,%.I,%.I,%.T,%.T,%,,$[dependencies $[igatescan]] $[igatescan:%=./%]]]
+// Target to run interrogate on the library.
+<Target Name="$[targetname $[igateoutput]]"
+        DependsOnTargets="$[jtargetname $[igate_inputs]]"
+        Inputs="$[msjoin $[osfilename $[igate_inputs]]]"
+        Outputs="$[osfilename $[igateoutput]]">
+  <Exec Command='$[INTERROGATE] -od $[igatedb] -oc $[igateoutput] $[interrogate_options] -module "$[igatemod]" -library "$[igatelib]" $[igate_inputs]'/>
+</Target>
+#endif  // igatescan
+
+#if $[igatemout]
+// And finally, some additional rules to build the interrogate module
+// file into the library, if this is a metalib that includes
+// interrogated components.
+
+#define igatelib $[get_output_name]
+#define igatemod $[TARGET]
+
+#define target $[igatemout]
+#define sources $[igatemscan]
+
+<Target Name="$[targetname $[target]]"
+        DependsOnTargets="$[jtargetname $[sources]]"
+        Inputs="$[msjoin $[osfilename $[sources]]]"
+        Outputs="$[osfilename $[target]]">
+  <Exec Command='$[INTERROGATE_MODULE] -oc $[target] -module "$[igatemod]" -library "$[igatelib]" $[interrogate_module_options] $[sources]'/>
+</Target>
+
+#endif  // igatemout
+
 #end python_target python_module_target metalib_target lib_target static_lib_target dynamic_lib_target ss_lib_target
 
+/////////////////////////////////////////////////////////////////////
+// Now, the noninstalled dynamic libraries.  These are presumably used
+// only within this directory, or at the most within this tree, and
+// also presumably will never include interrogate data.  That, plus
+// the fact that we don't need to generate install rules, makes it a
+// lot simpler.
+/////////////////////////////////////////////////////////////////////
+
+#forscopes noinst_lib_target test_lib_target
+
+#define sources $[patsubst %,$[%_obj],$[compile_sources]]
+#define inputs $[sources] $[static_lib_dependencies] $[GENERATED_SOURCES]
+#define target $[ODIR]/$[get_output_file]
+#define outputs \
+  $[target] \
+  $[if $[not $[lib_is_static]], $[ODIR]/$[get_output_lib]] \
+  $[if $[has_pdb], $[ODIR]/$[get_output_pdb]]
+<Target Name="$[targetname $[target]]"
+        DependsOnTargets="$[jtargetname $[inputs]]"
+        Inputs="$[msjoin $[osfilename $[inputs]]]"
+        Outputs="$[msjoin $[osfilename $[outputs]]]">
+
+#if $[filter %.cxx %.cpp %.yxx %.lxx,$[get_sources]]
+  <Exec Command='$[link_lib_c++]'/>
+#else
+  <Exec Command='$[link_lib_c]'/>
+#endif
+</Target>
+
+#end noinst_lib_target test_lib_target
+
+/////////////////////////////////////////////////////////////////////
+// For interfaces, just install the headers, but don't build any code.
+/////////////////////////////////////////////////////////////////////
+
+#forscopes interface_target
+// Here are the rules to install and uninstall the library and
+// everything that goes along with it.
+#define installed_files \
+    $[INSTALL_HEADERS:%=$[install_headers_dir]/%]
+
+<Target Name="install-lib$[targetname $[TARGET]]"
+        DependsOnTargets="$[jtargetname $[installed_files]]"/>
+
+<Target Name="uninstall-lib$[targetname $[TARGET]]">
+#if $[installed_files]
+  <Exec Command="del /f $[osfilename $[sort $[installed_files]]]"/>
+#endif
+</Target>
+#end interface_target
+
+/////////////////////////////////////////////////////////////////////
+// The sed_bin_targets are a special bunch.  These are scripts that
+// are to be preprocessed with sed before being installed, for
+// instance to insert a path or something in an appropriate place.
+/////////////////////////////////////////////////////////////////////
+#forscopes sed_bin_target
+<Target Name="$[targetname $[TARGET]]"
+        DependsOnTargets="$[targetname $[ODIR]/$[TARGET]]"
+        Inputs="$[osfilename $[ODIR]/$[TARGET]]"
+        Outputs="$[osfilename $[TARGET]]"/>
+
+#define target $[ODIR]/$[TARGET]
+#define source $[SOURCE]
+#define script $[COMMAND]
+<Target Name="$[targetname $[target]]"
+        DependsOnTargets="$[targetname $[source]]"
+        Inputs="$[osfilename $[source]]"
+        Outputs="$[osfilename $[target]]">
+  <Exec Command='$[SED]'/>
+</Target>
+
+#define installed_files \
+    $[install_bin_dir]/$[TARGET]
+#define inputs $[patsubst %,$[osfilename %],$[installed_files]]
+<Target Name="install-$[targetname $[TARGET]]"
+        DependsOnTargets="$[jtargetname $[inputs]]"/>
+
+<Target Name="uninstall-$[targetname $[TARGET]]">
+#if $[installed_files]
+#foreach file $[patsubst %,$[osfilename %],$[sort $[installed_files]]]
+  <Exec Command='if exist $[file] del /f $[file]'/>
+#end file
+#endif
+</Target>
+
+#define local $[TARGET]
+#define dest $[install_bin_dir]
+<Target Name="$[targetname $[dest]/$[TARGET]]"
+        DependsOnTargets="$[targetname $[ODIR]/$[TARGET]]"
+        Inputs="$[osfilename $[ODIR]/$[TARGET]]"
+        Outputs="$[osfilename $[dest]/$[TARGET]]">
+  <Exec Command="xcopy /I/Y $[osfilename $[ODIR]/$[local]] $[osfilename $[dest]/]"/>
+</Target>
+
+#end sed_bin_target
+
+/////////////////////////////////////////////////////////////////////
+// And now, the bin_targets.  These are normal C++ executables.  No
+// interrogate, metalibs, or any such nonsense here.
+/////////////////////////////////////////////////////////////////////
+
+#forscopes bin_target
+<Target Name="$[targetname $[TARGET]]"
+        DependsOnTargets="$[targetname $[ODIR]/$[TARGET].exe]"/>
+
+#define target $[ODIR]/$[TARGET].exe
+#define sources $[patsubst %,$[osfilename $[%_obj]],$[compile_sources]]
+#define ld $[get_ld]
+#define outputs \
+  $[target] \
+  $[if $[build_pdbs],$[ODIR]/$[TARGET].pdb]
+
+<Target Name="$[targetname $[target]]"
+        DependsOnTargets="$[jtargetname $[sources] $[static_lib_dependencies]]"
+        Inputs="$[msjoin $[osfilename $[sources] $[static_lib_dependencies]]]"
+        Outputs="$[msjoin $[osfilename $[outputs]]]">
+#if $[ld]
+  // If there's a custom linker defined for the target, we have to use it.
+  <Exec Command='$[ld] -o $[target] $[sources] $[lpath:%=-L%] $[libs:%=-l%]'/>
+#else
+  // Otherwise, we can use the normal linker.
+  #if $[filter %.cxx %.cpp %.yxx %.lxx,$[get_sources]]
+  <Exec Command='$[link_bin_c++]'/>
+  #else
+  <Exec Command='$[link_bin_c]'/>
+  #endif
+#endif
+</Target>
+
+#if $[build_pdbs]
+<Target Name="$[targetname $[ODIR]/$[TARGET].pdb]"
+        DependsOnTargets="$[targetname $[ODIR]/$[TARGET].exe]"/>
+#endif
+
+#define installed_files \
+    $[install_bin_dir]/$[TARGET].exe \
+    $[if $[build_pdbs],$[install_bin_dir]/$[TARGET].pdb] \
+    $[if $[or $[eq $[USE_COMPILER],MSVC8],$[eq $[USE_COMPILER],MSVC9],$[eq $[USE_COMPILER],MSVC9x64]],$[install_bin_dir]/$[TARGET].exe.manifest] \
+    $[INSTALL_SCRIPTS:%=$[install_bin_dir]/%] \
+    $[INSTALL_MODULES:%=$[install_lib_dir]/%] \
+    $[INSTALL_HEADERS:%=$[install_headers_dir]/%] \
+    $[INSTALL_DATA:%=$[install_data_dir]/%] \
+    $[if $[bin_postprocess_target],$[install_bin_dir]/$[bin_postprocess_target].exe] \
+    $[INSTALL_CONFIG:%=$[install_config_dir]/%]
+
+<Target Name="install-$[targetname $[TARGET]]"
+        DependsOnTargets="$[jtargetname $[installed_files]]"/>
+
+<Target Name="uninstall-$[targetname $[TARGET]]">
+#if $[installed_files]
+  <Exec Command="del /f $[osfilename $[sort $[installed_files]]]"/>
+#endif
+</Target>
+
+#define local $[TARGET].exe
+#define dest $[install_bin_dir]
+<Target Name="$[targetname $[dest]/$[local]]"
+        DependsOnTargets="$[targetname $[ODIR]/$[local]]"
+        Inputs="$[osfilename $[ODIR]/$[local]]"
+        Outputs="$[osfilename $[dest]/$[local]]">
+  <Exec Command="xcopy /I/Y $[osfilename $[ODIR]/$[local] $[dest]/$[local]]"/>
+</Target>
+
+#if $[build_pdbs]
+#define local $[TARGET].pdb
+#define dest $[install_bin_dir]
+<Target Name="$[targetname $[dest]/$[local]]"
+        DependsOnTargets="$[targetname $[ODIR]/$[local]]"
+        Inputs="$[osfilename $[ODIR]/$[local]]"
+        Outputs="$[osfilename $[dest]/$[local]]">
+  <Exec Command="xcopy /I/Y $[osfilename $[ODIR]/$[local] $[dest]/$[local]]"/>
+</Target>
+#endif
+
+#if $[bin_postprocess_target]
+#define input_exe $[ODIR]/$[TARGET].exe
+#define output_exe $[ODIR]/$[bin_postprocess_target].exe
+
+<Target Name="$[targetname $[output_exe]]"
+        DependsOnTargets="$[targetname $[input_exe]]"
+        Inputs="$[osfilename $[input_exe]]"
+        Outputs="$[osfilename $[output_exe]]">
+  <Exec Command="if exist $[osfilename $[output_exe]] del /f $[osfilename $[output_exe]]"/>
+  <Exec Command="$[bin_postprocess_cmd] $[bin_postprocess_arg1] $[osfilename $[input_exe]] $[bin_postprocess_arg2] $[osfilename $[output_exe]]"/>
+</Target>
+
+<Target Name="$[targetname $[install_bin_dir]/$[bin_postprocess_target].exe]"
+        DependsOnTargets="$[targetname $[output_exe]]"
+        Inputs="$[osfilename $[output_exe]]"
+        Outputs="$[osfilename $[install_bin_dir]/$[bin_postprocess_target].exe]">
+  <Exec Command="xcopy /I/Y $[osfilename $[output_exe]] $[osfilename $[install_bin_dir]/]"/>
+</Target>
+
+#endif
+
+#end bin_target
+
+/////////////////////////////////////////////////////////////////////
+// The noinst_bin_targets and the test_bin_targets share the property
+// of being built (when requested), but having no install rules.
+/////////////////////////////////////////////////////////////////////
+
+#forscopes noinst_bin_target test_bin_target test_lib_target
+<Target Name="$[targetname $[TARGET]]"
+        DependsOnTargets="$[targetname $[ODIR]/$[TARGET].exe]"/>
+
+#define sources $[patsubst %,$[osfilename $[%_obj]],$[compile_sources]]
+#define target $[ODIR]/$[TARGET].exe
+
+<Target Name="$[targetname $[target]]"
+        DependsOnTargets="$[jtargetname $[sources] $[static_lib_dependencies]]"
+        Inputs="$[msjoin $[osfilename $[sources] $[static_lib_dependencies]]]"
+        Outputs="$[osfilename $[target]]">
+#if $[filter %.cxx %.cpp %.yxx %.lxx,$[get_sources]]
+  <Exec Command='$[link_bin_c++]'/>
+#else
+  <Exec Command='$[link_bin_c]'/>
+#endif
+</Target>
+
+#end noinst_bin_target test_bin_target test_lib_target
+
+/////////////////////////////////////////////////////////////////////
+// Rules to run bison and/or flex as needed.
+/////////////////////////////////////////////////////////////////////
+
+// Rules to generate a C++ file from a Bison input file.
+#foreach file $[sort $[yxx_st_sources]]
+#define target $[patsubst %.yxx,%.cxx,$[file]]
+#define target_header $[patsubst %.yxx,%.h,$[file]]
+#define target_prebuilt $[target].prebuilt
+#define target_header_prebuilt $[target_header].prebuilt
+#if $[HAVE_BISON]
+<Target Name="$[targetname $[target]]"
+        Inputs="$[osfilename $[file]]"
+        Outputs="$[msjoin $[osfilename $[target] $[target_header]]]">
+  <Exec Command="$[BISON] $[YFLAGS] -y $[if $[YACC_PREFIX],-d --name-prefix=$[YACC_PREFIX]] $[osfilename $[file]]"/>
+  <Exec Command="move /y y.tab.c $[osfilename $[target]]"/>
+  <Exec Command="move /y y.tab.h $[osfilename $[target_header]]"/>
+</Target>
+
+<Target Name="$[targetname $[target_header]]"
+        DependsOnTargets="$[targetname $[target]]"/>
+
+<Target Name="$[targetname $[target_prebuilt]]"
+        DependsOnTargets="$[targetname $[target]]"
+        Inputs="$[osfilename $[target]]"
+        Outputs="$[osfilename $[target_prebuilt]]">
+  <Exec Command="copy /Y $[osfilename $[target]] $[osfilename $[target_prebuilt]]"/>
+</Target>
+
+<Target Name="$[targetname $[target_header_prebuilt]]"
+        DependsOnTargets="$[targetname $[target_header]]"
+        Inputs="$[osfilename $[target_header]]"
+        Outputs="$[osfilename $[target_header_prebuilt]]">
+  <Exec Command="copy /Y $[osfilename $[target_header]] $[osfilename $[target_header_prebuilt]]"/>
+</Target>
+
+#else // HAVE_BISON
+
+<Target Name="$[targetname $[target]]"
+        Inputs="$[osfilename $[target_prebuilt]]"
+        Outputs="$[osfilename $[target]">
+  <Exec Command="copy /Y $[osfilename $[target_prebuilt]] $[osfilename $[target]]"/>
+</Target>
+
+<Target Name="$[targetname $[target_header]]"
+        Inputs="$[osfilename $[target_header_prebuilt]]"
+        Outputs="$[osfilename $[target_header]]">
+  <Exec Command="copy /Y $[osfilename $[target_header_prebuilt]] $[osfilename $[target_header]]"/>
+</Target>
+
+#endif // HAVE_BISON
+
+#end file
+
+// Rules to generate a C++ file from a Flex input file.
+#foreach file $[sort $[lxx_st_sources]]
+#define target $[patsubst %.lxx,%.cxx,$[file]]
+#define target_prebuilt $[target].prebuilt
+#if $[HAVE_BISON]
+
+#define source $[file]
+<Target Name="$[targetname $[target]]"
+        DependsOnTargets="$[targetname $[file]]"
+        Inputs="$[osfilename $[file]]"
+        Outputs="$[osfilename $[target]]">
+  <Exec Command="$[FLEX] $[FLEXFLAGS] $[if $[YACC_PREFIX],-P$[YACC_PREFIX]] -olex.yy.c $[osfilename $[file]]"/>
+#define source lex.yy.c
+#define script /#include <unistd.h>/d
+  <Exec Command="$[SED]"/>
+  <Exec Command="if exist lex.yy.c del lex.yy.c"/>
+</Target>
+
+<Target Name="$[targetname $[target_prebuilt]]"
+        DependsOnTargets="$[targetname $[target]]"
+        Inputs="$[osfilename $[target]]"
+        Outputs="$[osfilename $[target_prebuilt]]>
+  <Exec Command="copy /Y $[osfilename $[target]] $[osfilename $[target_prebuilt]]"/>
+</Target>
+
+#else // HAVE_BISON
+
+<Target Name="$[targetname $[target]]"
+        DependsOnTargets="$[targetname $[target_prebuilt]]"
+        Inputs="$[osfilename $[target_prebuilt]]"
+        Outputs="$[osfilename $[target]]">
+  <Exec Command="copy /Y $[osfilename $[target_prebuilt]] $[osfilename $[target]]"/>
+</Target>
+
+#endif // HAVE_BISON
+
+#end file
+
+/////////////////////////////////////////////////////////////////////
+// Finally, we put in the rules to compile each source file into a .obj
+// file.
+/////////////////////////////////////////////////////////////////////
+
+#forscopes python_target python_module_target metalib_target lib_target noinst_lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target test_bin_target test_lib_target
+
+// Rules to compile ordinary C files.
+#foreach file $[sort $[c_sources]]
+#define target $[$[file]_obj]
+#define source $[file]
+#define ipath $[target_ipath]
+#define flags $[cflags] $[building_var:%=/D%]
+#if $[ne $[file], $[notdir $file]]
+  // If the source file is not in the current directory, tack on "."
+  // to front of the ipath.
+  #set ipath . $[ipath]
+#endif
+
+#if $[not $[direct_tau]]
+
+<Target Name="$[targetname $[target]]"
+        DependsOnTargets="$[jtargetname $[source] $[get_depends $[source]]]"
+        Inputs="$[msjoin $[osfilename $[source] $[get_depends $[source]]]]"
+        Outputs="$[osfilename $[target]]">
+  <Exec Command='$[compile_c]'/>
+</Target>
+
+#else // direct_tau
+// This version is used to invoke the tau compiler directly.
+#define il_source $[target].il
+#define pdb_source $[target].pdb  // Not to be confused with windows .pdb debugger info files.
+#define inst_source $[notdir $[target:%.obj=%.inst.c]]
+
+<Target Name="$[targetname $[il_source]]"
+        Inputs="$[osfilename $[source]]"
+        Outputs="$[osfilename $[il_source]]">
+  <Exec Command="$[TAU_MAKE_IL]"/>
+</Target>
+
+<Target Name="$[targetname $[pdb_source]]"
+        Inputs="$[osfilename $[il_source]]"
+        DependsOnTargets="$[targetname $[il_source]]"
+        Outputs="$[osfilename $[pdb_source]]">
+  <Exec Command="$[TAU_MAKE_PDB]"/>
+</Target>
+
+<Target Name="$[targetname $[inst_source]]"
+        DependsOnTargets="$[targetname $[pdb_source]]]"
+        Inputs="$[osfilename $[pdb_source]]"
+        Outputs="$[osfilename $[inst_source]]">
+  <Exec Command="$[TAU_MAKE_INST] -c"/>
+</Target>
+
+<Target Name="$[targetname $[target]]"
+        DependsOnTargets="$[targetname $[inst_source]]"
+        Inputs="$[osfilename $[inst_source] $[get_depends $[source]]]"
+        Outputs="$[osfilename $[target]]">
+#define source $[inst_source]
+  <Exec Command='$[COMPILE_C]'/>
+</Target>
+
+#endif // direct_tau
+
+#end file
+
+// Rules to compile C++ files.
+
+#foreach file $[sort $[cxx_sources]]
+#define target $[$[file]_obj]
+#define source $[file]
+#define ipath $[target_ipath]
+#define flags $[c++flags] $[building_var:%=/D%]
+#if $[ne $[file], $[notdir $file]]
+  // If the source file is not in the current directory, tack on "."
+  // to front of the ipath.
+  #set ipath . $[ipath]
+#endif
+
+#define yacc_sources $[yxx_sources:%.yxx=%.h]
+#if $[not $[direct_tau]]
+// Yacc must run before some files can be compiled, so all files
+// depend on yacc having run.
+<Target Name="$[targetname $[target]]"
+        DependsOnTargets="$[targetname $[yacc_sources]]"
+        Inputs="$[msjoin $[osfilename $[source] $[get_depends $[source]] $[yacc_sources]]]"
+        Outputs="$[osfilename $[target]]">
+  <Exec Command='$[compile_c++]'/>
+</Target>
+
+#else  // direct_tau
+
+#endif // direct_tau
+
+#end file // file
+
+#end python_target python_module_target metalib_target lib_target noinst_lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target test_bin_target test_lib_target
 </Project>
 
-#end $[DIRNAME].msbuild
+#end $[DIRNAME].proj
 
 #endif
