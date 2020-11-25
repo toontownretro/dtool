@@ -925,12 +925,8 @@ $[TAB] $[COMPILE_C]
   #set ipath . $[ipath]
 #endif
 
-// Yacc must run before some files can be compiled, so all files
-// depend on yacc having run.
-#define yacc_sources $[patsubst %.yxx,%.cxx %.h,$[yxx_sources]] $[patsubst %.lxx,%.cxx,$[lxx_sources]]
-
 #if $[not $[direct_tau]]
-$[target] : $[source] $[get_depends $[source]] $[yacc_sources]
+$[target] : $[source] $[get_depends $[source]] $[generated_sources]
 $[TAB] $[compile_c++]
 
 #else  // direct_tau
@@ -938,7 +934,7 @@ $[TAB] $[compile_c++]
 #define il_source $[target].il
 #define pdb_source $[target].pdb  // Not to be confused with windows .pdb debugger info files.
 #define inst_source $[notdir $[target:%.obj=%.inst.cxx]]
-$[il_source] : $[source] $[yacc_sources]
+$[il_source] : $[source] $[generated_sources]
 $[TAB] $[TAU_MAKE_IL]
 
 $[pdb_source] : $[il_source]

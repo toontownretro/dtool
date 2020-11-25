@@ -678,8 +678,7 @@ $[TAB] $[compile_c]
 
 // Yacc must run before some files can be compiled, so all files
 // depend on yacc having run.
-#define yacc_sources $[patsubst %.yxx,%.cxx %.h,$[yxx_sources]] $[patsubst %.lxx,%.cxx,$[lxx_sources]]
-$[target] : $[source] $[get_depends $[source]] $[yacc_sources]
+$[target] : $[source] $[get_depends $[source]] $[generated_sources]
 $[TAB] $[compile_c++]
 
 #end file

@@ -574,8 +574,8 @@
 #forscopes noinst_lib_target test_lib_target
 
 #define sources $[patsubst %,$[%_obj],$[compile_sources]]
-#define inputs $[sources] $[static_lib_dependencies] $[GENERATED_SOURCES]
-#define depend_targets $[sources] $[GENERATED_SOURCES]
+#define inputs $[sources] $[static_lib_dependencies]
+#define depend_targets $[sources]
 #define target $[ODIR]/$[get_output_file]
 #define outputs \
   $[target] \
@@ -956,13 +956,12 @@
   #set ipath . $[ipath]
 #endif
 
-#define yacc_sources $[patsubst %.yxx,%.cxx %.h,$[yxx_sources]] $[patsubst %.lxx,%.cxx,$[lxx_sources]]
 #if $[not $[direct_tau]]
 // Yacc must run before some files can be compiled, so all files
 // depend on yacc having run.
 <Target Name="$[targetname $[target]]"
-        DependsOnTargets="$[jtargetname $[yacc_sources]]"
-        Inputs="$[msjoin $[osfilename $[source] $[get_depends $[source]] $[yacc_sources]]]"
+        DependsOnTargets="$[jtargetname $[generated_sources]]"
+        Inputs="$[msjoin $[osfilename $[source] $[get_depends $[source]]]]"
         Outputs="$[osfilename $[target]]">
   <Exec Command='$[compile_c++]'/>
 </Target>
@@ -974,8 +973,8 @@
 #define inst_source $[notdir $[target:%.obj=%.inst.cxx]]
 
 <Target Name="$[targetname $[il_source]]"
-        DependsOnTargets="$[jtargetname $[yacc_sources]]"
-        Inputs="$[msjoin $[osfilename $[source] $[yacc_sources]]]"
+        DependsOnTargets="$[jtargetname $[generated_sources]]"
+        Inputs="$[msjoin $[osfilename $[source]]]"
         Outputs="$[osfilename $[il_source]]">
   <Exec Command="$[TAU_MAKE_IL]"/>
 </Target>
