@@ -3,6 +3,7 @@
 
 /dtool_config.h
 Makefile
+*.proj
 pp.dep
 /built/
 Opt?-*
