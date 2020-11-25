@@ -69,15 +69,11 @@
 // allowable choices, at present, are:
 //
 //  unix      - Generate makefiles suitable for most Unix platforms.
-//  nmake     - Generate makefiles for Microsoft Visual C++, using
-//              Microsoft's nmake utility.
-//  gmsvc     - Generate makefiles similar to the above, using Microsoft
-//              Visual C++, but uses the Cygwin-supplied GNU make
-//              instead of Microsoft nmake.  This is potentially
-//              faster if you have multiple CPU's, since it supports
-//              distributed make.  It's a tiny bit slower if you're
-//              not taking advantage of distributed make, because of
-//              the overhead associated with Cygwin fork() calls.
+//  msbuild   - Generate project files for Microsoft's MSBuild build
+//              system.  These can be built natively on Windows,
+//              eliminating the need for Cygwin.
+//  gmsvc     - Generate makefiles for Microsoft Visual C++ using the
+//              Cygwin-supplied GNU make.
 
 #if $[or $[eq $[PLATFORM], Win32],$[eq $[PLATFORM], Win64]]
   #define BUILD_TYPE nmake

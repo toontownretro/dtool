@@ -2,9 +2,7 @@
 // Template.msbuild.pp
 //
 // This file defines the set of output files that will be generated to
-// support Microsoft's MSBuild build system.  In particular, it generates
-// a VC++ project file for each target, and all project files are colleected
-// into a top-level Visual Studio Solution file for the package.
+// support Microsoft's MSBuild build system.
 //
 
 // Before this file is processed, the following files are read and
@@ -39,6 +37,26 @@
    ]
 #defer LDFLAGS_OPT3 $[LDFLAGS_OPT3] $[nodefaultlib_cstatic]
 #defer LDFLAGS_OPT4 $[LDFLAGS_OPT4] $[nodefaultlib_cstatic]
+
+// Converts the set of names to suitable MSBuild target names.
+#defun targetname files
+  $[subst -,_,.,_,/,_,$[files]]
+#end targetname
+
+// Converts the space-separated words to semicolon separated words.
+#defun msjoin names
+  $[join ;,$[names]]
+#end msjoin
+
+// Converts the space-seperated words to suitable MSBuild target names
+// and separates them with a semicolon.
+#defun jtargetname files
+  $[msjoin $[targetname $[files]]]
+#end jtargetname
+
+#defun make rule
+  msbuild -t:$[rule]
+#end make
 
 //////////////////////////////////////////////////////////////////////
 #if $[or $[eq $[DIR_TYPE], src],$[eq $[DIR_TYPE], metalib],$[eq $[DIR_TYPE], module]]
@@ -135,11 +153,6 @@
 
 #defer target_ipath $[TOPDIR] $[sort $[complete_ipath]] $[other_trees_include] $[get_ipath]
 
-// $[converted_ipath] is the properly-formatted version of the include path
-// for Visual Studio .NET.  The resulting list is semicolon separated and uses
-// Windows-style pathnames.
-#defer converted_ipath $[join ;,$[osfilename $[target_ipath]]]
-
 // These are the complete set of extra flags the compiler requires.
 #defer cflags $[get_cflags] $[CFLAGS] $[CFLAGS_OPT$[OPTIMIZE]]
 #defer c++flags $[get_cflags] $[C++FLAGS] $[CFLAGS_OPT$[OPTIMIZE]]
@@ -152,15 +165,8 @@
 // should add to our -L list, from the context of a particular target.
 #defer lpath $[sort $[complete_lpath]] $[other_trees_lib] $[get_lpath]
 
-// $[converted_lpath] is the properly-formatted version of the library path
-// for Visual Studio .NET.  The resulting list is semicolon separated and uses
-// Windows-style pathnames.
-#defer converted_lpath $[join ;,$[osfilename $[lpath]]]
-
 // $[libs] is the set of libraries we will link with.
 #defer libs $[unique $[actual_local_libs:%=%$[dllext]] $[get_libs]]
-
-#defer converted_libs $[patsubst %.lib,%.lib,%,lib%.lib,$[libs]]
 
 #defer get_output_lib $[get_output_file_noext].lib
 #defer get_output_pdb $[get_output_file_noext].pdb
@@ -168,22 +174,6 @@
 // This is the set of files we might copy into *.prebuilt, if we have
 // bison and flex (or copy from *.prebuilt if we don't have them).
 #define bison_prebuilt $[patsubst %.yxx,%.cxx %.h,$[yxx_st_sources]] $[patsubst %.lxx,%.cxx,$[lxx_st_sources]]
-
-// Converts the set of names to suitable MSBuild target names.
-#defun targetname files
-  $[subst -,_,.,_,/,_,$[files]]
-#end targetname
-
-// Converts the space-separated words to semicolon separated words.
-#defun msjoin names
-  $[join ;,$[names]]
-#end msjoin
-
-// Converts the space-seperated words to suitable MSBuild target names
-// and separates them with a semicolon.
-#defun jtargetname files
-  $[msjoin $[targetname $[files]]]
-#end jtargetname
 
 // Rather than making a rule to generate each install directory later,
 // we create the directories now.  This reduces problems from
@@ -282,7 +272,7 @@
 // and building.  It removes everything except the Makefile.
 <Target Name="cleanall" DependsOnTargets="clean">
 #if $[st_sources]
-  <Exec Command="del /f $[osfilename $[ODIR]]"/>
+  <Exec Command="rmdir /s $[osfilename $[ODIR]]"/>
 #endif
 #if $[ne $[DEPENDENCY_CACHE_FILENAME],]
   <Exec Command="del /f $[osfilename $[DEPENDENCY_CACHE_FILENAME]]"/>
@@ -326,15 +316,18 @@
      $[get_igatedb(python_module_target lib_target ss_lib_target):$[ODIR]/%=$[install_igatedb_dir]/%]
 
 #define install_targets \
-     $[active_target(interface_target python_target python_module_target metalib_target lib_target static_lib_target dynamic_lib_target ss_lib_target):%=install-lib%] \
-     $[active_target(bin_target sed_bin_target csharp_target):%=install-%] \
-     $[installed_files]
+     $[patsubst %,install-lib$[targetname %],$[active_target(interface_target python_target python_module_target metalib_target lib_target static_lib_target dynamic_lib_target ss_lib_target)]] \
+     $[patsubst %,install-$[targetname %],$[active_target(bin_target sed_bin_target csharp_target)]] \
+     $[targetname $[installed_files]]
+
+#define uninstall_targets \
+    $[patsubst %,uninstall-lib$[targetname %],$[active_target(interface_target python_target python_module_target metalib_target lib_target static_lib_target dynamic_lib_target ss_lib_target)]] \
+    $[patsubst %,uninstall-$[targetname %],$[active_target(bin_target)]]
 
 <Target Name="install" DependsOnTargets="$[msjoin all $[install_targets]]"/>
 
 <Target Name="install-igate" DependsOnTargets="$[jtargetname $[sort $[installed_igate_files]]]"/>
-
-<Target Name="uninstall" DependsOnTargets="$[msjoin $[active_target(interface_target python_target python_module_target metalib_target lib_target static_lib_target dynamic_lib_target ss_lib_target):%=uninstall-lib%] $[active_target(bin_target):%=uninstall-%]]">
+<Target Name="uninstall" DependsOnTargets="$[msjoin $[uninstall_targets]]">
 #if $[installed_files]
   <Exec Command="del /f $[osfilename $[sort $[installed_files]]]"/>
 #endif
@@ -409,10 +402,13 @@
 
   #define sources \
    $[patsubst %,$[%_obj],$[compile_sources]]
+  #define depend_targets $[sources]
   #if $[not $[BUILD_COMPONENTS]]
     // Also link in all of the component files directly into the metalib.
     #define sources $[sources] \
       $[components $[patsubst %,$[RELDIR]/$[%_obj],$[compile_sources]],$[active_component_libs]]
+    // Don't depend on these sources, MSBuild Targets cannot depend on Targets
+    // from another project.
   #endif
 
   #define target $[ODIR]/$[get_output_file]
@@ -423,7 +419,7 @@
     $[if $[has_pdb], $[ODIR]/$[get_output_pdb]]
 
 <Target Name="$[targetname $[target]]"
-        DependsOnTargets="$[jtargetname $[sources] $[DLLBASEADDRFILENAME:%=$[dtool_ver_dir_cyg]/%]]"
+        DependsOnTargets="$[jtargetname $[depend_targets]]"
         Inputs="$[msjoin $[osfilename $[sources] $[DLLBASEADDRFILENAME:%=$[dtool_ver_dir_cyg]/%]]]"
         Outputs="$[msjoin $[osfilename $[target] $[extra]]]">
   #define sources $[osfilename $[sources]]
@@ -433,6 +429,18 @@
   <Exec Command='$[link_lib_c]'/>
   #endif
 </Target>
+
+// Additional dependency rules for the implicit files that get built
+// along with a .dll.
+#if $[not $[lib_is_static]]
+<Target Name="$[targetname $[ODIR]/$[get_output_lib]]"
+        DependsOnTargets="$[targetname $[ODIR]/$[get_output_file]]"/>
+#endif
+#if $[has_pdb]
+<Target Name="$[targetname $[ODIR]/$[get_output_pdb]]"
+        DependsOnTargets="$[targetname $[ODIR]/$[get_output_file]]"/>
+#endif
+
 #endif
 
 // Here are the rules to install and uninstall the library and
@@ -462,25 +470,38 @@
 #define local $[get_output_file]
 #define dest $[install_lib_dir]
 #define inputs \
-  $[osfilename $[ODIR]/$[get_output_file]] \
-  $[if $[not $[lib_is_static]],$[osfilename $[ODIR]/$[get_output_lib]]] \
-  $[if $[has_pdb],$[osfilename $[ODIR]/$[get_output_pdb]]]
+  $[osfilename $[ODIR]/$[get_output_file]]
 #define outputs \
-  $[osfilename $[dest]/$[get_output_file]] \
-  $[if $[not $[lib_is_static]],$[osfilename $[dest]/$[get_output_lib]]] \
-  $[if $[has_pdb], $[osfilename $[dest]/$[get_output_pdb]]]
+  $[osfilename $[dest]/$[get_output_file]]
 <Target Name="$[targetname $[install_lib_dir]/$[get_output_file]]"
-        DependsOnTargets="$[jtargetname $[ODIR]/$[get_output_file]]"
+        DependsOnTargets="$[targetname $[ODIR]/$[get_output_file]]"
         Inputs="$[msjoin $[inputs]]"
         Outputs="$[msjoin $[outputs]]">
-  <Exec Command="copy $[osfilename $[ODIR]/$[local] $[dest]/]"/>
-#if $[not $[lib_is_static]]
-  <Exec Command="copy $[osfilename $[ODIR]/$[get_output_lib] $[dest]/]"/>
-#endif
-#if $[has_pdb]
-  <Exec Command="copy $[osfilename $[ODIR]/$[get_output_pdb] $[dest]/]"/>
-#endif
+  <Exec Command="xcopy /I/Y $[osfilename $[ODIR]/$[local] $[dest]/]"/>
 </Target>
+
+// Install the .lib associated with a .dll.
+#if $[not $[lib_is_static]]
+<Target Name="$[targetname $[install_lib_dir]/$[get_output_lib]]"
+        Inputs="$[osfilename $[ODIR]/$[get_output_lib]]"
+        Outputs="$[osfilename $[install_lib_dir]/$[get_output_lib]]"
+        DependsOnTargets="$[targetname $[ODIR]/$[get_output_lib]]">
+#define local $[get_output_lib]
+#define dest $[install_lib_dir]
+  <Exec Command="xcopy /I/Y $[osfilename $[ODIR]/$[local] $[dest]/]"/>
+</Target>
+#endif
+
+#if $[has_pdb]
+<Target Name="$[targetname $[install_lib_dir]/$[get_output_pdb]]"
+        DependsOnTargets="$[targetname $[ODIR]/$[get_output_pdb]]"
+        Inputs="$[osfilename $[ODIR]/$[get_output_pdb]]"
+        Outputs="$[osfilename $[install_lib_dir]/$[get_output_pdb]]">
+#define local $[get_output_pdb]
+#define dest $[install_lib_dir]
+  <Exec Command="xcopy /I/Y $[osfilename $[ODIR]/$[local] $[dest]/]"/>
+</Target>
+#endif
 
 #if $[igatescan]
 // Now, some additional rules to generate and compile the interrogate
@@ -503,7 +524,7 @@
         DependsOnTargets="$[jtargetname $[igatedb]]"
         Inputs="$[osfilename $[local]]"
         Outputs=$[osfilename $[dest]/$[out_igatedb]]">
-  <Exec Command="copy $[osfilename $[local] $[dest]/]"/>
+  <Exec Command="xcopy /I/Y $[osfilename $[local] $[dest]/]"/>
 </Target>
 
 // We have to split this out as a separate rule to properly support
@@ -555,13 +576,14 @@
 
 #define sources $[patsubst %,$[%_obj],$[compile_sources]]
 #define inputs $[sources] $[static_lib_dependencies] $[GENERATED_SOURCES]
+#define depend_targets $[sources] $[GENERATED_SOURCES]
 #define target $[ODIR]/$[get_output_file]
 #define outputs \
   $[target] \
   $[if $[not $[lib_is_static]], $[ODIR]/$[get_output_lib]] \
   $[if $[has_pdb], $[ODIR]/$[get_output_pdb]]
 <Target Name="$[targetname $[target]]"
-        DependsOnTargets="$[jtargetname $[inputs]]"
+        DependsOnTargets="$[jtargetname $[depend_targets]]"
         Inputs="$[msjoin $[osfilename $[inputs]]]"
         Outputs="$[msjoin $[osfilename $[outputs]]]">
 
@@ -650,14 +672,14 @@
         DependsOnTargets="$[targetname $[ODIR]/$[TARGET].exe]"/>
 
 #define target $[ODIR]/$[TARGET].exe
-#define sources $[patsubst %,$[osfilename $[%_obj]],$[compile_sources]]
+#define sources $[patsubst %,$[%_obj],$[compile_sources]]
 #define ld $[get_ld]
 #define outputs \
   $[target] \
   $[if $[build_pdbs],$[ODIR]/$[TARGET].pdb]
 
 <Target Name="$[targetname $[target]]"
-        DependsOnTargets="$[jtargetname $[sources] $[static_lib_dependencies]]"
+        DependsOnTargets="$[jtargetname $[sources]]"
         Inputs="$[msjoin $[osfilename $[sources] $[static_lib_dependencies]]]"
         Outputs="$[msjoin $[osfilename $[outputs]]]">
 #if $[ld]
@@ -704,7 +726,7 @@
         DependsOnTargets="$[targetname $[ODIR]/$[local]]"
         Inputs="$[osfilename $[ODIR]/$[local]]"
         Outputs="$[osfilename $[dest]/$[local]]">
-  <Exec Command="xcopy /I/Y $[osfilename $[ODIR]/$[local] $[dest]/$[local]]"/>
+  <Exec Command="xcopy /I/Y $[osfilename $[ODIR]/$[local] $[dest]/]"/>
 </Target>
 
 #if $[build_pdbs]
@@ -714,7 +736,7 @@
         DependsOnTargets="$[targetname $[ODIR]/$[local]]"
         Inputs="$[osfilename $[ODIR]/$[local]]"
         Outputs="$[osfilename $[dest]/$[local]]">
-  <Exec Command="xcopy /I/Y $[osfilename $[ODIR]/$[local] $[dest]/$[local]]"/>
+  <Exec Command="xcopy /I/Y $[osfilename $[ODIR]/$[local] $[dest]/]"/>
 </Target>
 #endif
 
@@ -754,7 +776,7 @@
 #define target $[ODIR]/$[TARGET].exe
 
 <Target Name="$[targetname $[target]]"
-        DependsOnTargets="$[jtargetname $[sources] $[static_lib_dependencies]]"
+        DependsOnTargets="$[jtargetname $[sources]]"
         Inputs="$[msjoin $[osfilename $[sources] $[static_lib_dependencies]]]"
         Outputs="$[osfilename $[target]]">
 #if $[filter %.cxx %.cpp %.yxx %.lxx,$[get_sources]]
@@ -792,14 +814,14 @@
         DependsOnTargets="$[targetname $[target]]"
         Inputs="$[osfilename $[target]]"
         Outputs="$[osfilename $[target_prebuilt]]">
-  <Exec Command="copy /Y $[osfilename $[target]] $[osfilename $[target_prebuilt]]"/>
+  <Exec Command="xcopy /I/Y $[osfilename $[target]] $[osfilename $[target_prebuilt]]"/>
 </Target>
 
 <Target Name="$[targetname $[target_header_prebuilt]]"
         DependsOnTargets="$[targetname $[target_header]]"
         Inputs="$[osfilename $[target_header]]"
         Outputs="$[osfilename $[target_header_prebuilt]]">
-  <Exec Command="copy /Y $[osfilename $[target_header]] $[osfilename $[target_header_prebuilt]]"/>
+  <Exec Command="xcopy /I/Y $[osfilename $[target_header]] $[osfilename $[target_header_prebuilt]]"/>
 </Target>
 
 #else // HAVE_BISON
@@ -807,13 +829,13 @@
 <Target Name="$[targetname $[target]]"
         Inputs="$[osfilename $[target_prebuilt]]"
         Outputs="$[osfilename $[target]">
-  <Exec Command="copy /Y $[osfilename $[target_prebuilt]] $[osfilename $[target]]"/>
+  <Exec Command="xcopy /I/Y $[osfilename $[target_prebuilt]] $[osfilename $[target]]"/>
 </Target>
 
 <Target Name="$[targetname $[target_header]]"
         Inputs="$[osfilename $[target_header_prebuilt]]"
         Outputs="$[osfilename $[target_header]]">
-  <Exec Command="copy /Y $[osfilename $[target_header_prebuilt]] $[osfilename $[target_header]]"/>
+  <Exec Command="xcopy /I/Y $[osfilename $[target_header_prebuilt]] $[osfilename $[target_header]]"/>
 </Target>
 
 #endif // HAVE_BISON
@@ -842,7 +864,7 @@
         DependsOnTargets="$[targetname $[target]]"
         Inputs="$[osfilename $[target]]"
         Outputs="$[osfilename $[target_prebuilt]]>
-  <Exec Command="copy /Y $[osfilename $[target]] $[osfilename $[target_prebuilt]]"/>
+  <Exec Command="xcopy /I/Y $[osfilename $[target]] $[osfilename $[target_prebuilt]]"/>
 </Target>
 
 #else // HAVE_BISON
@@ -851,7 +873,7 @@
         DependsOnTargets="$[targetname $[target_prebuilt]]"
         Inputs="$[osfilename $[target_prebuilt]]"
         Outputs="$[osfilename $[target]]">
-  <Exec Command="copy /Y $[osfilename $[target_prebuilt]] $[osfilename $[target]]"/>
+  <Exec Command="xcopy /I/Y $[osfilename $[target_prebuilt]] $[osfilename $[target]]"/>
 </Target>
 
 #endif // HAVE_BISON
@@ -880,7 +902,6 @@
 #if $[not $[direct_tau]]
 
 <Target Name="$[targetname $[target]]"
-        DependsOnTargets="$[jtargetname $[source] $[get_depends $[source]]]"
         Inputs="$[msjoin $[osfilename $[source] $[get_depends $[source]]]]"
         Outputs="$[osfilename $[target]]">
   <Exec Command='$[compile_c]'/>
@@ -914,7 +935,7 @@
 
 <Target Name="$[targetname $[target]]"
         DependsOnTargets="$[targetname $[inst_source]]"
-        Inputs="$[osfilename $[inst_source] $[get_depends $[source]]]"
+        Inputs="$[msjoin $[osfilename $[inst_source] $[get_depends $[source]]]]"
         Outputs="$[osfilename $[target]]">
 #define source $[inst_source]
   <Exec Command='$[COMPILE_C]'/>
@@ -942,21 +963,368 @@
 // Yacc must run before some files can be compiled, so all files
 // depend on yacc having run.
 <Target Name="$[targetname $[target]]"
-        DependsOnTargets="$[targetname $[yacc_sources]]"
+        DependsOnTargets="$[jtargetname $[yacc_sources]]"
         Inputs="$[msjoin $[osfilename $[source] $[get_depends $[source]] $[yacc_sources]]]"
         Outputs="$[osfilename $[target]]">
   <Exec Command='$[compile_c++]'/>
 </Target>
 
 #else  // direct_tau
+// This version is used to invoke the tau compiler directly.
+#define il_source $[target].il
+#define pdb_source $[target].pdb  // Not to be confused with windows .pdb debugger info files.
+#define inst_source $[notdir $[target:%.obj=%.inst.cxx]]
 
+<Target Name="$[targetname $[il_source]]"
+        DependsOnTargets="$[jtargetname $[yacc_sources]]"
+        Inputs="$[msjoin $[osfilename $[source] $[yacc_sources]]]"
+        Outputs="$[osfilename $[il_source]]">
+  <Exec Command="$[TAU_MAKE_IL]"/>
+</Target>
+
+<Target Name="$[targetname $[pdb_source]]"
+        DependsOnTargets="$[targetname $[il_source]]"
+        Inputs="$[osfilename $[il_source]]"
+        Outputs="$[osfilename $[pdb_source]]">
+  <Exec Command="$[TAU_MAKE_PDB]"/>
+</Target>
+
+<Target Name="$[targetname $[inst_source]]"
+        DependsOnTargets="$[targetname $[pdb_source]]"
+        Inputs="$[osfilename $[pdb_source]]"
+        Outputs="$[osfilename $[inst_source]]">
+  <Exec Command="$[TAU_MAKE_INST]"/>
+</Target>
+
+<Target Name="$[targetname $[target]]"
+        DependsOnTargets="$[targetname $[inst_source]]"
+        Inputs="$[msjoin $[osfilename $[inst_source] $[get_depends $[source]]]]"
+        Outputs="$[osfilename $[target]]">
+#define source $[inst_source]
+  <Exec Command='$[COMPILE_C++]'/>
 #endif // direct_tau
 
 #end file // file
 
 #end python_target python_module_target metalib_target lib_target noinst_lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target test_bin_target test_lib_target
+
+// And now the rules to install the auxiliary files, like headers and
+// data files.
+
+#foreach file $[install_scripts]
+<Target Name="$[targetname $[install_bin_dir]/$[file]]"
+        Inputs="$[osfilename $[file]]"
+        Outputs="$[osfilename $[install_bin_dir]/$[file]]">
+#define local $[file]
+#define dest $[install_bin_dir]
+  <Exec Command="xcopy /I/Y $[osfilename $[local]] $[osfilename $[dest]/]"/>
+</Target>
+#end file
+
+#foreach file $[install_modules]
+<Target Name="$[targetname $[install_lib_dir]/$[file]]"
+        Inputs="$[osfilename $[file]]"
+        Outputs="$[osfilename $[install_lib_dir]/$[file]]">
+#define local $[file]
+#define dest $[install_lib_dir]
+  <Exec Command="xcopy /I/Y $[osfilename $[local]] $[osfilename $[dest]/]"/>
+</Target>
+#end file
+
+#foreach file $[install_headers]
+<Target Name="$[targetname $[install_headers_dir]/$[file]]"
+        Inputs="$[osfilename $[file]]"
+        Outputs="$[osfilename $[install_headers_dir]/$[file]]">
+#define local $[file]
+#define dest $[install_headers_dir]
+  <Exec Command="xcopy /I/Y $[osfilename $[local]] $[osfilename $[dest]/]"/>
+</Target>
+#end file
+
+#foreach file $[install_parser_inc]
+#if $[ne $[dir $[file]], ./]
+<Target Name="$[targetname $[install_parser_inc_dir]/$[file]]"
+        Inputs="$[osfilename $[notdir $[file]]]"
+        Outputs="$[osfilename $[install_parser_inc_dir]/$[dir $[file]]]">
+  #define local $[file]
+  #define dest $[osfilename $[install_parser_inc_dir]/$[dir $[file]]]
+  <Exec Command="if not exist $[dest] mkdir $[dest] || echo"/>
+  <Exec Command="xcopy /I/Y $[osfilename $[local]] $[osfilename $[dest]/]"/>
+</Target>
+#else
+<Target Name="$[targetname $[install_parser_inc_dir]/$[file]]"
+        Inputs="$[osfilename $[file]]"
+        Outputs="$[osfilename $[install_parser_inc_dir]/$[file]]">
+  #define local $[file]
+  #define dest $[install_parser_inc_dir]
+  <Exec Command="xcopy /I/Y $[osfilename $[local]] $[osfilename $[dest]/]"/>
+</Target>
+#endif
+#end file
+
+#foreach file $[install_data]
+<Target Name="$[targetname $[install_data_dir]/$[file]]"
+        Inputs="$[osfilename $[file]]"
+        Outputs="$[osfilename $[install_data_dir]/$[file]]">
+#define local $[file]
+#define dest $[install_data_dir]
+  <Exec Command="xcopy /I/Y $[osfilename $[local]] $[osfilename $[dest]/]"/>
+</Target>
+#end file
+
+#foreach file $[install_config]
+<Target Name="$[targetname $[install_config_dir]/$[file]]"
+        Inputs="$[osfilename $[file]]"
+        Outputs="$[osfilename $[install_config_dir]/$[file]]">
+#define local $[file]
+#define dest $[install_config_dir]
+  <Exec Command="xcopy /I/Y $[osfilename $[local]] $[osfilename $[dest]/]"/>
+</Target>
+#end file
+
+#foreach file $[install_py]
+<Target Name="$[targetname $[install_py_dir]/$[file]]"
+        Inputs="$[osfilename $[file]]"
+        Outputs="$[osfilename $[install_py_dir]/$[file]]">
+#define local $[file]
+#define dest $[install_py_dir]
+  <Exec Command="xcopy /I/Y $[osfilename $[local]] $[osfilename $[dest]/]"/>
+</Target>
+#end file
+
+#if $[install_py]
+#define output $[install_py_package_dir]/__init__.py
+<Target Name="$[targetname $[output]]"
+        Outputs="$[osfilename $[output]]">
+  <Exec Command="echo. > $[osfilename $[output]]"/>
+</Target>
+#endif
+
+// Finally, all the special targets.  These are commands that just need
+// to be invoked; we don't pretend to know what they are.
+#forscopes special_target
+<Target Name="$[targetname $[TARGET]]">
+  <Exec Command='$[COMMAND]'/>
+</Target>
+
+#end special_target
+
+// Finally, the rules to freshen the Makefile itself.
+<Target Name="Makefile"
+        Inputs="$[msjoin $[osfilename $[SOURCE_FILENAME] $[EXTRA_PPREMAKE_SOURCE]]]"
+        Outputs="$[osfilename $[DIRNAME].proj]">
+  <Exec Command="ppremake"/>
+</Target>
+
+#if $[USE_TAU]
+#foreach composite_file $[composite_list]
+#define composite_file_sources $[$[composite_file]_sources]
+<Target Name="$[targetname $[composite_file]]"
+        Inputs="$[osfilename $[composite_file_sources]]"
+        Outputs="$[osfilename $[composite_file]]">
+  <Exec Command="ppremake"/>
+</Target>
+#end composite_file
+#endif   // USE_TAU
+
+#if $[and $[DEPENDENCY_CACHE_FILENAME],$[dep_sources]]
+<Target Name="$[targetname $[DEPENDENCY_CACHE_FILENAME]]"
+        Inputs="$[msjoin $[osfilename $[dep_sources]]]"
+        Outputs="$[osfilename $[DEPENDENCY_CACHE_FILENAME]]">
+  <Exec Command="@ppremake -D $[DEPENDENCY_CACHE_FILENAME]"/>
+</Target>
+#endif
+
 </Project>
 
 #end $[DIRNAME].proj
 
+//////////////////////////////////////////////////////////////////////
+#elif $[eq $[DIR_TYPE], group]
+//////////////////////////////////////////////////////////////////////
+
+// This is a group directory: a directory above a collection of source
+// directories, e.g. $DTOOL/src.  We don't need to output anything in
+// this directory.
+
+
+//////////////////////////////////////////////////////////////////////
+#elif $[eq $[DIR_TYPE], toplevel]
+//////////////////////////////////////////////////////////////////////
+
+// This is the toplevel directory, e.g. $DTOOL.  Here we build the
+// root makefile and also synthesize the dtool_config.h (or whichever
+// file) we need.
+
+#map subdirs
+// Iterate through all of our known source files.  Each src and
+// metalib type file gets its corresponding Makefile listed
+// here.  However, we test for $[DIR_TYPE] of toplevel, because the
+// source directories typically don't define their own DIR_TYPE
+// variable, and they end up inheriting this one dynamically.
+#forscopes */
+#if $[or $[eq $[DIR_TYPE], src],$[eq $[DIR_TYPE], metalib],$[eq $[DIR_TYPE], module],$[and $[eq $[DIR_TYPE], toplevel],$[ne $[DIRNAME],top]]]
+#if $[build_directory]
+  #addmap subdirs $[DIRNAME]
 #endif
+#endif
+#end */
+
+#if $[PYTHON_PACKAGE]
+#include $[THISDIRPREFIX]PythonPackageInit.pp
+#endif
+
+#output $[PACKAGE].proj
+#format collapse
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated automatically by $[PPREMAKE] $[PPREMAKE_VERSION] from $[SOURCEFILE]. -->
+<!--                              DO NOT EDIT                                       -->
+<Project DefaultTargets="all" ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+<Target Name="all"
+        DependsOnTargets="$[msjoin $[subdirs]]"/>
+<Target Name="test"
+        DependsOnTargets="$[msjoin $[subdirs:%=test-%]]"/>
+<Target Name="igate"
+        DependsOnTargets="$[msjoin $[subdirs:%=igate-%]]"/>
+<Target Name="clean"
+        DependsOnTargets="$[msjoin $[subdirs:%=clean-%]]"/>
+<Target Name="clean-igate"
+        DependsOnTargets="$[msjoin $[subdirs:%=clean-igate-%]]"/>
+<Target Name="cleanall"
+        DependsOnTargets="$[msjoin $[subdirs:%=cleanall-%]]"/>
+<Target Name="install"
+        DependsOnTargets="$[msjoin $[if $[CONFIG_HEADER],$[targetname $[install_headers_dir] $[install_headers_dir]/$[CONFIG_HEADER]]] $[subdirs:%=install-%]]"/>
+<Target Name="install-igate"
+        DependsOnTargets="$[msjoin $[subdirs:%=install-igate-%]]"/>
+<Target Name="uninstall"
+        DependsOnTargets="$[msjoin $[subdirs:%=uninstall-%]]">
+#if $[CONFIG_HEADER]
+  <Exec Command="if exist $[osfilename $[install_headers_dir]/$[CONFIG_HEADER]] del /f $[osfilename $[install_headers_dir]/$[CONFIG_HEADER]]"/>
+#endif
+</Target>
+<Target Name="uninstall-igate"
+        DependsOnTargets="$[msjoin $[subdirs:%=uninstall-igate-%]]"/>
+
+#if $[HAVE_BISON]
+<Target Name="prebuild-bison"
+        DependsOnTargets="$[msjoin $[subdirs:%=prebuild-bison-%]]"/>
+<Target Name="clean-prebuild-bison"
+        DependsOnTargets="$[msjoin $[subdirs:%=clean-prebuild-bison-%]]"/>
+#endif
+
+#formap dirname subdirs
+#define depends
+<Target Name="$[dirname]"
+        DependsOnTargets="$[msjoin $[dirnames $[if $[build_directory],$[DIRNAME]],$[DEPEND_DIRS]]]">
+  <Exec Command="cd $[osfilename ./$[PATH]] %26%26 $[make all]"/>
+</Target>
+#end dirname
+
+#formap dirname subdirs
+<Target Name="test-$[dirname]">
+  <Exec Command="cd $[osfilename ./$[PATH]] %26%26 $[make test]"/>
+</Target>
+#end dirname
+
+#formap dirname subdirs
+<Target Name="igate-$[dirname]">
+  <Exec Command="cd $[osfilename ./$[PATH]] %26%26 $[make igate]"/>
+</Target>
+#end dirname
+
+#formap dirname subdirs
+<Target Name="clean-$[dirname]">
+  <Exec Command="cd $[osfilename ./$[PATH]] %26%26 $[make clean]"/>
+</Target>
+#end dirname
+
+#formap dirname subdirs
+<Target Name="clean-igate-$[dirname]">
+  <Exec Command="cd $[osfilename ./$[PATH]] %26%26 $[make clean-igate]"/>
+</Target>
+#end dirname
+
+#formap dirname subdirs
+<Target Name="cleanall-$[dirname]"
+        DependsOnTargets="$[msjoin $[patsubst %,cleanall-%,$[dirnames $[if $[build_directory],$[DIRNAME]],$[DEPEND_DIRS]]]]">
+  <Exec Command="cd $[osfilename ./$[PATH]] %26%26 $[make cleanall]"/>
+</Target>
+#end dirname
+
+#formap dirname subdirs
+<Target Name="install-$[dirname]"
+        DependsOnTargets="$[msjoin $[patsubst %,install-%,$[dirnames $[if $[build_directory],$[DIRNAME]],$[DEPEND_DIRS]]]]">
+  <Exec Command="cd $[osfilename ./$[PATH]] %26%26 $[make install]"/>
+</Target>
+#end dirname
+
+#formap dirname subdirs
+<Target Name="install-igate-$[dirname]">
+  <Exec Command="cd $[osfilename ./$[PATH]] %26%26 $[make install-igate]"/>
+</Target>
+#end dirname
+
+#formap dirname subdirs
+<Target Name="uninstall-$[dirname]">
+  <Exec Command="cd $[osfilename ./$[PATH]] %26%26 $[make uninstall]"/>
+</Target>
+#end dirname
+
+#formap dirname subdirs
+<Target Name="uninstall-igate-$[dirname]">
+  <Exec Command="cd $[osfilename ./$[PATH]] %26%26 $[make uninstall-igate]"/>
+</Target>
+#end dirname
+
+#if $[HAVE_BISON]
+#formap dirname subdirs
+<Target Name="prebuild-bison-$[dirname]">
+  <Exec Command="cd $[osfilename ./$[PATH]] %26%26 $[make prebuild-bison]"/>
+</Target>
+<Target Name="clean-prebuild-bison-$[dirname]">
+  <Exec Command="cd $[osfilename ./$[PATH]] %26%26 $[make clean-prebuild-bison]"/>
+</Target>
+#end dirname
+#endif
+
+#if $[ne $[CONFIG_HEADER],]
+<Target Name="$[targetname $[install_headers_dir]]">
+  <Exec Command="if not exist $[osfilename $[install_headers_dir]] echo mkdir $[osfilename $[install_headers_dir]]"/>
+  <Exec Command="if not exist $[osfilename $[install_headers_dir]] mkdir $[osfilename $[install_headers_dir]]"/>
+</Target>
+
+<Target Name="$[targetname $[install_headers_dir]/$[CONFIG_HEADER]]">
+#define local $[CONFIG_HEADER]
+#define dest $[install_headers_dir]
+  <Exec Command="xcopy /I/Y $[osfilename $[local]] $[osfilename $[dest]/]"/>
+</Target>
+#endif
+
+// Finally, the rules to freshen the Makefile itself.
+<Target Name="Makefile"
+        Inputs="$[osfilename $[SOURCE_FILENAME] $[EXTRA_PPREMAKE_SOURCE]]"
+        Outputs="$[osfilename $[PACKAGE].proj]">
+  <Exec Command="ppremake"/>
+</Target>
+
+</Project>
+
+#end $[PACKAGE].proj
+
+// If there is a file called LocalSetup.pp in the package's top
+// directory, then invoke that.  It might contain some further setup
+// instructions.
+#sinclude $[TOPDIRPREFIX]LocalSetup.nmake.pp
+#sinclude $[TOPDIRPREFIX]LocalSetup.pp
+
+
+//////////////////////////////////////////////////////////////////////
+#elif $[or $[eq $[DIR_TYPE], models],$[eq $[DIR_TYPE], models_toplevel],$[eq $[DIR_TYPE], models_group]]
+//////////////////////////////////////////////////////////////////////
+
+#include $[THISDIRPREFIX]Template.models.pp
+
+//////////////////////////////////////////////////////////////////////
+
+#endif // DIR_TYPE
