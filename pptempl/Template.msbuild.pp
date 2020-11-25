@@ -828,7 +828,7 @@
 
 <Target Name="$[targetname $[target]]"
         Inputs="$[osfilename $[target_prebuilt]]"
-        Outputs="$[osfilename $[target]">
+        Outputs="$[osfilename $[target]]">
   <Exec Command="xcopy /I/Y $[osfilename $[target_prebuilt]] $[osfilename $[target]]"/>
 </Target>
 
