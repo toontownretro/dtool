@@ -327,6 +327,7 @@ def attach_compute(proj, flav, anydef):
             attach_mod("PATH", item, root, proj_up)
             attach_mod("LD_LIBRARY_PATH", item, root, proj_up)
             attach_mod("DYLD_LIBRARY_PATH", item, root, proj_up)
+            attach_mod("PYTHONPATH", item, root, proj_up)
 
             item = root + "/built/include"
             attach_mod("CT_INCLUDE_PATH", item, root, proj_up)
