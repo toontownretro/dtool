@@ -76,7 +76,7 @@
 //              Cygwin-supplied GNU make.
 
 #if $[or $[eq $[PLATFORM], Win32],$[eq $[PLATFORM], Win64]]
-  #define BUILD_TYPE nmake
+  #define BUILD_TYPE msbuild
 #elif $[or $[eq $[PLATFORM], Cygwin],$[eq $[PLATFORM], Cygwin64]]
   #define BUILD_TYPE gmsvc
 #elif $[OSX_PLATFORM]
