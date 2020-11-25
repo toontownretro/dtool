@@ -81,11 +81,13 @@
 // True if we are building on Android.
 #define ANDROID_PLATFORM $[eq $[PLATFORM], Android]
 
-#define X86_PLATFORM \
-  $[if $[WINDOWS_PLATFORM],$[WIN32_PLATFORM],$[eq $[shell uname -m],x86]]
-
-#define X64_PLATFORM \
-  $[if $[WINDOWS_PLATFORM],$[WIN64_PLATFORM],$[eq $[shell uname -m],x86_64]]
+#if $[WINDOWS_PLATFORM]
+#define X86_PLATFORM $[WIN32_PLATFORM]
+#define X64_PLATFORM $[WIN64_PLATFORM]
+#else
+#define X86_PLATFORM $[eq $[shell uname -m],x86]
+#define X64_PLATFORM $[eq $[shell uname -m],x86_64]
+#endif
 
 // Pull in the package-level Config file.  This contains a lot of
 // configuration variables that the user might want to fine-tune.
