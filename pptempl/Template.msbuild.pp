@@ -956,7 +956,7 @@
   #set ipath . $[ipath]
 #endif
 
-#define yacc_sources $[yxx_sources:%.yxx=%.h]
+#define yacc_sources $[patsubst %.yxx,%.cxx %.h,$[yxx_sources]] $[patsubst %.lxx,%.cxx,$[lxx_sources]]
 #if $[not $[direct_tau]]
 // Yacc must run before some files can be compiled, so all files
 // depend on yacc having run.

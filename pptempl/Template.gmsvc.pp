@@ -109,7 +109,7 @@
   // depend on.  If it's an empty list, we won't bother writing rules to
   // freshen the cache file.
   #define dep_sources $[sort $[filter %.c %.cxx %.cpp %.yxx %.lxx %.h %.hpp %.I %.T,$[dep_sources_1]]]
-  
+
   // If there is an __init__.py in the directory, then all Python
   // files in the directory just get installed without having to be
   // named.
@@ -925,10 +925,12 @@ $[TAB] $[COMPILE_C]
   #set ipath . $[ipath]
 #endif
 
-#if $[not $[direct_tau]]
 // Yacc must run before some files can be compiled, so all files
 // depend on yacc having run.
-$[target] : $[source] $[get_depends $[source]] $[yxx_sources:%.yxx=%.h]
+#define yacc_sources $[patsubst %.yxx,%.cxx %.h,$[yxx_sources]] $[patsubst %.lxx,%.cxx,$[lxx_sources]]
+
+#if $[not $[direct_tau]]
+$[target] : $[source] $[get_depends $[source]] $[yacc_sources]
 $[TAB] $[compile_c++]
 
 #else  // direct_tau
@@ -936,7 +938,7 @@ $[TAB] $[compile_c++]
 #define il_source $[target].il
 #define pdb_source $[target].pdb  // Not to be confused with windows .pdb debugger info files.
 #define inst_source $[notdir $[target:%.obj=%.inst.cxx]]
-$[il_source] : $[source] $[yxx_sources:%.yxx=%.h]
+$[il_source] : $[source] $[yacc_sources]
 $[TAB] $[TAU_MAKE_IL]
 
 $[pdb_source] : $[il_source]
