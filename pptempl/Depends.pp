@@ -73,13 +73,13 @@
     #define USE_PACKAGES python
     #define LIB_PREFIX
     #define DYNAMIC_LIB_EXT $[PYTHON_MODULE_EXT]
-    
+
     // Link Python modules as bundles on OSX.
     #if $[OSX_PLATFORM]
       #define LINK_AS_BUNDLE 1
       #define BUNDLE_EXT $[PYTHON_MODULE_EXT]
     #endif
-    
+
     #define install_lib_dir $[install_py_module_dir]
     #define OUTPUT $[TARGET:panda3d.%=%]
     #define dllext
@@ -132,6 +132,11 @@
 
     #set DEPENDABLE_HEADERS $[DEPENDABLE_HEADERS] $[filter %.hpp %.h %.I %.T %_src.cxx,$[get_sources]]
 
+    // This contains the list of source files to compile that are generated
+    // during the build.  This is to ensure correct build order; that we
+    // generate the source file before trying to compile it.
+    #define generated_sources
+
     // Now compute the source files.
     #define c_sources $[filter-out %_src.c,$[filter %.c,$[get_sources]]]
     #define mm_sources $[filter %.mm,$[get_sources]]
@@ -167,13 +172,20 @@
     // interrogate-generated files, to the compile list, too.  These
     // never get added to composite files, though, mainly because they
     // tend to be very large files themselves.
-    #foreach source_file $[yxx_sources] $[lxx_sources]
+    #define yacc_sources $[yxx_sources] $[lxx_sources]
+    #if $[and $[WINDOWS_PLATFORM],$[yacc_sources]]
+      // Windows does not have unistd.h, so if we're compiling Bison/Flex
+      // sources, we need to make sure this is defined.
+      #define C++FLAGS $[C++FLAGS] -DYY_NO_UNISTD_H
+    #endif
+    #foreach source_file $[yacc_sources]
       #define generated_file $[patsubst %.yxx %.lxx,%.cxx,$[source_file]]
       #define $[generated_file]_obj $[patsubst %.yxx %.lxx,$[ODIR]/$[get_output_name]_%$[OBJ],$[source_file]]
       #define $[generated_file]_sources $[source_file]
       #push 1 $[generated_file]_obj
       #set cxx_sources $[cxx_sources] $[generated_file]
       #set get_sources $[get_sources] $[generated_file]
+      #set generated_sources $[generated_sources] $[generated_file] $[patsubst %.yxx,%.h,$[filter %.yxx,$[source_file]]]
     #end source_file
 
     // If this is a Python module, then it should have a list of
@@ -190,6 +202,8 @@
         #set cxx_sources $[cxx_sources] $[generated_file]
         #set get_sources $[get_sources] $[generated_file]
       #end igate_code
+
+      #set generated_sources $[generated_sources] $[get_igatemout]
     #endif
 
     #define compile_sources $[c_sources] $[mm_sources] $[cxx_sources]

@@ -54,9 +54,9 @@
   $[msjoin $[targetname $[files]]]
 #end jtargetname
 
-#defun make rule
-  msbuild -t:$[rule]
-#end make
+#defun callmsbuild dirname,target
+  <MSBuild Projects="$[osfilename ./$[PATH]/$[dirname].proj]" Targets="$[target]" BuildInParallel="true"/>
+#end callmsbuild
 
 //////////////////////////////////////////////////////////////////////
 #if $[or $[eq $[DIR_TYPE], src],$[eq $[DIR_TYPE], metalib],$[eq $[DIR_TYPE], module]]
@@ -154,8 +154,8 @@
 #defer target_ipath $[TOPDIR] $[sort $[complete_ipath]] $[other_trees_include] $[get_ipath]
 
 // These are the complete set of extra flags the compiler requires.
-#defer cflags $[get_cflags] $[CFLAGS] $[CFLAGS_OPT$[OPTIMIZE]]
-#defer c++flags $[get_cflags] $[C++FLAGS] $[CFLAGS_OPT$[OPTIMIZE]]
+#defer cflags $[patsubst -D%,/D%,$[get_cflags] $[CFLAGS] $[CFLAGS_OPT$[OPTIMIZE]]]
+#defer c++flags $[patsubst -D%,/D%,$[get_cflags] $[C++FLAGS] $[CFLAGS_OPT$[OPTIMIZE]]]
 
 // $[complete_lpath] is rather like $[complete_ipath]: the list of
 // directories (from within this tree) we should add to our -L list.
@@ -412,7 +412,6 @@
   #endif
 
   #define target $[ODIR]/$[get_output_file]
-  #define flags   $[get_cflags] $[C++FLAGS] $[CFLAGS_OPT$[OPTIMIZE]] $[CFLAGS_SHARED] $[building_var:%=/D%]
 
   #define extra \
     $[if $[not $[lib_is_static]], $[ODIR]/$[get_output_lib]] \
@@ -553,7 +552,6 @@
 #define sources $[igatemscan]
 
 <Target Name="$[targetname $[target]]"
-        DependsOnTargets="$[jtargetname $[sources]]"
         Inputs="$[msjoin $[osfilename $[sources]]]"
         Outputs="$[osfilename $[target]]">
   <Exec Command='$[INTERROGATE_MODULE] -oc $[target] -module "$[igatemod]" -library "$[igatelib]" $[interrogate_module_options] $[sources]'/>
@@ -1214,73 +1212,73 @@
 #define depends
 <Target Name="$[dirname]"
         DependsOnTargets="$[msjoin $[dirnames $[if $[build_directory],$[DIRNAME]],$[DEPEND_DIRS]]]">
-  <Exec Command="cd $[osfilename ./$[PATH]] %26%26 $[make all]"/>
+  $[callmsbuild $[dirname],all]
 </Target>
 #end dirname
 
 #formap dirname subdirs
 <Target Name="test-$[dirname]">
-  <Exec Command="cd $[osfilename ./$[PATH]] %26%26 $[make test]"/>
+  $[callmsbuild $[dirname],test]
 </Target>
 #end dirname
 
 #formap dirname subdirs
 <Target Name="igate-$[dirname]">
-  <Exec Command="cd $[osfilename ./$[PATH]] %26%26 $[make igate]"/>
+  $[callmsbuild $[dirname],igate]
 </Target>
 #end dirname
 
 #formap dirname subdirs
 <Target Name="clean-$[dirname]">
-  <Exec Command="cd $[osfilename ./$[PATH]] %26%26 $[make clean]"/>
+  $[callmsbuild $[dirname],clean]
 </Target>
 #end dirname
 
 #formap dirname subdirs
 <Target Name="clean-igate-$[dirname]">
-  <Exec Command="cd $[osfilename ./$[PATH]] %26%26 $[make clean-igate]"/>
+  $[callmsbuild $[dirname],clean-igate]
 </Target>
 #end dirname
 
 #formap dirname subdirs
 <Target Name="cleanall-$[dirname]"
         DependsOnTargets="$[msjoin $[patsubst %,cleanall-%,$[dirnames $[if $[build_directory],$[DIRNAME]],$[DEPEND_DIRS]]]]">
-  <Exec Command="cd $[osfilename ./$[PATH]] %26%26 $[make cleanall]"/>
+  $[callmsbuild $[dirname],cleanall]
 </Target>
 #end dirname
 
 #formap dirname subdirs
 <Target Name="install-$[dirname]"
         DependsOnTargets="$[msjoin $[patsubst %,install-%,$[dirnames $[if $[build_directory],$[DIRNAME]],$[DEPEND_DIRS]]]]">
-  <Exec Command="cd $[osfilename ./$[PATH]] %26%26 $[make install]"/>
+  $[callmsbuild $[dirname],install]
 </Target>
 #end dirname
 
 #formap dirname subdirs
 <Target Name="install-igate-$[dirname]">
-  <Exec Command="cd $[osfilename ./$[PATH]] %26%26 $[make install-igate]"/>
+  $[callmsbuild $[dirname],install-igate]
 </Target>
 #end dirname
 
 #formap dirname subdirs
 <Target Name="uninstall-$[dirname]">
-  <Exec Command="cd $[osfilename ./$[PATH]] %26%26 $[make uninstall]"/>
+  $[callmsbuild $[dirname],uninstall]
 </Target>
 #end dirname
 
 #formap dirname subdirs
 <Target Name="uninstall-igate-$[dirname]">
-  <Exec Command="cd $[osfilename ./$[PATH]] %26%26 $[make uninstall-igate]"/>
+  $[callmsbuild $[dirname],uninstall-igate]
 </Target>
 #end dirname
 
 #if $[HAVE_BISON]
 #formap dirname subdirs
 <Target Name="prebuild-bison-$[dirname]">
-  <Exec Command="cd $[osfilename ./$[PATH]] %26%26 $[make prebuild-bison]"/>
+  $[callmsbuild $[dirname],prebuild-bison]
 </Target>
 <Target Name="clean-prebuild-bison-$[dirname]">
-  <Exec Command="cd $[osfilename ./$[PATH]] %26%26 $[make clean-prebuild-bison]"/>
+  $[callmsbuild $[dirname],clean-prebuild-bison]
 </Target>
 #end dirname
 #endif
