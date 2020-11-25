@@ -2,6 +2,7 @@
 # ppremake system.
 
 /dtool_config.h
+__pycache__
 Makefile
 *.proj
 pp.dep
