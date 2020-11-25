@@ -523,7 +523,7 @@
 <Target Name="$[targetname $[out_igatedb]]"
         DependsOnTargets="$[jtargetname $[igatedb]]"
         Inputs="$[osfilename $[local]]"
-        Outputs=$[osfilename $[dest]/$[out_igatedb]]">
+        Outputs="$[osfilename $[dest]/$[out_igatedb]]">
   <Exec Command="xcopy /I/Y $[osfilename $[local] $[dest]/]"/>
 </Target>
 
@@ -535,10 +535,9 @@
 #define igate_inputs $[sort $[patsubst %.h,%.h,%.I,%.I,%.T,%.T,%,,$[dependencies $[igatescan]] $[igatescan:%=./%]]]
 // Target to run interrogate on the library.
 <Target Name="$[targetname $[igateoutput]]"
-        DependsOnTargets="$[jtargetname $[igate_inputs]]"
         Inputs="$[msjoin $[osfilename $[igate_inputs]]]"
         Outputs="$[osfilename $[igateoutput]]">
-  <Exec Command='$[INTERROGATE] -od $[igatedb] -oc $[igateoutput] $[interrogate_options] -module "$[igatemod]" -library "$[igatelib]" $[igate_inputs]'/>
+  <Exec Command='$[INTERROGATE] -od $[igatedb] -oc $[igateoutput] $[interrogate_options] -module "$[igatemod]" -library "$[igatelib]" $[igatescan]'/>
 </Target>
 #endif  // igatescan
 
@@ -814,14 +813,14 @@
         DependsOnTargets="$[targetname $[target]]"
         Inputs="$[osfilename $[target]]"
         Outputs="$[osfilename $[target_prebuilt]]">
-  <Exec Command="xcopy /I/Y $[osfilename $[target]] $[osfilename $[target_prebuilt]]"/>
+  <Exec Command="copy /y $[osfilename $[target]] $[osfilename $[target_prebuilt]]"/>
 </Target>
 
 <Target Name="$[targetname $[target_header_prebuilt]]"
         DependsOnTargets="$[targetname $[target_header]]"
         Inputs="$[osfilename $[target_header]]"
         Outputs="$[osfilename $[target_header_prebuilt]]">
-  <Exec Command="xcopy /I/Y $[osfilename $[target_header]] $[osfilename $[target_header_prebuilt]]"/>
+  <Exec Command="copy /y $[osfilename $[target_header]] $[osfilename $[target_header_prebuilt]]"/>
 </Target>
 
 #else // HAVE_BISON
@@ -829,13 +828,13 @@
 <Target Name="$[targetname $[target]]"
         Inputs="$[osfilename $[target_prebuilt]]"
         Outputs="$[osfilename $[target]]">
-  <Exec Command="xcopy /I/Y $[osfilename $[target_prebuilt]] $[osfilename $[target]]"/>
+  <Exec Command="copy /Y $[osfilename $[target_prebuilt]] $[osfilename $[target]]"/>
 </Target>
 
 <Target Name="$[targetname $[target_header]]"
         Inputs="$[osfilename $[target_header_prebuilt]]"
         Outputs="$[osfilename $[target_header]]">
-  <Exec Command="xcopy /I/Y $[osfilename $[target_header_prebuilt]] $[osfilename $[target_header]]"/>
+  <Exec Command="copy /Y $[osfilename $[target_header_prebuilt]] $[osfilename $[target_header]]"/>
 </Target>
 
 #endif // HAVE_BISON
@@ -864,16 +863,15 @@
         DependsOnTargets="$[targetname $[target]]"
         Inputs="$[osfilename $[target]]"
         Outputs="$[osfilename $[target_prebuilt]]>
-  <Exec Command="xcopy /I/Y $[osfilename $[target]] $[osfilename $[target_prebuilt]]"/>
+  <Exec Command="copy /Y $[osfilename $[target]] $[osfilename $[target_prebuilt]]"/>
 </Target>
 
 #else // HAVE_BISON
 
 <Target Name="$[targetname $[target]]"
-        DependsOnTargets="$[targetname $[target_prebuilt]]"
         Inputs="$[osfilename $[target_prebuilt]]"
         Outputs="$[osfilename $[target]]">
-  <Exec Command="xcopy /I/Y $[osfilename $[target_prebuilt]] $[osfilename $[target]]"/>
+  <Exec Command="copy /Y $[osfilename $[target_prebuilt]] $[osfilename $[target]]"/>
 </Target>
 
 #endif // HAVE_BISON
