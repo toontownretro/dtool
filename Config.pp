@@ -783,6 +783,11 @@
 // this increases runtime collision overhead just a tiny bit.
 #defer DO_COLLISION_RECORDING $[< $[OPTIMIZE], 4]
 
+// Do you want to build the various test programs?  There is no reason to turn
+// this on unless you are working on some engine feature that has an
+// associated test program.
+#define BUILD_TESTS
+
 // Do you want to include the "debug" and "spam" Notify messages?
 // Normally, these are stripped out when we build with OPTIMIZE = 4, but
 // sometimes it's useful to keep them around.  Redefine this in your

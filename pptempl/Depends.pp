@@ -89,6 +89,10 @@
     #define is_interface 1
   #end interface_target
 
+  #forscopes test_bin_target test_lib_target
+    #define BUILD_TARGET $[BUILD_TESTS]
+  #end test_bin_target test_lib_target
+
   #forscopes interface_target python_target python_module_target metalib_target lib_target noinst_lib_target test_lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target test_bin_target
 
     ///////////////////////////////////////////////////////////////////////

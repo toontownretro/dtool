@@ -10,28 +10,36 @@
   // In Windows, we need to know the complete set of metalibs that
   // encapsulates each of the libraries we'd be linking with normally.
   // In the case where a particular library is not part of a metalib,
-  // we include the library itself.
+  // we include the library itself.  If we're building components, this
+  // just returns exactly what was passed in.
 
   #define actual_libs
-  #foreach lib $[complete_libs]
-    #if $[all_libs $[TARGET],$[lib]]
-      // This is a local library (within this tree).  Only link with it if
-      // it's actually being built and it's not part of a metalib.
-      #if $[all_libs $[and $[build_directory],$[build_target]],$[lib]]
-        #define modmeta $[module $[TARGET],$[lib]]
-        #if $[ne $[modmeta],]
-          #if $[ne $[modmeta],$[target]]  // We don't link with ourselves.
-            #set actual_libs $[actual_libs] $[modmeta]
+  #define my_modmeta $[module $[TARGET],$[target]]
+  #if $[not $[BUILD_COMPONENTS]]
+    #foreach lib $[complete_libs]
+      #if $[all_libs $[TARGET],$[lib]]
+        // This is a local library (within this tree).  Only link with it if
+        // it's actually being built and it's not part of a metalib.
+        #if $[all_libs $[and $[build_directory],$[build_target]],$[lib]]
+          #define modmeta $[module $[TARGET],$[lib]]
+          // Check if this dependent lib is on a metalib.  If it is, we should
+          // depend on the metalib instead, but not if we are both components
+          // of the same metalib.
+          #if $[and $[ne $[modmeta],],$[ne $[modmeta],$[my_modmeta]]]
+            #if $[ne $[modmeta],$[target]]  // We don't link with ourselves.
+              #set actual_libs $[actual_libs] $[modmeta]
+            #endif
+          #else
+            #set actual_libs $[actual_libs] $[lib]
           #endif
-        #else
-          #set actual_libs $[actual_libs] $[lib]
         #endif
+      #else
+        // This library isn't local to this tree, link with it.
+        #set actual_libs $[actual_libs] $[lib]
       #endif
-    #else
-      // This library isn't local to this tree, link with it.
-      #set actual_libs $[actual_libs] $[lib]
-    #endif
-  #end lib
+    #end lib
+  #endif // not BUILD_COMPONENTS
+
   #set actual_libs $[unique $[actual_libs]]
   $[actual_libs]
 #end get_metalibs
