@@ -984,6 +984,48 @@
 // root makefile and also synthesize the dtool_config.h (or whichever
 // file) we need.
 
+// We need a top-level project to install the config header... booo!
+#output dir_$[DIRNAME].vcxproj
+#format collapse
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated automatically by $[PPREMAKE] $[PPREMAKE_VERSION] from $[SOURCEFILE]. -->
+<!--                              DO NOT EDIT                                       -->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+<ItemGroup>
+  <ProjectConfiguration Include="Release|$[platform_config]">
+    <Configuration>Release</Configuration>
+    <Platform>$[platform_config]</Platform>
+  </ProjectConfiguration>
+</ItemGroup>
+
+<Import Project="$(VCTargetsPath)\Microsoft.Cpp.default.props" />
+
+<Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+
+<Target Name="install"
+        Inputs="$[osfilename $[CONFIG_HEADER]]"
+        Outputs="$[osfilename $[install_headers_dir]/$[CONFIG_HEADER]]">
+  <Copy SourceFiles="$[osfilename $[CONFIG_HEADER]]"
+        DestinationFiles="$[osfilename $[install_headers_dir]/$[CONFIG_HEADER]]" />
+</Target>
+
+<Target Name="uninstall">
+  <Delete Files="$[osfilename $[install_headers_dir]/$[CONFIG_HEADER]]" />
+</Target>
+
+// Take this opportunity to freshen ourselves up.
+<Target Name="freshen"
+        Inputs="$[msjoin $[osfilename $[SOURCE_FILENAME] $[EXTRA_PPREMAKE_SOURCE]]]">
+  <Exec Command="ppremake" />
+</Target>
+
+<Import Project="$(VCTargetsPath)\Microsoft.Cpp.Targets" />
+
+</Project>
+
+#end dir_$[DIRNAME].vcxproj
+
 #map subdirs
 // Iterate through all of our known source files.  Each src and
 // metalib type file gets its corresponding Makefile listed
@@ -1025,6 +1067,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dir_$[dirname]", "$[osfilename $[PATH]/dir_$[dirname].vcxproj]", "{$[makeguid dir_$[dirname]]}"
 EndProject
 #end dirname
+// And the top-level project.
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dir_$[DIRNAME]", "$[osfilename $[PATH]/dir_$[DIRNAME].vcxproj]", "{$[makeguid dir_$[DIRNAME]]}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Release|$[platform_config] = Release|$[platform_config]
@@ -1043,6 +1088,10 @@ Global
 		{$[guid]}.Release|$[platform_config].ActiveCfg = Release|$[platform_config]
 		{$[guid]}.Release|$[platform_config].Build.0 = Release|$[platform_config]
 #end dirname
+// And the top-level project.
+#define guid $[makeguid dir_$[DIRNAME]]
+		{$[guid]}.Release|$[platform_config].ActiveCfg = Release|$[platform_config]
+		{$[guid]}.Release|$[platform_config].Build.0 = Release|$[platform_config]
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 	EndGlobalSection
