@@ -299,6 +299,12 @@
 #define is_metalib_component $[and $[eq $[SCOPE],lib_target],$[not $[filter $[TARGET],$[real_lib_targets]]]]
 #define is_metalib $[eq $[SCOPE],metalib_target]
 
+#define is_lib $[filter python_target python_module_target metalib_target \
+                        lib_target noinst_lib_target test_lib_target static_lib_target \
+                        dynamic_lib_target ss_lib_target, $[SCOPE]]
+
+#define is_bin $[filter bin_target noinst_bin_target test_bin_target,$[SCOPE]]
+
 #define config_type \
   $[if $[filter bin_target noinst_bin_target test_bin_target,$[SCOPE]],Application, \
     $[if $[is_metalib_component],MetalibComponent, \
@@ -703,7 +709,106 @@
 
 #endif // $[lxx_sources]
 
+#if $[is_installed]
+
+// Here are the rules to install and uninstall the library and
+// everything that goes along with it.
+#define install_files \
+  $[if $[and $[build_lib],$[is_lib]],\
+    $[ODIR]/$[get_output_file] \
+    $[if $[not $[lib_is_static]],$[ODIR]/$[get_output_lib]] \
+      $[if $[has_pdb],$[ODIR]/$[get_output_pdb]] \
+  ] \
+  $[if $[is_bin], \
+    $[ODIR]/$[TARGET].exe \
+    $[if $[has_pdb],$[ODIR]/$[TARGET].pdb] \
+  ] \
+  $[INSTALL_SCRIPTS] \
+  $[INSTALL_MODULES] \
+  $[INSTALL_HEADERS] \
+  $[INSTALL_DATA] \
+  $[INSTALL_CONFIG] \
+  $[igatedb]
+
+#define installed_files \
+    $[if $[and $[build_lib],$[is_lib]], \
+      $[install_lib_dir]/$[get_output_file] \
+      $[if $[not $[lib_is_static]],$[install_lib_dir]/$[get_output_lib]] \
+      $[if $[has_pdb],$[install_lib_dir]/$[get_output_pdb]] \
+    ] \
+    $[if $[is_bin], \
+      $[install_bin_dir]/$[TARGET].exe \
+      $[if $[has_pdb],$[install_bin_dir]/$[TARGET].pdb] \
+    ] \
+    $[INSTALL_SCRIPTS:%=$[install_bin_dir]/%] \
+    $[INSTALL_MODULES:%=$[install_lib_dir]/%] \
+    $[INSTALL_HEADERS:%=$[install_headers_dir]/%] \
+    $[INSTALL_DATA:%=$[install_data_dir]/%] \
+    $[INSTALL_CONFIG:%=$[install_config_dir]/%] \
+    $[igatedb:$[ODIR]/%=$[install_igatedb_dir]/%]
+
+// Now create the rules to install the stuff.
+<Target Name="install"
+        Outputs="$[msjoin $[osfilename $[installed_files]]]"
+        Inputs="$[msjoin $[osfilename $[install_files]]]"
+        DependsOnTargets="Link">
+#if $[and $[build_lib],$[is_lib]]
+  <Copy SourceFiles="$[osfilename $[ODIR]/$[get_output_file]]"
+        DestinationFiles="$[osfilename $[install_lib_dir]/$[get_output_file]]" />
+  #if $[not $[lib_is_static]]
+  <Copy SourceFiles="$[osfilename $[ODIR]/$[get_output_lib]]"
+        DestinationFiles="$[osfilename $[install_lib_dir]/$[get_output_lib]]" />
+  #endif
+  #if $[has_pdb]
+  <Copy SourceFiles="$[osfilename $[ODIR]/$[get_output_pdb]]"
+        DestinationFiles="$[osfilename $[install_lib_dir]/$[get_output_pdb]]" />
+  #endif
+#endif
+
+#if $[is_bin]
+  <Copy SourceFiles="$[osfilename $[ODIR]/$[TARGET].exe]"
+        DestinationFiles="$[osfilename $[install_bin_dir]/$[TARGET].exe]" />
+
+  #if $[has_pdb]
+  <Copy SourceFiles="$[osfilename $[ODIR]/$[TARGET].pdb]"
+        DestinationFiles="$[osfilename $[install_bin_dir]/$[TARGET].pdb]" />
+  #endif
+#endif
+
+#if $[INSTALL_SCRIPTS]
+  <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_SCRIPTS]]]"
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_SCRIPTS:%=$[install_bin_dir]/%]]]" />
+#endif
+
+#if $[INSTALL_HEADERS]
+  <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_HEADERS]]]"
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_HEADERS:%=$[install_headers_dir]/%]]]" />
+#endif
+
+#if $[INSTALL_MODULES]
+  <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_MODULES]]]"
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_MODULES:%=$[install_lib_dir]/%]]]" />
+#endif
+
+#if $[INSTALL_DATA]
+  <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_DATA]]]"
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_DATA:%=$[install_data_dir]/%]]]" />
+#endif
+
+#if $[INSTALL_CONFIG]
+  <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_CONFIG]]]"
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_CONFIG:%=$[install_config_dir]/%]]]" />
+#endif
+
+#if $[igatedb]
+  <Copy SourceFiles="$[msjoin $[osfilename $[igatedb]]]"
+        DestinationFiles="$[msjoin $[osfilename $[igatedb:$[ODIR]/%=$[install_igatedb_dir]/%]]]" />
+#endif
+</Target>
+
 <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Targets" />
+
+#endif // $[is_installed]
 
 </Project>
 
