@@ -806,6 +806,51 @@
 #endif
 </Target>
 
+<Target Name="uninstall">
+#if $[and $[build_lib],$[is_lib]]
+  <Delete Files="$[osfilename $[install_lib_dir]/$[get_output_file]]" />
+  #if $[not $[lib_is_static]]
+  <Delete Files="$[osfilename $[install_lib_dir]/$[get_output_lib]]" />
+  #endif
+  #if $[has_pdb]
+  <Delete Files="$[osfilename $[install_lib_dir]/$[get_output_pdb]]" />
+  #endif
+#endif
+
+#if $[is_bin]
+  <Delete Files="$[osfilename $[install_bin_dir]/$[TARGET].exe]" />
+
+  #if $[has_pdb]
+  <Delete Files="$[osfilename $[install_bin_dir]/$[TARGET].pdb]" />
+  #endif
+#endif
+
+#if $[INSTALL_SCRIPTS]
+  <Delete Files="$[msjoin $[osfilename $[INSTALL_SCRIPTS:%=$[install_bin_dir]/%]]]" />
+#endif
+
+#if $[INSTALL_HEADERS]
+  <Delete Files="$[msjoin $[osfilename $[INSTALL_HEADERS:%=$[install_headers_dir]/%]]]" />
+#endif
+
+#if $[INSTALL_MODULES]
+  <Delete Files="$[msjoin $[osfilename $[INSTALL_MODULES:%=$[install_lib_dir]/%]]]" />
+#endif
+
+#if $[INSTALL_DATA]
+  <Delete Files="$[msjoin $[osfilename $[INSTALL_DATA:%=$[install_data_dir]/%]]]" />
+#endif
+
+#if $[INSTALL_CONFIG]
+  <Delete Files="$[msjoin $[osfilename $[INSTALL_CONFIG:%=$[install_config_dir]/%]]]" />
+#endif
+
+#if $[igatedb]
+  <Delete Files="$[msjoin $[osfilename $[igatedb:$[ODIR]/%=$[install_igatedb_dir]/%]]]" />
+#endif
+
+</Target>
+
 <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Targets" />
 
 #endif // $[is_installed]
