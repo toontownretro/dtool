@@ -346,22 +346,6 @@
 
 <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
 
-// Add all of the source files for the target onto the list.
-<ItemGroup>
-#foreach file $[compile_sources]
-  <ClCompile Include="$[osfilename $[file]]">
-    <ObjectFileName>$[osfilename $[$[file]_obj]]</ObjectFileName>
-  #if $[filter %.c,$[file]]
-    // This is a C file.
-    <CompileAs>CompileAsC</CompileAs>
-  #else
-    // Assume C++ if it's not a C file.
-    <CompileAs>CompileAsCpp</CompileAs>
-  #endif
-  </ClCompile>
-#end file
-</ItemGroup>
-
 // Add the header files from the target.
 #define headers $[filter %.hpp %.h %.I %.T %_src.cxx,$[get_sources]]
 <ItemGroup>
@@ -396,7 +380,6 @@
 #elif $[filter /RTC1,$[compiler_flags]]
   #set runtime_checks EnableFastChecks
 #endif
-#define browse_info $[patsubstw /Fr"%",%,$[filter /Fr"%",$[BROWSEINFO_FLAG]]]
 #define buffer_security_check $[if $[filter /GS,$[compiler_flags]],true,false]
 #define calling_convention Cdecl
 #if $[filter /Gd,$[compiler_flags]]
@@ -466,7 +449,6 @@
 #elif $[filter /O2,$[compiler_flags]]
   #set optimization MaxSpeed
 #endif
-#define pdb_filename $[patsubstw /Fd"%",%,$[filter /Fd"%",$[compiler_flags]]]
 #define runtime_library MultiThreaded
 #if $[filter /MTd,$[compiler_flags]]
   #set runtime_library MultiThreadedDebug
@@ -506,6 +488,30 @@
 #endif
 #define whole_program_optimization $[if $[filter /GL,$[compiler_flags]],true,false]
 
+// Add all of the source files for the target onto the list.
+<ItemGroup>
+#foreach file $[compile_sources]
+  #define target $[$[file]_obj]
+  #define source $[file]
+  #define flags $[c++flags]
+  #define browse_info $[patsubstw /Fr"%",%,$[filter /Fr"%",$[flags]]]
+  #define pdb_filename $[patsubstw /Fd"%",%,$[filter /Fd"%",$[flags]]]
+  <ClCompile Include="$[osfilename $[file]]">
+    <ObjectFileName>$[osfilename $[target]]</ObjectFileName>
+    <ProgramDatabaseFilename>$[osfilename $[pdb_filename]]</ProgramDatabaseFilename>
+    <BrowseInformation>$[if $[browse_info],true,false]</BrowseInformation>
+    <BrowseInformationFile>$[browse_info]</BrowseInformationFile>
+  #if $[filter %.c,$[file]]
+    // This is a C file.
+    <CompileAs>CompileAsC</CompileAs>
+  #else
+    // Assume C++ if it's not a C file.
+    <CompileAs>CompileAsCpp</CompileAs>
+  #endif
+  </ClCompile>
+#end file
+</ItemGroup>
+
 // Add include directories and preprocessor definitions.
 <ItemDefinitionGroup>
   <ClCompile>
@@ -514,8 +520,6 @@
     <AdditionalOptions>$[additional_compiler_flags]</AdditionalOptions>
     <PreprocessorDefinitions>$[msjoin $[preprocessor_defs]]</PreprocessorDefinitions>
     <BasicRuntimeChecks>$[runtime_checks]</BasicRuntimeChecks>
-    <BrowseInformation>$[if $[browse_info],true,false]</BrowseInformation>
-    <BrowseInformationFile>$[browse_info]</BrowseInformationFile>
     <BufferSecurityCheck>$[buffer_security_check]</BufferSecurityCheck>
     <CallingConvention>$[calling_convention]</CallingConvention>
     <DebugInformationFormat>$[debug_information_format]</DebugInformationFormat>
@@ -533,7 +537,6 @@
     <MultiProcessorCompilation>$[multiprocessor_compilation]</MultiProcessorCompilation>
     <OmitFramePointers>$[omit_frame_pointers]</OmitFramePointers>
     <Optimization>$[optimization]</Optimization>
-    <ProgramDatabaseFilename>$[pdb_filename]</ProgramDatabaseFilename>
     <RuntimeLibrary>$[runtime_library]</RuntimeLibrary>
     <RuntimeTypeInfo>$[rtti]</RuntimeTypeInfo>
     <SmallerTypeCheck>$[smaller_type_check]</SmallerTypeCheck>
