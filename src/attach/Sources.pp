@@ -1,4 +1,3 @@
-#define DIR_TYPE src
 
 #define INSTALL_SCRIPTS \
   cta.bat \

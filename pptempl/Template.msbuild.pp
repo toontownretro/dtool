@@ -780,14 +780,14 @@
         DestinationFiles="$[msjoin $[osfilename $[INSTALL_SCRIPTS:%=$[install_bin_dir]/%]]]" />
 #endif
 
-#if $[INSTALL_HEADERS]
-  <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_HEADERS]]]"
-        DestinationFiles="$[msjoin $[osfilename $[INSTALL_HEADERS:%=$[install_headers_dir]/%]]]" />
-#endif
-
 #if $[INSTALL_MODULES]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_MODULES]]]"
         DestinationFiles="$[msjoin $[osfilename $[INSTALL_MODULES:%=$[install_lib_dir]/%]]]" />
+#endif
+
+#if $[INSTALL_HEADERS]
+  <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_HEADERS]]]"
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_HEADERS:%=$[install_headers_dir]/%]]]" />
 #endif
 
 #if $[INSTALL_DATA]
@@ -829,12 +829,12 @@
   <Delete Files="$[msjoin $[osfilename $[INSTALL_SCRIPTS:%=$[install_bin_dir]/%]]]" />
 #endif
 
-#if $[INSTALL_HEADERS]
-  <Delete Files="$[msjoin $[osfilename $[INSTALL_HEADERS:%=$[install_headers_dir]/%]]]" />
-#endif
-
 #if $[INSTALL_MODULES]
   <Delete Files="$[msjoin $[osfilename $[INSTALL_MODULES:%=$[install_lib_dir]/%]]]" />
+#endif
+
+#if $[INSTALL_HEADERS]
+  <Delete Files="$[msjoin $[osfilename $[INSTALL_HEADERS:%=$[install_headers_dir]/%]]]" />
 #endif
 
 #if $[INSTALL_DATA]
@@ -863,6 +863,110 @@
 
 #end $[vcx_scopes]
 
+// We need another project to install directory-level files, aka scripts and
+// config files that are not inside a target.
+#output dir_$[DIRNAME].vcxproj
+#format collapse
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated automatically by $[PPREMAKE] $[PPREMAKE_VERSION] from $[SOURCEFILE]. -->
+<!--                              DO NOT EDIT                                       -->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+<ItemGroup>
+  <ProjectConfiguration Include="Release|$[platform_config]">
+    <Configuration>Release</Configuration>
+    <Platform>$[platform_config]</Platform>
+  </ProjectConfiguration>
+</ItemGroup>
+
+<Import Project="$(VCTargetsPath)\Microsoft.Cpp.default.props" />
+
+<Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+
+// Here are all the directory-level things we can install.
+#define install_files \
+  $[INSTALL_SCRIPTS] \
+  $[INSTALL_MODULES] \
+  $[INSTALL_HEADERS] \
+  $[INSTALL_PARSER_INC] \
+  $[INSTALL_DATA] \
+  $[INSTALL_CONFIG]
+
+#define installed_files \
+    $[INSTALL_SCRIPTS:%=$[install_bin_dir]/%] \
+    $[INSTALL_MODULES:%=$[install_lib_dir]/%] \
+    $[INSTALL_HEADERS:%=$[install_headers_dir]/%] \
+    $[INSTALL_PARSER_INC:%=$[install_parser_inc_dir]/%] \
+    $[INSTALL_DATA:%=$[install_data_dir]/%] \
+    $[INSTALL_CONFIG:%=$[install_config_dir]/%]
+
+<Target Name="install"
+        Inputs="$[msjoin $[osfilename $[install_files]]]"
+        Outputs="$[msjoin $[osfilename $[installed_files]]]">
+#if $[INSTALL_SCRIPTS]
+  <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_SCRIPTS]]]"
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_SCRIPTS:%=$[install_bin_dir]/%]]]" />
+#endif
+
+#if $[INSTALL_MODULES]
+  <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_MODULES]]]"
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_MODULES:%=$[install_lib_dir]/%]]]" />
+#endif
+
+#if $[INSTALL_HEADERS]
+  <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_HEADERS]]]"
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_HEADERS:%=$[install_headers_dir]/%]]]" />
+#endif
+
+#if $[INSTALL_PARSER_INC]
+  <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_PARSER_INC]]]"
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_PARSER_INC:%=$[install_parser_inc_dir]/%]]]" />
+#endif
+
+#if $[INSTALL_DATA]
+  <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_DATA]]]"
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_DATA:%=$[install_data_dir]/%]]]" />
+#endif
+
+#if $[INSTALL_CONFIG]
+  <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_CONFIG]]]"
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_CONFIG:%=$[install_config_dir]/%]]]" />
+#endif
+</Target>
+
+<Target Name="uninstall">
+#if $[INSTALL_SCRIPTS]
+  <Delete Files="$[msjoin $[osfilename $[INSTALL_SCRIPTS:%=$[install_bin_dir]/%]]]" />
+#endif
+
+#if $[INSTALL_MODULES]
+  <Delete Files="$[msjoin $[osfilename $[INSTALL_MODULES:%=$[install_lib_dir]/%]]]" />
+#endif
+
+#if $[INSTALL_HEADERS]
+  <Delete Files="$[msjoin $[osfilename $[INSTALL_HEADERS:%=$[install_headers_dir]/%]]]" />
+#endif
+
+#if $[INSTALL_PARSER_INC]
+  <Delete Files="$[msjoin $[osfilename $[INSTALL_PARSER_INC:%=$[install_parser_inc_dir]/%]]]" />
+#endif
+
+#if $[INSTALL_DATA]
+  <Delete Files="$[msjoin $[osfilename $[INSTALL_DATA:%=$[install_data_dir]/%]]]" />
+#endif
+
+#if $[INSTALL_CONFIG]
+  <Delete Files="$[msjoin $[osfilename $[INSTALL_CONFIG:%=$[install_config_dir]/%]]]" />
+#endif
+
+</Target>
+
+<Import Project="$(VCTargetsPath)\Microsoft.Cpp.Targets" />
+
+</Project>
+
+#end dir_$[DIRNAME].vcxproj
+
 //////////////////////////////////////////////////////////////////////
 #elif $[eq $[DIR_TYPE], group]
 //////////////////////////////////////////////////////////////////////
@@ -879,6 +983,20 @@
 // This is the toplevel directory, e.g. $DTOOL.  Here we build the
 // root makefile and also synthesize the dtool_config.h (or whichever
 // file) we need.
+
+#map subdirs
+// Iterate through all of our known source files.  Each src and
+// metalib type file gets its corresponding Makefile listed
+// here.  However, we test for $[DIR_TYPE] of toplevel, because the
+// source directories typically don't define their own DIR_TYPE
+// variable, and they end up inheriting this one dynamically.
+#forscopes */
+#if $[or $[eq $[DIR_TYPE], src],$[eq $[DIR_TYPE], metalib],$[eq $[DIR_TYPE], module],$[and $[eq $[DIR_TYPE], toplevel],$[ne $[DIRNAME],top]]]
+#if $[build_directory]
+  #addmap subdirs $[DIRNAME]
+#endif
+#endif
+#end */
 
 #define project_scopes \
   $[patsubst %,*/%,$[vcx_scopes]]
@@ -902,6 +1020,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "$[TARGET]", "$[osfilename $
 EndProject
 #endif
 #end $[project_scopes]
+// Also add in the directory-level projects.
+#formap dirname subdirs
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dir_$[dirname]", "$[osfilename $[PATH]/dir_$[dirname].vcxproj]", "{$[makeguid dir_$[dirname]]}"
+EndProject
+#end dirname
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Release|$[platform_config] = Release|$[platform_config]
@@ -914,6 +1037,12 @@ Global
 		{$[guid]}.Release|$[platform_config].Build.0 = Release|$[platform_config]
 #endif
 #end $[project_scopes]
+// Also add in the directory-level projects.
+#formap dirname subdirs
+#define guid $[makeguid dir_$[dirname]]
+		{$[guid]}.Release|$[platform_config].ActiveCfg = Release|$[platform_config]
+		{$[guid]}.Release|$[platform_config].Build.0 = Release|$[platform_config]
+#end dirname
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 	EndGlobalSection
