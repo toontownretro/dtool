@@ -824,7 +824,7 @@
 #if $[install_py]
   <Copy SourceFiles="$[msjoin $[osfilename $[install_py]]]"
         DestinationFiles="$[msjoin $[osfilename $[install_py:%=$[install_py_dir]/%]]]" />
-  <Touch Files="$[osfilename $[install_py_package_dir]/__init__.py]" />
+  <Touch Files="$[osfilename $[install_py_package_dir]/__init__.py]" AlwaysCreate="true" />
 #endif
 </Target>
 
