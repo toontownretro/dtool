@@ -513,7 +513,7 @@
 // Is libtiff installed, and where?
 #define TIFF_IPATH $[DEFAULT_IPATH]
 #define TIFF_LPATH $[DEFAULT_LPATH]
-#define TIFF_LIBS tiff
+#define TIFF_LIBS $[if $[WINDOWS_PLATFORM],tiff.lib,tiff]
 #defer HAVE_TIFF $[libtest $[TIFF_LPATH],$[TIFF_LIBS]]
 
 // These image file formats don't require the assistance of a
