@@ -173,3 +173,51 @@
 #defer LINK_BIN_C++ $[LINK_BIN_C]
 
 #defer MIDL_COMMAND $[COMPILE_IDL] /out $[ODIR] $[IDL_CDEFS:%=/D%] $[idl]
+
+#define platform_config $[if $[WIN64_PLATFORM],x64,Win32]
+
+// Converts the set of names to suitable MSBuild target names.
+#defun targetname files
+  $[subst -,_,.,_,/,_,$[files]]
+#end targetname
+
+// Converts the space-separated words to semicolon separated words.
+#defun msjoin names
+  $[join ;,$[names]]
+#end msjoin
+
+// Converts the space-seperated words to suitable MSBuild target names
+// and separates them with a semicolon.
+#defun jtargetname files
+  $[msjoin $[targetname $[files]]]
+#end jtargetname
+
+// Writes an MSBuild line that invokes the given target on a single
+// subdirectory project.
+#defun msbuild target
+  <MSBuild Projects="$[osfilename ./$[PATH]/$[dirname].proj]" Targets="$[target]" BuildInParallel="true"/>
+#end msbuild
+
+// Writes a MSBuild line that invokes the given target on all subdirectory
+// projects.
+#defun msbuildall target
+  #foreach dirname $[alldirs]
+  <MSBuild Projects="$[osfilename ./$[subdirs $[PATH],$[dirname]]/$[dirname].proj]" Targets="$[target]"/>
+  #end dirname
+#end msbuildall
+
+// Scopes/targets that result in a .vcxproj
+#define vcx_scopes \
+  interface_target python_target python_module_target metalib_target \
+  lib_target noinst_lib_target test_lib_target static_lib_target \
+  dynamic_lib_target ss_lib_target bin_target noinst_bin_target test_bin_target
+
+#defer get_depended_targets \
+  $[sort $[get_metalibs $[TARGET],$[active_local_libs] $[active_igate_libs]] $[active_component_libs]]
+
+#define platform_toolset
+#if $[filter MSVC14.2 MSVC14.2x64,$[USE_COMPILER]]
+  #set platform_toolset v142
+#endif
+
+#define tool_architecture $[if $[WIN64_PLATFORM],x64,x86]

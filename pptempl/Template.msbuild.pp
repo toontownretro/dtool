@@ -38,47 +38,6 @@
 #defer LDFLAGS_OPT3 $[LDFLAGS_OPT3] $[nodefaultlib_cstatic]
 #defer LDFLAGS_OPT4 $[LDFLAGS_OPT4] $[nodefaultlib_cstatic]
 
-// Converts the set of names to suitable MSBuild target names.
-#defun targetname files
-  $[subst -,_,.,_,/,_,$[files]]
-#end targetname
-
-// Converts the space-separated words to semicolon separated words.
-#defun msjoin names
-  $[join ;,$[names]]
-#end msjoin
-
-// Converts the space-seperated words to suitable MSBuild target names
-// and separates them with a semicolon.
-#defun jtargetname files
-  $[msjoin $[targetname $[files]]]
-#end jtargetname
-
-// Writes an MSBuild line that invokes the given target on a single
-// subdirectory project.
-#defun msbuild target
-  <MSBuild Projects="$[osfilename ./$[PATH]/$[dirname].proj]" Targets="$[target]" BuildInParallel="true"/>
-#end msbuild
-
-// Writes a MSBuild line that invokes the given target on all subdirectory
-// projects.
-#defun msbuildall target
-  #foreach dirname $[alldirs]
-  <MSBuild Projects="$[osfilename ./$[subdirs $[PATH],$[dirname]]/$[dirname].proj]" Targets="$[target]"/>
-  #end dirname
-#end msbuildall
-
-#define platform_config $[if $[WIN64_PLATFORM],x64,Win32]
-
-// Scopes/targets that result in a .vcxproj
-#define vcx_scopes \
-  interface_target python_target python_module_target metalib_target \
-  lib_target noinst_lib_target test_lib_target static_lib_target \
-  dynamic_lib_target ss_lib_target bin_target noinst_bin_target test_bin_target
-
-#defer get_depended_targets \
-  $[sort $[get_metalibs $[TARGET],$[active_local_libs] $[active_igate_libs]] $[active_component_libs]]
-
 //////////////////////////////////////////////////////////////////////
 #if $[or $[eq $[DIR_TYPE], src],$[eq $[DIR_TYPE], metalib],$[eq $[DIR_TYPE], module]]
 //////////////////////////////////////////////////////////////////////
@@ -107,44 +66,6 @@
     #endif
   #end lib_target
 
-  // We need to know the various targets we'll be building.
-  // $[lib_targets] will be the list of dynamic and static libraries,
-  // and $[bin_targets] the list of binaries.  $[test_bin_targets] is
-  // the list of binaries that are to be built only when specifically
-  // asked for.
-
-  #define lib_targets \
-    $[forscopes python_target python_module_target metalib_target \
-                noinst_lib_target test_lib_target static_lib_target \
-                dynamic_lib_target ss_lib_target, \
-      $[if $[build_target],$[ODIR]/$[get_output_file]]] $[real_lib_target_libs]
-
-  #define bin_targets \
-      $[active_target(bin_target noinst_bin_target csharp_target):%=$[ODIR]/%.exe] \
-      $[active_target(sed_bin_target):%=$[ODIR]/%]
-  #define test_bin_targets $[active_target(test_bin_target):%=$[ODIR]/%.exe]
-
-  #defer test_lib_targets $[active_target(test_lib_target):%=$[if $[TEST_ODIR],$[TEST_ODIR],$[ODIR]]/%$[dllext]$[lib_ext]]
-
-  // And these variables will define the various things we need to
-  // install.
-  #define install_lib $[active_target(metalib_target static_lib_target dynamic_lib_target ss_lib_target)] $[real_lib_targets]
-  #define install_bin $[active_target(bin_target)]
-  #define install_scripts $[sort $[INSTALL_SCRIPTS(metalib_target lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target)] $[INSTALL_SCRIPTS]]
-  #define install_modules $[sort $[INSTALL_MODULES(metalib_target lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target)] $[INSTALL_MODULES]]
-  #define install_headers $[sort $[INSTALL_HEADERS(interface_target metalib_target lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target)] $[INSTALL_HEADERS]]
-  #define install_parser_inc $[sort $[INSTALL_PARSER_INC]]
-  #define install_data $[sort $[INSTALL_DATA(metalib_target lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target)] $[INSTALL_DATA]]
-  #define install_config $[sort $[INSTALL_CONFIG(metalib_target lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target)] $[INSTALL_CONFIG]]
-  #define install_igatedb $[sort $[get_igatedb(metalib_target lib_target)]]
-
-  // These are the various sources collected from all targets within the
-  // directory.
-  #define st_sources $[sort $[compile_sources(python_target python_module_target metalib_target lib_target noinst_lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target test_bin_target test_lib_target csharp_target)]]
-  #define yxx_st_sources $[sort $[yxx_sources(metalib_target lib_target noinst_lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target test_bin_target test_lib_target)]]
-  #define lxx_st_sources $[sort $[lxx_sources(metalib_target lib_target noinst_lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target test_bin_target test_lib_target)]]
-  #define dep_sources_1  $[sort $[get_sources(interface_target python_target python_module_target metalib_target lib_target noinst_lib_target static_lib_target dynamic_lib_target ss_lib_target bin_target noinst_bin_target test_bin_target test_lib_target)]]
-
   // These are the source files that our dependency cache file will
   // depend on.  If it's an empty list, we won't bother writing rules to
   // freshen the cache file.
@@ -157,8 +78,6 @@
     #define py_sources $[wildcard $[TOPDIR]/$[DIRPREFIX]*.py]
   #endif
   #define install_py $[py_sources:$[TOPDIR]/$[DIRPREFIX]%=%]
-
-  #define install_py_module $[active_target(python_module_target python_target)]
 
 #endif  // $[build_directory]
 
@@ -335,19 +254,20 @@
 
 <Import Project="$(VCTargetsPath)\Microsoft.Cpp.default.props" />
 
+#define vs_target_name $[if $[eq $[config_type],Application],$[TARGET],$[get_output_file_noext]]
+#define vs_target_ext \
+  $[if $[eq $[config_type],Application],.exe, \
+    $[if $[eq $[config_type],StaticLibrary],.lib,$[lib_ext]]]
+
 <PropertyGroup>
   <ConfigurationType>$[config_type]</ConfigurationType>
-  <PlatformToolset>v142</PlatformToolset>
-  <PreferredToolArchitecture>$[if $[WIN64_PLATFORM],x64,x86]</PreferredToolArchitecture>
+  <PlatformToolset>$[platform_toolset]</PlatformToolset>
+  <PreferredToolArchitecture>$[tool_architecture]</PreferredToolArchitecture>
   <IntDir>$[osfilename $[ODIR]]\</IntDir>
   <OutDir>$[osfilename $[ODIR]]\</OutDir>
-#if $[eq $[config_type],Application]
-  <TargetName>$[TARGET]</TargetName>
-  <TargetExt>.exe</TargetExt>
-#else
-  <TargetName>$[get_output_file_noext]</TargetName>
-  <TargetExt>$[if $[eq $[config_type],StaticLibrary],.lib,$[lib_ext]]</TargetExt>
-#endif
+  <TargetName>$[osfilename $[vs_target_name]]</TargetName>
+  <TargetExt>$[osfilename $[vs_target_ext]]</TargetExt>
+  <TargetPath>$[osfilename $[ODIR]/$[vs_target_name]$[vs_target_ext]]</TargetPath>
 </PropertyGroup>
 
 <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -565,6 +485,7 @@
   <Link>
     <AdditionalLibraryDirectories>$[msjoin $[osfilename $[lpath]]]</AdditionalLibraryDirectories>
     <AdditionalDependencies>$[msjoin $[osfilename $[patsubst %.lib,%.lib,%,lib%.lib,$[libs]] $[extra_objs]]]</AdditionalDependencies>
+    <OutputFile>$[osfilename $[ODIR]/$[vs_target_name]$[vs_target_ext]]</OutputFile>
   </Link>
 </ItemDefinitionGroup>
 #endif
@@ -807,48 +728,9 @@
 </Target>
 
 <Target Name="uninstall">
-#if $[and $[build_lib],$[is_lib]]
-  <Delete Files="$[osfilename $[install_lib_dir]/$[get_output_file]]" />
-  #if $[not $[lib_is_static]]
-  <Delete Files="$[osfilename $[install_lib_dir]/$[get_output_lib]]" />
-  #endif
-  #if $[has_pdb]
-  <Delete Files="$[osfilename $[install_lib_dir]/$[get_output_pdb]]" />
-  #endif
+#if $[installed_files]
+  <Delete Files="$[msjoin $[osfilename $[installed_files]]]" />
 #endif
-
-#if $[is_bin]
-  <Delete Files="$[osfilename $[install_bin_dir]/$[TARGET].exe]" />
-
-  #if $[has_pdb]
-  <Delete Files="$[osfilename $[install_bin_dir]/$[TARGET].pdb]" />
-  #endif
-#endif
-
-#if $[INSTALL_SCRIPTS]
-  <Delete Files="$[msjoin $[osfilename $[INSTALL_SCRIPTS:%=$[install_bin_dir]/%]]]" />
-#endif
-
-#if $[INSTALL_MODULES]
-  <Delete Files="$[msjoin $[osfilename $[INSTALL_MODULES:%=$[install_lib_dir]/%]]]" />
-#endif
-
-#if $[INSTALL_HEADERS]
-  <Delete Files="$[msjoin $[osfilename $[INSTALL_HEADERS:%=$[install_headers_dir]/%]]]" />
-#endif
-
-#if $[INSTALL_DATA]
-  <Delete Files="$[msjoin $[osfilename $[INSTALL_DATA:%=$[install_data_dir]/%]]]" />
-#endif
-
-#if $[INSTALL_CONFIG]
-  <Delete Files="$[msjoin $[osfilename $[INSTALL_CONFIG:%=$[install_config_dir]/%]]]" />
-#endif
-
-#if $[igatedb]
-  <Delete Files="$[msjoin $[osfilename $[igatedb:$[ODIR]/%=$[install_igatedb_dir]/%]]]" />
-#endif
-
 </Target>
 
 <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Targets" />
@@ -881,6 +763,10 @@
 
 <Import Project="$(VCTargetsPath)\Microsoft.Cpp.default.props" />
 
+<PropertyGroup>
+  <PlatformToolset>$[platform_toolset]</PlatformToolset>
+</PropertyGroup>
+
 <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
 
 // Here are all the directory-level things we can install.
@@ -890,7 +776,8 @@
   $[INSTALL_HEADERS] \
   $[INSTALL_PARSER_INC] \
   $[INSTALL_DATA] \
-  $[INSTALL_CONFIG]
+  $[INSTALL_CONFIG] \
+  $[if $[install_py], $[install_py] __init__.py]
 
 #define installed_files \
     $[INSTALL_SCRIPTS:%=$[install_bin_dir]/%] \
@@ -898,7 +785,8 @@
     $[INSTALL_HEADERS:%=$[install_headers_dir]/%] \
     $[INSTALL_PARSER_INC:%=$[install_parser_inc_dir]/%] \
     $[INSTALL_DATA:%=$[install_data_dir]/%] \
-    $[INSTALL_CONFIG:%=$[install_config_dir]/%]
+    $[INSTALL_CONFIG:%=$[install_config_dir]/%] \
+    $[if $[install_py],$[install_py:%=$[install_py_dir]/%] $[install_py_package_dir]/__init__.py]
 
 <Target Name="install"
         Inputs="$[msjoin $[osfilename $[install_files]]]"
@@ -932,33 +820,18 @@
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_CONFIG]]]"
         DestinationFiles="$[msjoin $[osfilename $[INSTALL_CONFIG:%=$[install_config_dir]/%]]]" />
 #endif
+
+#if $[install_py]
+  <Copy SourceFiles="$[msjoin $[osfilename $[install_py]]]"
+        DestinationFiles="$[msjoin $[osfilename $[install_py:%=$[install_py_dir]/%]]]" />
+  <Touch Files="$[osfilename $[install_py_package_dir]/__init__.py]" />
+#endif
 </Target>
 
 <Target Name="uninstall">
-#if $[INSTALL_SCRIPTS]
-  <Delete Files="$[msjoin $[osfilename $[INSTALL_SCRIPTS:%=$[install_bin_dir]/%]]]" />
+#if $[installed_files]
+  <Delete Files="$[msjoin $[osfilename $[installed_files]]]" />
 #endif
-
-#if $[INSTALL_MODULES]
-  <Delete Files="$[msjoin $[osfilename $[INSTALL_MODULES:%=$[install_lib_dir]/%]]]" />
-#endif
-
-#if $[INSTALL_HEADERS]
-  <Delete Files="$[msjoin $[osfilename $[INSTALL_HEADERS:%=$[install_headers_dir]/%]]]" />
-#endif
-
-#if $[INSTALL_PARSER_INC]
-  <Delete Files="$[msjoin $[osfilename $[INSTALL_PARSER_INC:%=$[install_parser_inc_dir]/%]]]" />
-#endif
-
-#if $[INSTALL_DATA]
-  <Delete Files="$[msjoin $[osfilename $[INSTALL_DATA:%=$[install_data_dir]/%]]]" />
-#endif
-
-#if $[INSTALL_CONFIG]
-  <Delete Files="$[msjoin $[osfilename $[INSTALL_CONFIG:%=$[install_config_dir]/%]]]" />
-#endif
-
 </Target>
 
 <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Targets" />
@@ -1001,17 +874,31 @@
 
 <Import Project="$(VCTargetsPath)\Microsoft.Cpp.default.props" />
 
+<PropertyGroup>
+  <PlatformToolset>$[platform_toolset]</PlatformToolset>
+</PropertyGroup>
+
 <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
 
+#define install_files \
+  $[CONFIG_HEADER]
+
+#define installed_files \
+  $[if $[CONFIG_HEADER],$[install_headers_dir]/$[CONFIG_HEADER]]
+
 <Target Name="install"
-        Inputs="$[osfilename $[CONFIG_HEADER]]"
-        Outputs="$[osfilename $[install_headers_dir]/$[CONFIG_HEADER]]">
-  <Copy SourceFiles="$[osfilename $[CONFIG_HEADER]]"
-        DestinationFiles="$[osfilename $[install_headers_dir]/$[CONFIG_HEADER]]" />
+        Inputs="$[msjoin $[osfilename $[install_files]]]"
+        Outputs="$[msjoin $[osfilename $[installed_files]]]">
+#if $[install_files]
+  <Copy SourceFiles="$[msjoin $[osfilename $[install_files]]]"
+        DestinationFiles="$[msjoin $[osfilename $[installed_files]]]" />
+#endif
 </Target>
 
 <Target Name="uninstall">
-  <Delete Files="$[osfilename $[install_headers_dir]/$[CONFIG_HEADER]]" />
+#if $[installed_files]
+  <Delete Files="$[msjoin $[osfilename $[installed_files]]]" />
+#endif
 </Target>
 
 // Take this opportunity to freshen ourselves up.
@@ -1055,7 +942,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "$[TARGET]", "$[osfilename $[PATH]/$[TARGET].vcxproj]", "{$[makeguid $[TARGET]]}"
   ProjectSection(ProjectDependencies) = postProject
   #foreach depend $[get_depended_targets]
-    #print $[TARGET] depends on $[depend]
     {$[makeguid $[depend]]} = {$[makeguid $[depend]]}
   #end depend
   EndProjectSection
