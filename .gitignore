@@ -8,6 +8,13 @@ Makefile
 pp.dep
 /built/
 Opt?-*
+*.sln
+*.vcxproj
+*.vcxproj.user
+.vs
+*.log
+x64
+Win32
 src/cppparser/cppBison.cxx
 src/cppparser/cppBison.h
 src/prc/prc_parameters.h
