@@ -998,6 +998,8 @@ EndGlobal
 #elif $[or $[eq $[DIR_TYPE], models],$[eq $[DIR_TYPE], models_toplevel],$[eq $[DIR_TYPE], models_group]]
 //////////////////////////////////////////////////////////////////////
 
+// Generate NMake files for models.
+#define BUILD_TYPE nmake
 #include $[THISDIRPREFIX]Template.models.pp
 
 //////////////////////////////////////////////////////////////////////
