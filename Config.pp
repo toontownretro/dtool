@@ -821,10 +821,16 @@
 #defer HAVE_RAD_MSS $[libtest $[RAD_MSS_LPATH],$[RAD_MSS_LIBS]]
 
 // Info for the FMOD audio engine
-#define FMOD_IPATH $[DEFAULT_IPATH]
-#define FMOD_LPATH $[DEFAULT_LPATH]
-#define FMOD_LIBS fmod
-#defer HAVE_FMOD $[libtest $[FMOD_LPATH],$[FMOD_LIBS]]
+#if $[WINDOWS_PLATFORM]
+  #define FMOD_IPATH $[unixshortname C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc]
+  #define FMOD_LPATH $[unixshortname C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\lib\x64]
+  #define FMOD_LIBS fmod_vc.lib
+#else
+  #define FMOD_IPATH $[DEFAULT_IPATH]
+  #define FMOD_LPATH $[DEFAULT_LPATH]
+  #define FMOD_LIBS fmod
+#endif
+#defer HAVE_FMOD $[and $[isdir $[FMOD_IPATH]],$[libtest $[FMOD_LPATH],$[FMOD_LIBS]]]
 
 // Info for the OpenAL audio engine
 #define OPENAL_IPATH $[DEFAULT_IPATH]
