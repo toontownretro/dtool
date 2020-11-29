@@ -29,7 +29,7 @@
 #define texattrib_file $[texattrib_dir]/textures.txa
 
 #if $[eq $[BUILD_TYPE], nmake]
-  #define TOUCH_CMD echo.
+  #define TOUCH_CMD echo. >
   #define COPY_CMD xcopy /I/Y
   #define DEL_CMD del /f/s/q
 #else
@@ -321,7 +321,7 @@ $[TAB]rm -rf $[filter_dirs]
     ]
 $[directory] :
 #if $[eq $[BUILD_TYPE], nmake]
-$[TAB] if not exist $[osfilename $[directory]] mkdir $[osfilename $[directory]]
+$[TAB]if not exist $[osfilename $[directory]] mkdir $[osfilename $[directory]]
 #else
 $[TAB]@test -d $[directory] || echo mkdir -p $[directory]
 $[TAB]@test -d $[directory] || mkdir -p $[directory]
@@ -332,7 +332,7 @@ $[TAB]@test -d $[directory] || mkdir -p $[directory]
 // phony timestamp file to achieve that.
 $[directory]/stamp :
 #if $[eq $[BUILD_TYPE], nmake]
-$[TAB] if not exist $[osfilename $[directory]] mkdir $[osfilename $[directory]]
+$[TAB]if not exist $[osfilename $[directory]] mkdir $[osfilename $[directory]]
 $[TAB]$[TOUCH_CMD] $[osfilename $[directory]/stamp]
 #else
 $[TAB]@test -d $[directory] || echo mkdir -p $[directory]
@@ -571,15 +571,12 @@ $[TAB]$[TOUCH_CMD] $[TARGET_DIR]/$[egg]
 
    // And this is the actual optchar pass.
 $[target] : $[sources] $[TARGET_DIR]/stamp
-
 ////////////////////////////////
 //$[TAB]egg-optchar $[OPTCHAR_OPTS] -d $[TARGET_DIR] $[sources]
-
 ///// Handles very long lists of egg files by echoing them //////
 ///// out to a file then having egg-optchar read in the    //////
 ///// list from that file.  Comment out four lines below   //////
 ///// and uncomment line above to revert to the old way.   //////
-
 #define sources_file eoc.tmp
 $[TAB]echo -n $[sources] > $[sources_file]
 $[TAB]egg-optchar $[OPTCHAR_OPTS] -d $[TARGET_DIR] -inf $[sources_file]
