@@ -29,7 +29,7 @@
 #define texattrib_file $[texattrib_dir]/textures.txa
 
 #if $[eq $[BUILD_TYPE], nmake]
-  #define TOUCH_CMD echo. >
+  #define TOUCH_CMD echo.>>
   #define COPY_CMD xcopy /I/Y
   #define DEL_CMD del /f/s/q
 #else
@@ -572,15 +572,15 @@ $[TAB]$[TOUCH_CMD] $[TARGET_DIR]/$[egg]
    // And this is the actual optchar pass.
 $[target] : $[sources] $[TARGET_DIR]/stamp
 ////////////////////////////////
-//$[TAB]egg-optchar $[OPTCHAR_OPTS] -d $[TARGET_DIR] $[sources]
+$[TAB]egg-optchar $[OPTCHAR_OPTS] -d $[TARGET_DIR] $[sources]
 ///// Handles very long lists of egg files by echoing them //////
 ///// out to a file then having egg-optchar read in the    //////
 ///// list from that file.  Comment out four lines below   //////
 ///// and uncomment line above to revert to the old way.   //////
-#define sources_file eoc.tmp
-$[TAB]echo -n $[sources] > $[sources_file]
-$[TAB]egg-optchar $[OPTCHAR_OPTS] -d $[TARGET_DIR] -inf $[sources_file]
-$[TAB]$[DEL_CMD] eoc.tmp
+//#define sources_file eoc.tmp
+//$[TAB]echo $[sources]> $[sources_file]
+//$[TAB]egg-optchar $[OPTCHAR_OPTS] -d $[TARGET_DIR] -inf $[sources_file]
+//$[TAB]$[DEL_CMD] eoc.tmp
 ////////////////////////////////
 #endif
 
