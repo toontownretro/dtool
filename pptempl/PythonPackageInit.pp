@@ -74,7 +74,7 @@ if os.getenv('CTPROJS'):
     tree = os.getenv(package)
 
     if not tree:
-        raise StandardError, 'CTPROJS is defined, but you are not attached to %s!' % (package)
+        raise StandardError('CTPROJS is defined, but you are not attached to %s!' % (package))
     tree = deCygwinify(tree)
     __path__[0] = os.path.join(tree, 'src')
 
@@ -83,7 +83,7 @@ if os.getenv('CTPROJS'):
     if package != 'DIRECT':
         tree = os.getenv('DIRECT')
         if not tree:
-            raise StandardError,'CTPROJS is defined, but you are not attached to DIRECT!'
+            raise StandardError('CTPROJS is defined, but you are not attached to DIRECT!')
         tree = deCygwinify(tree)
         parent, base = os.path.split(tree)
         if parent not in sys.path:
