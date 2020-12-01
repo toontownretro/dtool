@@ -907,7 +907,9 @@
 <Target Name="clean" DependsOnTargets="clean-igate">
 #if $[py_sources]
   // Scrub out old generated Python code.
-  <Delete Files=".\*.pyc;.\*.pyo" />
+  <Delete Files="*.pyc;*.pyo" />
+  // Python 3 puts bytecode in a __pycache__ folder.
+  <RemoveDir Directories="__pycache__" />
 #endif
 </Target>
 
