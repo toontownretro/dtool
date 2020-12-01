@@ -247,7 +247,13 @@ uninstall : uninstall-other uninstall-txo uninstall-bam
 
 clean-txo :
 #if $[build_txos]
-$[TAB]$[DEL_CMD] $[build_txos]
+  #foreach f $[build_txos]
+    #if $[eq $[BUILD_TYPE],nmake]
+$[TAB]$[DEL_CMD] $[osfilename $[f]]
+    #else
+$[TAB]$[DEL_CMD] $[f]
+    #endif
+  #end f
 #endif
 
 clean-bam :
@@ -270,22 +276,30 @@ $[TAB]rm -rf $[pal_egg_dir]
 
 clean-flt :
 #if $[build_flt_eggs]
-$[TAB]$[DEL_CMD] $[build_flt_eggs]
+#foreach f $[build_flt_eggs]
+$[TAB]$[DEL_CMD] $[f]
+#end f
 #endif
 
 clean-lwo :
 #if $[build_lwo_eggs]
-$[TAB]$[DEL_CMD] $[build_lwo_eggs]
+#foreach f $[build_lwo_eggs]
+$[TAB]$[DEL_CMD] $[f]
+#end f
 #endif
 
 clean-maya :
 #if $[build_maya_eggs]
-$[TAB]$[DEL_CMD] $[build_maya_eggs]
+#foreach f $[build_maya_eggs]
+$[TAB]$[DEL_CMD] $[f]
+#end f
 #endif
 
 clean-soft :
 #if $[build_soft_eggs]
-$[TAB]$[DEL_CMD] $[build_soft_eggs]
+#foreach f $[build_soft_eggs]
+$[TAB]$[DEL_CMD] $[f]
+#end f
 #endif
 
 clean-optchar :
@@ -295,7 +309,10 @@ $[TAB]rm -rf $[optchar_dirs]
 
 clean : clean-pal
 #if $[build_eggs]
-$[TAB]$[DEL_CMD] $[build_eggs] *.pt
+#foreach egg $[build_eggs]
+$[TAB]$[DEL_CMD] $[egg]
+#end egg
+$[TAB]$[DEL_CMD] *.pt
 #endif
 #if $[filter_dirs]
  #if $[eq $[BUILD_TYPE], nmake]
@@ -722,11 +739,13 @@ uninstall-bam :
   #endif
   #define files $[patsubst %.egg,$[install_model_dir]/%.bam,$[generic_egglist] $[language_egglist]]
   #if $[files]
+    #foreach file $[files]
  #if $[eq $[BUILD_TYPE], nmake]
-$[TAB]$[DEL_CMD] $[osfilename $[files]]
+$[TAB]$[DEL_CMD] $[osfilename $[file]]
  #else
-$[TAB]$[DEL_CMD] $[files]
+$[TAB]$[DEL_CMD] $[file]
  #endif
+    #end file
   #endif
 #end install_egg
 
@@ -785,11 +804,13 @@ uninstall-other:
   #endif
   #define files $[patsubst %,$[install_model_dir]/%,$[generic_sources] $[language_sources]]
   #if $[files]
+    #foreach f $[files]
  #if $[eq $[BUILD_TYPE], nmake]
-$[TAB]$[DEL_CMD] $[osfilename $[files]]
+$[TAB]$[DEL_CMD] $[osfilename $[f]]
  #else
-$[TAB]$[DEL_CMD] $[files]
+$[TAB]$[DEL_CMD] $[f]
  #endif
+    #end f
   #endif
 #end install_dna
 
@@ -832,11 +853,13 @@ uninstall-txo :
       $[install_model_dir]/$[TARGET], \
       $[foreach img,$[SOURCES],$[install_model_dir]/$[basename $[img]].txo]]
   #if $[files]
+    #foreach f $[files]
     #if $[eq $[BUILD_TYPE], nmake]
-$[TAB]$[DEL_CMD] $[osfilename $[files]]
+$[TAB]$[DEL_CMD] $[osfilename $[f]]
     #else
-$[TAB]$[DEL_CMD] $[files]
+$[TAB]$[DEL_CMD] $[f]
     #endif
+    #end f
   #endif
 
 #end install_txo
@@ -865,11 +888,13 @@ uninstall-other :
 #forscopes install_audio install_icons install_shader install_misc
   #define files $[patsubst %,$[install_model_dir]/%,$[SOURCES]]
   #if $[files]
+    #foreach f $[files]
  #if $[eq $[BUILD_TYPE], nmake]
-$[TAB]$[DEL_CMD] $[osfilename $[files]]
+$[TAB]$[DEL_CMD] $[osfilename $[f]]
  #else
-$[TAB]$[DEL_CMD] $[files]
+$[TAB]$[DEL_CMD] $[f]
  #endif
+    #end f
   #endif
 #end install_audio install_icons install_shader install_misc
 
