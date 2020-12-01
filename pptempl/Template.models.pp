@@ -258,48 +258,48 @@ $[TAB]$[DEL_CMD] $[f]
 
 clean-bam :
 #if $[bam_targets]
- #if $[eq $[BUILD_TYPE], nmake]
+  #if $[eq $[BUILD_TYPE], nmake]
 $[TAB]$[DEL_CMD] $[osfilename $[bam_dir]]
- #else
+  #else
 $[TAB]$[DEL_CMD] $[bam_dir]
- #endif
+  #endif
 #endif
 
 clean-pal : clean-bam
 #if $[pal_egg_targets]
- #if $[eq $[BUILD_TYPE], nmake]
+  #if $[eq $[BUILD_TYPE], nmake]
 $[TAB]$[DEL_CMD] $[osfilename $[pal_egg_dir]]
- #else
+  #else
 $[TAB]rm -rf $[pal_egg_dir]
- #endif
+  #endif
 #endif
 
 clean-flt :
 #if $[build_flt_eggs]
-#foreach f $[build_flt_eggs]
+  #foreach f $[build_flt_eggs]
 $[TAB]$[DEL_CMD] $[f]
-#end f
+  #end f
 #endif
 
 clean-lwo :
 #if $[build_lwo_eggs]
-#foreach f $[build_lwo_eggs]
+  #foreach f $[build_lwo_eggs]
 $[TAB]$[DEL_CMD] $[f]
-#end f
+  #end f
 #endif
 
 clean-maya :
 #if $[build_maya_eggs]
-#foreach f $[build_maya_eggs]
+  #foreach f $[build_maya_eggs]
 $[TAB]$[DEL_CMD] $[f]
-#end f
+  #end f
 #endif
 
 clean-soft :
 #if $[build_soft_eggs]
-#foreach f $[build_soft_eggs]
+  #foreach f $[build_soft_eggs]
 $[TAB]$[DEL_CMD] $[f]
-#end f
+  #end f
 #endif
 
 clean-optchar :
@@ -309,17 +309,17 @@ $[TAB]rm -rf $[optchar_dirs]
 
 clean : clean-pal
 #if $[build_eggs]
-#foreach egg $[build_eggs]
+  #foreach egg $[build_eggs]
 $[TAB]$[DEL_CMD] $[egg]
-#end egg
+  #end egg
 $[TAB]$[DEL_CMD] *.pt
 #endif
 #if $[filter_dirs]
- #if $[eq $[BUILD_TYPE], nmake]
+  #if $[eq $[BUILD_TYPE], nmake]
 $[TAB]$[DEL_CMD] $[osfilename $[filter_dirs]]
- #else
+  #else
 $[TAB]rm -rf $[filter_dirs]
- #endif
+  #endif
 #endif
 
 // We need a rule for each directory we might need to make.  This
@@ -515,11 +515,11 @@ $[TAB]$[SOFT2EGG] $[SOFT2EGG_OPTS] $[if $[SOFTIMAGE_RSRC],-r "$[osfilename $[SOF
     #define source $[word $[i],$[SOURCES]]
     #define target $[word $[i],$[TARGETS]]
 $[target] : $[source]
- #if $[eq $[BUILD_TYPE], nmake]
+    #if $[eq $[BUILD_TYPE], nmake]
 $[TAB]$[COPY_CMD] $[osfilename $[source]] $[osfilename $[target]]
- #else
+    #else
 $[TAB]$[COPY_CMD] $[source] $[target]
- #endif
+    #endif
   #end i
 #end copy_egg
 
@@ -544,16 +544,28 @@ $[TAB]$[COMMAND]
    // first one.
   #foreach egg $[notdir $[wordlist 2,9999,$[SOURCES]]]
 $[TARGET_DIR]/$[egg] : $[target] $[TARGET_DIR]/stamp
- #if $[eq $[BUILD_TYPE], nmake]
+    #if $[eq $[BUILD_TYPE], nmake]
 $[TAB]$[TOUCH_CMD] $[osfilename $[TARGET_DIR]/$[egg]]
- #else
+    #else
 $[TAB]$[TOUCH_CMD] $[TARGET_DIR]/$[egg]
- #endif
+    #endif
   #end egg
 
-   // And this is the actual optchar pass.
+   // And this is the actual filter pass.
 $[target] : $[sources] $[TARGET_DIR]/stamp
-$[TAB]$[COMMAND]
+  // Write each source filename to a temporary file that will be read by the
+  // egg program.  This is done to support long commands.
+  #define sources_file eoc.tmp
+  #if $[eq $[BUILD_TYPE],nmake]
+$[TAB]if exist $[sources_file] $[DEL_CMD] $[sources_file]
+  #else
+$[TAB]$[DEL_CMD] $[sources_file]
+  #endif
+  #foreach file $[sources]
+$[TAB]echo $[file]>> $[sources_file]
+  #end file
+$[TAB]$[COMMAND] -inf $[sources_file]
+$[TAB]$[DEL_CMD] $[sources_file]
 #end filter_char_egg
 
 
@@ -579,25 +591,32 @@ $[TAB]egg-optchar -keepall $[OPTCHAR_OPTS] -d $[TARGET_DIR] $[source]
    // first one.
   #foreach egg $[notdir $[wordlist 2,9999,$[SOURCES]]]
 $[TARGET_DIR]/$[egg] : $[target] $[TARGET_DIR]/stamp
- #if $[eq $[BUILD_TYPE], nmake]
+    #if $[eq $[BUILD_TYPE], nmake]
 $[TAB]$[TOUCH_CMD] $[osfilename $[TARGET_DIR]/$[egg]]
- #else
+    #else
 $[TAB]$[TOUCH_CMD] $[TARGET_DIR]/$[egg]
- #endif
+    #endif
   #end egg
 
    // And this is the actual optchar pass.
 $[target] : $[sources] $[TARGET_DIR]/stamp
 ////////////////////////////////
-$[TAB]egg-optchar $[OPTCHAR_OPTS] -d $[TARGET_DIR] $[sources]
+//$[TAB]egg-optchar $[OPTCHAR_OPTS] -d $[TARGET_DIR] $[sources]
 ///// Handles very long lists of egg files by echoing them //////
 ///// out to a file then having egg-optchar read in the    //////
 ///// list from that file.  Comment out four lines below   //////
 ///// and uncomment line above to revert to the old way.   //////
-//#define sources_file eoc.tmp
-//$[TAB]echo $[sources]> $[sources_file]
-//$[TAB]egg-optchar $[OPTCHAR_OPTS] -d $[TARGET_DIR] -inf $[sources_file]
-//$[TAB]$[DEL_CMD] eoc.tmp
+  #define sources_file eoc.tmp
+  #if $[eq $[BUILD_TYPE],nmake]
+$[TAB]if exist $[sources_file] $[DEL_CMD] $[sources_file]
+  #else
+$[TAB]$[DEL_CMD] $[sources_file]
+  #endif
+  #foreach file $[sources]
+$[TAB]echo $[file]>> $[sources_file]
+  #end file
+$[TAB]egg-optchar $[OPTCHAR_OPTS] -d $[TARGET_DIR] -inf $[sources_file]
+$[TAB]$[DEL_CMD] $[sources_file]
 ////////////////////////////////
 #endif
 
@@ -657,13 +676,13 @@ $[TAB]egg2bam $[EGG2BAM_OPTS] -NC -o $[target] $[source]
     #define dest $[install_model_dir]
 
 $[dest]/$[basename] : $[source]
- #if $[eq $[BUILD_TYPE], nmake]
+    #if $[eq $[BUILD_TYPE], nmake]
 $[TAB]$[DEL_CMD] $[osfilename $[dest]/$[basename]]
 $[TAB]$[COPY_CMD] $[osfilename $[source]] $[osfilename $[dest]/$[basename]]
- #else
+    #else
 $[TAB]$[DEL_CMD] $[dest]/$[basename]
 $[TAB]$[COPY_CMD] $[source] $[dest]/$[basename]
- #endif
+    #endif
 
   #end egg
   #foreach egg $[UNPAL_SOURCES] $[UNPAL_SOURCES_NC]
@@ -672,13 +691,13 @@ $[TAB]$[COPY_CMD] $[source] $[dest]/$[basename]
     #define dest $[install_model_dir]
 
 $[dest]/$[basename] : $[source]
- #if $[eq $[BUILD_TYPE], nmake]
+    #if $[eq $[BUILD_TYPE], nmake]
 $[TAB]$[DEL_CMD] $[osfilename $[dest]/$[basename]]
 $[TAB]$[COPY_CMD] $[osfilename $[source]] $[osfilename $[dest]/$[basename]]
- #else
+    #else
 $[TAB]$[DEL_CMD] $[dest]/$[basename]
 $[TAB]$[COPY_CMD] $[source] $[dest]/$[basename]
- #endif
+    #endif
 
   #end egg
 #end install_egg
@@ -692,13 +711,13 @@ $[TAB]$[COPY_CMD] $[source] $[dest]/$[basename]
     #define dest $[install_model_dir]
 $[dest]/$[local] : $[sourcedir]/$[local]
 //      cd ./$[sourcedir] && $[INSTALL]
- #if $[eq $[BUILD_TYPE], nmake]
+    #if $[eq $[BUILD_TYPE], nmake]
 $[TAB]$[DEL_CMD] $[osfilename $[dest]/$[local]]
 $[TAB]$[COPY_CMD] $[osfilename $[sourcedir]/$[local]] $[osfilename $[dest]]
- #else
+    #else
 $[TAB]$[DEL_CMD] $[dest]/$[local]
 $[TAB]$[COPY_CMD] $[sourcedir]/$[local] $[dest]
- #endif
+    #endif
 
   #end egg
   #if $[LANGUAGES]
@@ -717,13 +736,13 @@ $[TAB]$[COPY_CMD] $[sourcedir]/$[local] $[dest]
       #define dest $[install_model_dir]
 $[dest]/$[remote] : $[sourcedir]/$[local]
 //      cd ./$[sourcedir] && $[INSTALL]
- #if $[eq $[BUILD_TYPE], nmake]
+      #if $[eq $[BUILD_TYPE], nmake]
 $[TAB]$[DEL_CMD] $[osfilename $[dest]/$[remote]]
 $[TAB]$[COPY_CMD] $[osfilename $[sourcedir]/$[local]] $[osfilename $[dest]/$[remote]]
- #else
+      #else
 $[TAB]$[DEL_CMD] $[dest]/$[remote]
 $[TAB]$[COPY_CMD] $[sourcedir]/$[local] $[dest]/$[remote]
- #endif
+      #endif
 
     #end egg
   #endif
@@ -740,11 +759,11 @@ uninstall-bam :
   #define files $[patsubst %.egg,$[install_model_dir]/%.bam,$[generic_egglist] $[language_egglist]]
   #if $[files]
     #foreach file $[files]
- #if $[eq $[BUILD_TYPE], nmake]
+      #if $[eq $[BUILD_TYPE], nmake]
 $[TAB]$[DEL_CMD] $[osfilename $[file]]
- #else
+      #else
 $[TAB]$[DEL_CMD] $[file]
- #endif
+      #endif
     #end file
   #endif
 #end install_egg
@@ -758,13 +777,13 @@ $[TAB]$[DEL_CMD] $[file]
     #define dest $[install_model_dir]
 $[dest]/$[remote] : $[local]
 //      $[INSTALL]
- #if $[eq $[BUILD_TYPE], nmake]
+    #if $[eq $[BUILD_TYPE], nmake]
 $[TAB]$[DEL_CMD] $[osfilename $[dest]/$[remote]]
 $[TAB]$[COPY_CMD] $[osfilename $[local]] $[osfilename $[dest]]
- #else
+    #else
 $[TAB]$[DEL_CMD] $[dest]/$[remote]
 $[TAB]$[COPY_CMD] $[local] $[dest]
- #endif
+    #endif
 
   #end file
   #if $[LANGUAGES]
@@ -782,13 +801,13 @@ $[TAB]$[COPY_CMD] $[local] $[dest]
       #define dest $[install_model_dir]
 $[dest]/$[remote] : $[local]
 //      cd ./$[sourcedir] && $[INSTALL]
- #if $[eq $[BUILD_TYPE], nmake]
+      #if $[eq $[BUILD_TYPE], nmake]
 $[TAB]$[DEL_CMD] $[osfilename $[dest]/$[remote]]
 $[TAB]$[COPY_CMD] $[osfilename $[local]] $[osfilename $[dest]/$[remote]]
- #else
+      #else
 $[TAB]$[DEL_CMD] $[dest]/$[remote]
 $[TAB]$[COPY_CMD] $[local] $[dest]/$[remote]
- #endif
+      #endif
 
     #end file
   #endif
@@ -805,11 +824,11 @@ uninstall-other:
   #define files $[patsubst %,$[install_model_dir]/%,$[generic_sources] $[language_sources]]
   #if $[files]
     #foreach f $[files]
- #if $[eq $[BUILD_TYPE], nmake]
+      #if $[eq $[BUILD_TYPE], nmake]
 $[TAB]$[DEL_CMD] $[osfilename $[f]]
- #else
+      #else
 $[TAB]$[DEL_CMD] $[f]
- #endif
+      #endif
     #end f
   #endif
 #end install_dna
@@ -854,11 +873,11 @@ uninstall-txo :
       $[foreach img,$[SOURCES],$[install_model_dir]/$[basename $[img]].txo]]
   #if $[files]
     #foreach f $[files]
-    #if $[eq $[BUILD_TYPE], nmake]
+      #if $[eq $[BUILD_TYPE], nmake]
 $[TAB]$[DEL_CMD] $[osfilename $[f]]
-    #else
+      #else
 $[TAB]$[DEL_CMD] $[f]
-    #endif
+      #endif
     #end f
   #endif
 
@@ -872,13 +891,13 @@ $[TAB]$[DEL_CMD] $[f]
     #define dest $[install_model_dir]
 $[dest]/$[remote] : $[local]
 //      $[INSTALL]
- #if $[eq $[BUILD_TYPE], nmake]
+    #if $[eq $[BUILD_TYPE], nmake]
 $[TAB]$[DEL_CMD] $[osfilename $[dest]/$[remote]]
 $[TAB]$[COPY_CMD] $[osfilename $[local]] $[osfilename $[dest]]
- #else
+    #else
 $[TAB]$[DEL_CMD] $[dest]/$[remote]
 $[TAB]$[COPY_CMD] $[local] $[dest]
- #endif
+    #endif
 
   #end file
 #end install_audio install_icons install_shader install_misc
@@ -889,11 +908,11 @@ uninstall-other :
   #define files $[patsubst %,$[install_model_dir]/%,$[SOURCES]]
   #if $[files]
     #foreach f $[files]
- #if $[eq $[BUILD_TYPE], nmake]
+      #if $[eq $[BUILD_TYPE], nmake]
 $[TAB]$[DEL_CMD] $[osfilename $[f]]
- #else
+      #else
 $[TAB]$[DEL_CMD] $[f]
- #endif
+      #endif
     #end f
   #endif
 #end install_audio install_icons install_shader install_misc
@@ -925,11 +944,11 @@ $[TAB]$[DEL_CMD] $[f]
 // Iterate through all of our known source files.  Each models type
 // file gets its corresponding Makefile listed here.
 #forscopes */
-#if $[eq $[DIR_TYPE], models]
-#if $[build_directory]
-  #addmap subdirs $[DIRNAME]
-#endif
-#endif
+  #if $[eq $[DIR_TYPE], models]
+    #if $[build_directory]
+      #addmap subdirs $[DIRNAME]
+    #endif
+  #endif
 #end */
 
 #output Makefile
@@ -985,11 +1004,11 @@ $[TAB]egg-palettize $[PALETTIZE_OPTS] -af $[texattrib_file] -dm $[install_dir]/%
 # undo-pal : blow away all the palettization information and start fresh.
 #
 undo-pal : clean-pal
- #if $[eq $[BUILD_TYPE], nmake]
+#if $[eq $[BUILD_TYPE], nmake]
 $[TAB]$[DEL_CMD] $[osfilename $[texattrib_file:%.txa=%.boo]]
- #else
+#else
 $[TAB]$[DEL_CMD] $[texattrib_file:%.txa=%.boo]
- #endif
+#endif
 
 #
 # pi : report the palettization information to standard output for the
