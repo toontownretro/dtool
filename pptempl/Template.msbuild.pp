@@ -490,6 +490,8 @@
 </ItemDefinitionGroup>
 #endif
 
+<Import Project="$(VCTargetsPath)\Microsoft.Cpp.Targets" />
+
 /////////////////////////////////////////////////////////////////////
 // Rules to run interrogate as needed.
 /////////////////////////////////////////////////////////////////////
@@ -672,7 +674,7 @@
 <Target Name="install"
         Outputs="$[msjoin $[osfilename $[installed_files]]]"
         Inputs="$[msjoin $[osfilename $[install_files]]]"
-        DependsOnTargets="Link">
+        DependsOnTargets="Build">
 #if $[and $[build_lib],$[is_lib]]
   <Copy SourceFiles="$[osfilename $[ODIR]/$[get_output_file]]"
         DestinationFiles="$[osfilename $[install_lib_dir]/$[get_output_file]]" />
@@ -733,7 +735,61 @@
 #endif
 </Target>
 
-<Import Project="$(VCTargetsPath)\Microsoft.Cpp.Targets" />
+// Make rules to clean the project, i.e delete all intermediate and output
+// build files, to reset the build to a clean slate.
+
+// This target cleans interrogated-generated code.
+<Target Name="clean-igate">
+#if $[igatedb]
+  <Delete Files="$[msjoin $[osfilename $[igatedb]]]" />
+#endif
+#if $[igateoutput]
+  <Delete Files="$[msjoin $[osfilename $[igateoutput] $[$[igateoutput]_obj]]]" />
+#endif
+#if $[igatemout]
+  <Delete Files="$[msjoin $[osfilename $[igatemout] $[$[igatemout]_obj]]]" />
+#endif
+</Target>
+
+// This target cleans compiled source files, libraries, and Bison/Flex
+// generated files.
+<Target Name="clean" DependsOnTargets="clean-igate">
+// Delete compiled source files.
+#if $[compile_sources]
+  <Delete Files="$[msjoin $[osfilename $[patsubst %,$[%_obj],$[compile_sources]]]]" />
+#endif
+
+// Delete a linked library.
+#if $[and $[is_lib],$[not $[is_metalib_component]]]
+  <Delete Files="$[osfilename $[ODIR]/$[get_output_file]]" />
+  #if $[not $[lib_is_static]]
+  <Delete Files="$[osfilename $[ODIR]/$[get_output_lib]]" />
+  #endif
+  #if $[has_pdb]
+  <Delete Files="$[osfilename $[ODIR]/$[get_output_pdb]]" />
+  #endif
+
+// Delete a binary.
+#elif $[is_bin]
+  <Delete Files="$[osfilename $[ODIR]/$[TARGET].exe]" />
+  #if $[has_pdb]
+  <Delete Files="$[osfilename $[ODIR]/$[TARGET].pdb]" />
+  #endif
+#endif
+
+// Delete Bison/Flex generated files.
+#if $[yxx_sources]
+  <Delete Files="$[msjoin $[osfilename $[patsubst %.yxx,%.cxx %.h,$[yxx_sources]]]]" />
+#endif
+#if $[lxx_sources]
+  <Delete Files="$[msjoin $[osfilename $[patsubst %.lxx,%.cxx,$[lxx_sources]]]]" />
+#endif
+
+</Target>
+
+// This is only used by directory-level projects, but it needs to be stubbed
+// here.
+<Target Name="cleanall" DependsOnTargets="clean" />
 
 #endif // $[is_installed]
 
@@ -754,6 +810,15 @@
 <!--                              DO NOT EDIT                                       -->
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+// The directory-level project depends on all of the target-level projects.
+<ItemGroup>
+#forscopes $[vcx_scopes]
+#if $[and $[build_directory],$[build_target]]
+  <ProjectReference Include="$[osfilename $[RELDIR]/$[TARGET].vcxproj]"/>
+#endif
+#end $[vcx_scopes]
+</ItemGroup>
+
 <ItemGroup>
   <ProjectConfiguration Include="Release|$[platform_config]">
     <Configuration>Release</Configuration>
@@ -768,6 +833,8 @@
 </PropertyGroup>
 
 <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+
+<Import Project="$(VCTargetsPath)\Microsoft.Cpp.Targets" />
 
 // Here are all the directory-level things we can install.
 #define install_files \
@@ -834,7 +901,27 @@
 #endif
 </Target>
 
-<Import Project="$(VCTargetsPath)\Microsoft.Cpp.Targets" />
+// Stub out clean-igate and clean targets, which only mean something to
+// target-level projects.
+<Target Name="clean-igate" />
+<Target Name="clean" DependsOnTargets="clean-igate">
+#if $[py_sources]
+  // Scrub out old generated Python code.
+  <Delete Files=".\*.pyc;.\*.pyo" />
+#endif
+</Target>
+
+// This target is intended to undo all the effects of running ppremake and
+// building.  It removes everything except the projects.
+<Target Name="cleanall" DependsOnTargets="clean">
+  <RemoveDir Directories="$[osfilename $[ODIR]]" />
+#if $[DEPENDENCY_CACHE_FILENAME]
+  <Delete Files="$[osfilename $[DEPENDENCY_CACHE_FILENAME]]" />
+#endif
+#if $[composite_list]
+  <Delete Files="$[msjoin $[osfilename $[composite_list]]]" />
+#endif
+</Target>
 
 </Project>
 
@@ -880,6 +967,8 @@
 
 <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
 
+<Import Project="$(VCTargetsPath)\Microsoft.Cpp.Targets" />
+
 #define install_files \
   $[CONFIG_HEADER]
 
@@ -901,13 +990,15 @@
 #endif
 </Target>
 
+<Target Name="clean-igate" />
+<Target Name="clean" DependsOnTargets="clean-igate" />
+<Target Name="cleanall" DependsOnTargets="clean" />
+
 // Take this opportunity to freshen ourselves up.
 <Target Name="freshen"
         Inputs="$[msjoin $[osfilename $[SOURCE_FILENAME] $[EXTRA_PPREMAKE_SOURCE]]]">
   <Exec Command="ppremake" />
 </Target>
-
-<Import Project="$(VCTargetsPath)\Microsoft.Cpp.Targets" />
 
 </Project>
 
@@ -951,6 +1042,15 @@ EndProject
 // Also add in the directory-level projects.
 #formap dirname subdirs
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dir_$[dirname]", "$[osfilename $[PATH]/dir_$[dirname].vcxproj]", "{$[makeguid dir_$[dirname]]}"
+  // The directory-level project depends on all the target-level projects in the directory.
+  ProjectSection(ProjectDependencies) = postProject
+    #define depend_scopes $[patsubst %,$[dirname]/%,$[vcx_scopes]]
+    #forscopes $[depend_scopes]
+    #if $[and $[build_directory],$[build_target]]
+    {$[makeguid $[TARGET]]} = {$[makeguid $[TARGET]]}
+    #endif
+    #end $[depend_scopes]
+  EndProjectSection
 EndProject
 #end dirname
 // And the top-level project.
