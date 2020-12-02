@@ -299,7 +299,7 @@
 // What additional options should be passed to interrogate when
 // generating either of the above two interfaces?  Generally, you
 // probably don't want to mess with this.
-#define INTERROGATE_OPTIONS -fnames -string -refcount -assert
+#define INTERROGATE_OPTIONS -fnames -string -refcount
 
 // What's the name of the interrogate binary to run?  The default
 // specified is the one that is built as part of DTOOL.  If you have a
