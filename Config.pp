@@ -682,7 +682,7 @@
 #define ODE_IPATH $[DEFAULT_IPATH]
 #define ODE_LPATH $[DEFAULT_LPATH]
 #define ODE_LIBS $[if $[WINDOWS_PLATFORM],ode_single.lib,ode]
-#define ODE_CFLAGS
+#define ODE_CFLAGS -DdSINGLE
 #defer HAVE_ODE $[libtest $[ODE_LPATH],$[ODE_LIBS]]
 
 #define HAVE_ACTIVEX $[WINDOWS_PLATFORM]
