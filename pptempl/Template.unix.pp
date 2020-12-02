@@ -131,7 +131,9 @@
 // multiprocess builds.
 #mkdir $[sort \
     $[if $[install_lib],$[install_lib_dir]] \
-    $[if $[install_bin] $[install_scripts],$[install_bin_dir]] \
+    $[if $[install_bin],$[install_bin_dir]] \
+    $[if $[install_scripts],$[install_scripts_dir]] \
+    $[if $[install_bin] $[install_modules],$[install_lib_dir]] \
     $[if $[install_headers],$[install_headers_dir]] \
     $[if $[install_parser_inc],$[install_parser_inc_dir]] \
     $[if $[install_data],$[install_data_dir]] \
@@ -257,7 +259,7 @@ $[TAB] rm -f $[igatemout] $[$[igatemout]_obj]
 // install directory (or remove them).  The 'install' rule also makes
 // the directories if necessary.
 #define installed_files \
-     $[INSTALL_SCRIPTS:%=$[install_bin_dir]/%] \
+     $[INSTALL_SCRIPTS:%=$[install_scripts_dir]/%] \
      $[INSTALL_HEADERS:%=$[install_headers_dir]/%] \
      $[INSTALL_PARSER_INC:%=$[install_parser_inc_dir]/%] \
      $[INSTALL_DATA:%=$[install_data_dir]/%] \
@@ -366,7 +368,7 @@ $[TAB] $[link_lib_c]
 #define installed_files \
     $[install_lib_dir]/$[get_output_file] \
     $[if $[link_extra_bundle],$[install_lib_dir]/$[get_output_bundle_file]] \
-    $[INSTALL_SCRIPTS:%=$[install_bin_dir]/%] \
+    $[INSTALL_SCRIPTS:%=$[install_scripts_dir]/%] \
     $[INSTALL_HEADERS:%=$[install_headers_dir]/%] \
     $[INSTALL_DATA:%=$[install_data_dir]/%] \
     $[INSTALL_CONFIG:%=$[install_config_dir]/%] \
@@ -541,7 +543,7 @@ $[TAB] $[link_bin_c]
 
 #define installed_files \
     $[install_bin_dir]/$[TARGET] \
-    $[INSTALL_SCRIPTS:%=$[install_bin_dir]/%] \
+    $[INSTALL_SCRIPTS:%=$[install_scripts_dir]/%] \
     $[INSTALL_HEADERS:%=$[install_headers_dir]/%] \
     $[INSTALL_DATA:%=$[install_data_dir]/%] \
     $[INSTALL_CONFIG:%=$[install_config_dir]/%]
@@ -729,9 +731,9 @@ $[TAB] $[compile_c++]
 // And now the rules to install the auxiliary files, like headers and
 // data files.
 #foreach file $[install_scripts]
-$[install_bin_dir]/$[file] : $[file]
+$[install_scripts_dir]/$[file] : $[file]
 #define local $[file]
-#define dest $[install_bin_dir]
+#define dest $[install_scripts_dir]
 $[TAB] $[INSTALL_PROG]
 #end file
 

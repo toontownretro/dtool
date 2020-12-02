@@ -847,6 +847,7 @@ Warning: Variable $[upcase $[tree]]_INSTALL is not set!
 #define install_data_dir $[or $[INSTALL_DATA_DIR],$[install_dir]/shared]
 #define install_igatedb_dir $[or $[INSTALL_IGATEDB_DIR],$[install_dir]/etc]
 #define install_config_dir $[or $[INSTALL_CONFIG_DIR],$[install_dir]/etc]
+#defer install_scripts_dir $[or $[INSTALL_SCRIPTS_DIR],$[install_dir]/bin]
 
 // Where are we installing Python code?
 #defer install_py_dir $[install_lib_dir]/$[PACKAGE]/$[DIRNAME]
@@ -856,7 +857,15 @@ Warning: Variable $[upcase $[tree]]_INSTALL is not set!
 // Note we have to define two directories, $[install_py_module_dir], where
 // the actual modules are installed, and $[install_py_module_dir_old] to
 // generate a compatibility shim that just imports the actual dir.
-#define install_py_module_dir $[install_lib_dir]/panda3d
+#if $[and $[WINDOWS_PLATFORM],$[DTOOL_INSTALL]]
+  // On Windows, we need all of our Python modules under a single "panda3d"
+  // directory so we can create the __init__.py file that appends each
+  // directory on the PATH to the Python DLL search path.
+  #define install_py_module_dir $[DTOOL_INSTALL]/lib/panda3d
+#else
+  #define install_py_module_dir $[install_lib_dir]/panda3d
+#endif
+
 #define install_py_module_dir_old $[install_lib_dir]/pandac
 
 #if $[ne $[DTOOL_INSTALL],]

@@ -121,7 +121,8 @@
 // multiprocess builds.
 #mkdir $[sort \
     $[if $[install_lib],$[install_lib_dir]] \
-    $[if $[install_bin] $[install_scripts],$[install_bin_dir]] \
+    $[if $[install_bin],$[install_bin_dir]] \
+    $[if $[install_scripts],$[install_scripts_dir]] \
     $[if $[install_bin] $[install_modules],$[install_lib_dir]] \
     $[if $[install_headers],$[install_headers_dir]] \
     $[if $[install_parser_inc],$[install_parser_inc_dir]] \
@@ -663,7 +664,7 @@
       $[install_bin_dir]/$[TARGET].exe \
       $[if $[has_pdb],$[install_bin_dir]/$[TARGET].pdb] \
     ] \
-    $[INSTALL_SCRIPTS:%=$[install_bin_dir]/%] \
+    $[INSTALL_SCRIPTS:%=$[install_scripts_dir]/%] \
     $[INSTALL_MODULES:%=$[install_lib_dir]/%] \
     $[INSTALL_HEADERS:%=$[install_headers_dir]/%] \
     $[INSTALL_DATA:%=$[install_data_dir]/%] \
@@ -700,7 +701,7 @@
 
 #if $[INSTALL_SCRIPTS]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_SCRIPTS]]]"
-        DestinationFiles="$[msjoin $[osfilename $[INSTALL_SCRIPTS:%=$[install_bin_dir]/%]]]" />
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_SCRIPTS:%=$[install_scripts_dir]/%]]]" />
 #endif
 
 #if $[INSTALL_MODULES]
@@ -847,7 +848,7 @@
   $[if $[install_py], $[install_py] __init__.py]
 
 #define installed_files \
-    $[INSTALL_SCRIPTS:%=$[install_bin_dir]/%] \
+    $[INSTALL_SCRIPTS:%=$[install_scripts_dir]/%] \
     $[INSTALL_MODULES:%=$[install_lib_dir]/%] \
     $[INSTALL_HEADERS:%=$[install_headers_dir]/%] \
     $[INSTALL_PARSER_INC:%=$[install_parser_inc_dir]/%] \
@@ -860,7 +861,7 @@
         Outputs="$[msjoin $[osfilename $[installed_files]]]">
 #if $[INSTALL_SCRIPTS]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_SCRIPTS]]]"
-        DestinationFiles="$[msjoin $[osfilename $[INSTALL_SCRIPTS:%=$[install_bin_dir]/%]]]" />
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_SCRIPTS:%=$[install_scripts_dir]/%]]]" />
 #endif
 
 #if $[INSTALL_MODULES]
