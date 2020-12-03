@@ -304,7 +304,11 @@ $[TAB]$[DEL_CMD] $[f]
 
 clean-optchar :
 #if $[optchar_dirs]
-$[TAB]rm -rf $[optchar_dirs]
+  #if $[eq $[BUILD_TYPE],nmake]
+$[TAB]$[DEL_CMD] $[osfilename $[optchar_dirs]]
+  #else
+$[TAB]$[DEL_CMD] $[optchar_dirs]
+  #endif
 #endif
 
 clean : clean-pal
