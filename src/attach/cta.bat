@@ -3,7 +3,9 @@
 REM Runs ctattach, then executes and removes the outputted script to set up the
 REM environment.
 
-for /F "tokens=* delims=\n" %%a in ('python -m ctattach %*') do echo %%a && set script=%%a
+for /F "tokens=* delims=\n" %%a in ('ctattach.py %*') do echo %%a && set script=%%a
 
-"%script%"
+call "%script%"
 del /f "%script%"
+
+call ctshowprojs
