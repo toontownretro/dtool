@@ -38,7 +38,10 @@
         #set actual_libs $[actual_libs] $[lib]
       #endif
     #end lib
-  #endif // not BUILD_COMPONENTS
+  #else
+    // If we're not building components, we link with everything.
+    #set actual_libs $[complete_libs]
+  #endif
 
   #set actual_libs $[unique $[actual_libs]]
   $[actual_libs]
