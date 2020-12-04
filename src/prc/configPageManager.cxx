@@ -498,7 +498,7 @@ reload_implicit_pages() {
     SetErrorMode(0);
   } else {
     SetErrorMode(SEM_FAILCRITICALERRORS);
-  } 
+  }
 #endif
 
 #endif // LINK_ALL_STATIC
