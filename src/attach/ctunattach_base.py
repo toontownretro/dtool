@@ -5,6 +5,7 @@ import ctutils
 
 import os
 import re
+import sys
 
 # List of variables to unset.
 unset = []
@@ -46,7 +47,7 @@ def unattach_mod(variable, value):
     else:
         print(f"ERROR: variable '{variable}' contains '{value}' "
               f"(in '{newenv[variable]}'), but I am too stupid to figure out "
-               "how to remove it.")
+               "how to remove it.", file=sys.stderr)
 
 # Given the project and flavor, build the lists of variables to set/modify.
 def unattach_compute(proj, flav):
@@ -119,14 +120,14 @@ def unattach_compute(proj, flav):
                 elif re.search("^CMD", kw):
                     linesplit = kw.split(" ")
                     envcmd[linesplit[1]] = linesplit[2]
-                elif re.search("^POSTPEND"):
+                elif re.search("^POSTPEND", kw):
                     linesplit = kw.split(" ")
                     envpostpend[linesplit[1]] = 1
                 elif re.search("(^DOCSH)|(^DOSH)|(^DO)|(^ATTACH)", kw):
                     # DO and ATTACH commands mean nothing for unattach
                     pass
                 else:
-                    print(f"Unknown .init directive '{kw}'")
+                    print(f"Unknown .init directive '{kw}'", file=sys.stderr)
 
             initfile.close()
 

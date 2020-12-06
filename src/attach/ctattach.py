@@ -1,3 +1,5 @@
+#!/usr/bin/env python3.8
+
 # Attaches your environment to the given project.
 
 # acceptable forms:
@@ -24,16 +26,16 @@ import ctattach_base
 tmpname = str(Path(tempfile.gettempdir()) / f"script.{os.getpid()}.{ctutils.shell_type}")
 
 def usage():
-    print("Usage: ctattach -def project flavor  -or-")
-    print("       ctattach project [flavor]     -or-")
-    print("       ctattach project -            -or-")
-    print("       ctattach - [flavor]")
+    print("Usage: ctattach -def project flavor  -or-", file=sys.stderr)
+    print("       ctattach project [flavor]     -or-", file=sys.stderr)
+    print("       ctattach project -            -or-", file=sys.stderr)
+    print("       ctattach - [flavor]", file=sys.stderr)
     attach_write_null_script(tmpname)
     sys.exit()
 
 tool = os.environ.get("DTOOL")
 if not tool:
-    print("DTOOL environment must be set to use CTtools")
+    print("DTOOL environment must be set to use CTtools", file=sys.stderr)
     attach_write_null_script(tmpname)
     sys.exit()
 
@@ -86,13 +88,13 @@ if (noflav == 1) or (flav == "default"):
 if (proj == "-") or (flav == "-"):
     if argc == 2:
         # List projects that can be attached to
-        print("Projects that can be attached to:")
+        print("Projects that can be attached to:", file=sys.stderr)
         projects = ctvspec.list_all_projects()
         for project in projects:
             print("   " + project)
     elif proj == "-":
         # List projects that have a given flavor
-        print("Projects that have a '%s' flavor:" % flav)
+        print("Projects that have a '%s' flavor:" % flav, file=sys.stderr)
         projects = ctvspec.list_all_projects()
         for project in projects:
             tmp = ctvspec.resolve_spec(project, flav)
@@ -100,10 +102,10 @@ if (proj == "-") or (flav == "-"):
                 print("   " + project)
     else:
         # List flavors of a given project
-        print("Flavors of project '%s':" % proj)
+        print("Flavors of project '%s':" % proj, file=sys.stderr)
         flavlist = ctvspec.list_all_flavors(proj)
         for item in flavlist:
-            print("   " + item)
+            print("   " + item, file=sys.stderr)
     attach_write_null_script(tmpname)
 else:
     # Output a real attachment.

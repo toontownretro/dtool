@@ -1,5 +1,6 @@
 import glob
 import os
+import sys
 
 import ctutils
 
@@ -13,7 +14,7 @@ def read_vspec(proj):
     global ctvspecs
     global ctvspec_read
 
-    print("Reading vspec file for project", proj)
+    print("Reading vspec file for project", proj, file=sys.stderr)
     path = ctutils.ctvspec_path / ("%s.vspec" % proj)
     if path.exists():
         ctvspecs = {}
@@ -32,8 +33,8 @@ def read_vspec(proj):
         specfile.close()
         ctvspec_read = proj
     else:
-        print("read_vspec: cannot locate '%s'" % str(path))
-        print("(did you forget to run the $WINTOOLS/cp_vspec script?)")
+        print("read_vspec: cannot locate '%s'" % str(path), file=sys.stderr)
+        print("(did you forget to run the $WINTOOLS/cp_vspec script?)", file=sys.stderr)
         ctvspecs = {}
         ctvspec_read = ""
 
@@ -71,10 +72,10 @@ def validate_spec(spec):
             if itemlist[0] == "name":
                 if have_name:
                     have_error = 1
-                    print("multiple name options on 'ref'")
+                    print("multiple name options on 'ref'", file=sys.stderr)
                 have_name = 1
             else:
-                print("invalid option on 'ref' = " + item)
+                print("invalid option on 'ref' = " + item, file=sys.stderr)
                 have_error = 1
         if not have_error:
             if have_name:
@@ -86,10 +87,10 @@ def validate_spec(spec):
             if itemlist[0] == "path":
                 if have_path:
                     have_error = True
-                    print("multiple path options on 'root'")
+                    print("multiple path options on 'root'", file=sys.stderr)
                 have_path = True
             else:
-                print("invalid option on 'root' = " + item)
+                print("invalid option on 'root' = " + item, file=sys.stderr)
                 have_error = True
         if not have_error:
             if have_path:
@@ -101,10 +102,10 @@ def validate_spec(spec):
             if itemlist[0] == "name":
                 if have_name:
                     have_error = True
-                    print("multiple name options on 'vroot'")
+                    print("multiple name options on 'vroot'", file=sys.stderr)
                 have_name = True
             else:
-                print("invalid option on 'vroot' = " + item)
+                print("invalid option on 'vroot' = " + item, file=sys.stderr)
                 have_error = True
         if not have_error:
             ret = 1
@@ -116,21 +117,21 @@ def validate_spec(spec):
             if itemlist[0] == "path":
                 if have_path:
                     have_error = True
-                    print("multiple path options on 'croot'")
+                    print("multiple path options on 'croot'", file=sys.stderr)
                 have_path = True
             elif itemlist[0] == "server":
                 if have_server:
                     have_error = True
-                    print("multiple server options on 'croot'")
+                    print("multiple server options on 'croot'", file=sys.stderr)
                 have_server = True
             else:
-                print("invalid option on 'croot' = " + item)
+                print("invalid option on 'croot' = " + item, file=sys.stderr)
                 have_error = True
         if not have_error:
             if have_path and have_server:
                 ret = 1
     else:
-        print("unknown spec type '%s'" % speclist[0])
+        print("unknown spec type '%s'" % speclist[0], file=sys.stderr)
 
     return ret
 
@@ -169,7 +170,7 @@ def resolve_spec(proj, flav):
         if type == "ref":
             optionlist = speclist[0].split("=")
             if optionlist[0] != "name":
-                print("bad data attached to flavor " + flav + " of project " + proj)
+                print("bad data attached to flavor " + flav + " of project " + proj, file=sys.stderr)
             else:
                 tmp = ctutils.shell_eval(optionlist[1])
                 ret = resolve_spec(proj, tmp)
@@ -177,7 +178,7 @@ def resolve_spec(proj, flav):
             ret = spec
 
     if ret == "":
-        print("unknown flavor " + flav + " of project " + proj)
+        print("unknown flavor " + flav + " of project " + proj, file=sys.stderr)
 
     return ret
 
@@ -195,13 +196,13 @@ def resolve_spec_name(proj, flav):
         if type == "ref":
             optionlist = speclist[0].split("=")
             if optionlist[0] != "name":
-                print(f"bad data attached to flavor {flav} of project {proj}")
+                print(f"bad data attached to flavor {flav} of project {proj}", file=sys.stderr)
             else:
                 tmp = ctutils.shell_eval(optionlist[1])
                 ret = resolve_spec_name(proj, tmp)
 
     if ret == "":
-        print(f"unknown flavor {flav} of project {proj}")
+        print(f"unknown flavor {flav} of project {proj}", file=sys.stderr)
 
     return ret
 
@@ -226,5 +227,5 @@ def compute_root(proj, flav, spec):
     elif type == "croot":
         return ctutils.from_os_specific(spec_find_option(options, "path"))
     else:
-        print(f"unknown flavor type '{type}'")
+        print(f"unknown flavor type '{type}'", file=sys.stderr)
         return ""

@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 
 import ctutils
 import ctquery
@@ -30,6 +31,8 @@ def spool_env(var):
         return ret
 
     sep = ctutils.get_env_sep(True)
+    if envsep.get(var):
+        sep = envsep[var]
     splitlist = value.split(sep)
     for i in range(len(splitlist)):
         split = splitlist[i]
@@ -163,14 +166,14 @@ def attach_compute(proj, flav, anydef):
             if os.path.exists(ctutils.to_os_specific(root)):
                 break
         else:
-            print(f"could not resolve '{flav}'")
+            print(f"could not resolve '{flav}'", file=sys.stderr)
             break
 
         if anydef:
             if flav == "install":
                 # Oh my! Are we ever in trouble.
                 # Want some sort of default, but couldn't get to what we wanted
-                print("ctattach to install failed")
+                print("ctattach to install failed", file=sys.stderr)
                 spec = ""
                 break
             elif flav == "release":
@@ -181,7 +184,7 @@ def attach_compute(proj, flav, anydef):
                 flav = "install"
         else:
             spec = ""
-            print(f"resolved '{flav}' but '{root}' does not exist")
+            print(f"resolved '{flav}' but '{root}' does not exist", file=sys.stderr)
             break
 
     #
@@ -204,7 +207,7 @@ def attach_compute(proj, flav, anydef):
         localdocnt = 0
 
         if os.path.exists(init):
-            #print(f"scanning {proj}.init")
+            print(f"scanning {proj}.init", file=sys.stderr)
             initfile = open(str(init), 'r')
             initlines = initfile.readlines()
             for line in initlines:
@@ -266,7 +269,7 @@ def attach_compute(proj, flav, anydef):
                         localdo[localdocnt] = " ".join(linesplit)
                         localdocnt += 1
                 elif re.search("^DOSH", kw):
-                    if ctutils.shell_type == "sh":
+                    if ctutils.shell_type == "bash":
                         linesplit = kw.split(" ")
                         linesplit.pop(0)
                         localdo[localdocnt] = " ".join(linesplit)
@@ -291,14 +294,14 @@ def attach_compute(proj, flav, anydef):
                     linesplit.pop(0)
                     attachqueue += linesplit
                 elif kw != "":
-                    print(f"Unknown .init directive '{kw}'")
+                    print(f"Unknown .init directive '{kw}'", file=sys.stderr)
 
             initfile.close()
 
         # now handle sub-attaches
         while len(attachqueue):
             item = attachqueue.pop(0)
-            print(f"attaching to {item}")
+            print(f"attaching to {item}", file=sys.stderr)
             attach_compute(item, defflav, 1)
 
         # now we will do our extensions, then apply the mods from the .init
