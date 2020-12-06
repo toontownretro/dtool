@@ -11,6 +11,7 @@ import sys
 import os
 import zipfile
 import tarfile
+import getpass
 
 import ctvspec
 import ctquery
@@ -78,27 +79,28 @@ archive_name = f"{proj}-{platform.system()}"
 if os.name == "nt":
     # Write a ZIP file on Windows.
     archive_path = archive_name + ".zip"
+    print(f"Compressing {root} into {archive_path}")
     archive_file = zipfile.ZipFile(archive_path, "w", compression=zipfile.ZIP_LZMA)
     # Throw the whole thing in there.
-    archive_file.write(root)
+    archive_file.write(root, arcname=os.path.basename(root))
     archive_file.close()
 else:
     # Write a tarball on Posix systems.
     archive_path = archive_name + ".tar.gz"
+    print(f"Compressing {root} into {archive_path}")
     archive_file = tarfile.open(archive_path, "w:gz")
     # Throw the whole thing in there.
-    archive_file.add(root)
+    archive_file.add(root, arcname=os.path.basename(root))
     archive_file.close()
 
 print(f"Wrote {os.path.abspath(archive_path)}")
 
 # Get the username and password to log into the FTP server from the user.
 username = input("FTP Username: ")
-password = input("FTP Password: ")
+password = getpass.getpass("FTP Password: ")
 
 # Now log into the FTP server and upload the file.
-ftp = ftplib.FTP("127.0.0.1:21")
-print(ftp.login(username, password))
+ftp = ftplib.FTP("127.0.0.1", username, password)
 ftp.cwd("player")
 
 with open(archive_path, 'rb') as archive_file:
