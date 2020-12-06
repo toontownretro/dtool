@@ -682,7 +682,7 @@
 #define ODE_IPATH $[DEFAULT_IPATH]
 #define ODE_LPATH $[DEFAULT_LPATH]
 #define ODE_LIBS $[if $[WINDOWS_PLATFORM],ode_single.lib,ode]
-#define ODE_CFLAGS -DdSINGLE
+#define ODE_CFLAGS $[if $[WINDOWS_PLATFORM], -DdSINGLE]
 #defer HAVE_ODE $[libtest $[ODE_LPATH],$[ODE_LIBS]]
 
 #define HAVE_ACTIVEX $[WINDOWS_PLATFORM]
@@ -970,11 +970,11 @@
 #defer HAVE_OPENEXR $[libtest $[OPENEXR_LPATH],$[OPENEXR_LIBS]]
 
 // Is Valve's Game/SteamNetworkingSockets installed?
-#define VALVE_STEAMNET_IPATH $[DEFAULT_IPATH]
+#define VALVE_STEAMNET_IPATH $[DEFAULT_IPATH]/GameNetworkingSockets
 #define VALVE_STEAMNET_LPATH $[DEFAULT_LPATH]
 #define VALVE_STEAMNET_LIBS $[if $[WINDOWS_PLATFORM], GameNetworkingSockets.lib, GameNetworkingSockets]
 #defer VALVE_STEAMNET_CFLAGS $[if $[or $[UNIX_PLATFORM],$[OSX_PLATFORM]], -DPOSIX]
-#defer HAVE_VALVE_STEAMNET $[libtest $[VALVE_STEAMNET_LPATH], $[VALVE_STEAMNET_LIBS]]
+#defer HAVE_VALVE_STEAMNET $[and $[isdir $[VALVE_STEAMNET_IPATH]],$[libtest $[VALVE_STEAMNET_LPATH],$[VALVE_STEAMNET_LIBS]]]
 
 // Is GLslang installed, and where?
 #define GLSLANG_IPATH $[DEFAULT_IPATH]
