@@ -1,0 +1,51 @@
+#!/bin/sh
+
+alias ctshowprojs='ctshowprojs.py'
+
+ctattach() {
+  source `ctattach.py $@`
+  ctshowprojs
+}
+alias cta='ctattach'
+
+cta-ship() {
+  CTSAVE=$CTDEFAULT_FLAV
+  export CTDEFAULT_FLAV="ship"
+  cta $@
+  export CTDEFAULT_FLAV=$CTSAVE
+  unset CTSAVE
+}
+
+cta-release() {
+  CTSAVE=$CTDEFAULT_FLAV
+  export CTDEFAULT_FLAV="release"
+  cta $@
+  export CTDEFAULT_FLAV=$CTSAVE
+  unset CTSAVE
+}
+
+cta-install() {
+  CTSAVE=$CTDEFAULT_FLAV
+  export CTDEFAULT_FLAV="install"
+  cta $@
+  export CTDEFAULT_FLAV=$CTSAVE
+  unset CTSAVE
+}
+
+ctunattach() {
+  source `ctunattach.py $@`
+  ctshowprojs
+}
+alias ctuna='ctunattach'
+
+alias ctupload='ctupload.py'
+
+rlogin() {
+  rlogin $@
+  ctshowprojs
+}
+
+telnet() {
+  telnet $@
+  ctshowprojs
+}

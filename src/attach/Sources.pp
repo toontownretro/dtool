@@ -13,8 +13,9 @@
 #if $[CTPROJS]
   #define INSTALL_SCRIPTS \
     cta.bat ctattach_base.py ctattach.py ctquery.py ctshowprojs.bat \
-    ctunattach_base.py ctunattach.py ctutils.py ctvspec.py
+    ctshowprojs.py ctunattach_base.py ctunattach.py ctupload.py ctupload.bat \
+    ctutils.py ctvspec.py
 
   #define INSTALL_CONFIG \
-    dtool.bat dtool.init
+    dtool.alias-sh dtool.bat dtool.init dtool.sh
 #endif

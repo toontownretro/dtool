@@ -24,6 +24,10 @@ if "%PENV%" == "" (
   set PENV=WIN32
 )
 
+if "%SHELL_TYPE%" == "" (
+  set SHELL_TYPE=bat
+)
+
 if "%DTOOL%" == "" (
   set DTOOL=%PLAYER%\dtool
 )
