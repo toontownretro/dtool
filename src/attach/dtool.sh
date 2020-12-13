@@ -85,7 +85,7 @@ PYTHONPATH=$cttools_path:$PYTHONPATH
 export PYTHONPATH
 
 if [ -z "$1" ]; then
-  SETUP_SCRIPT=`$cttools_path/ctattach.py dtool default`
+  SETUP_SCRIPT=`$cttools_path/ctattach.py dtool`
 else
   SETUP_SCRIPT=`$cttools_path/ctattach.py dtool $1`
 fi

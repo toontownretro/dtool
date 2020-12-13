@@ -12,9 +12,9 @@
 #define BUILD_DIRECTORY $[CTPROJS]
 #if $[CTPROJS]
   #define INSTALL_SCRIPTS \
-    cta.bat ctattach_base.py ctattach.py ctquery.py ctshowprojs.bat \
-    ctshowprojs.py ctunattach_base.py ctunattach.py ctupload.py ctupload.bat \
-    ctutils.py ctvspec.py
+    cta.bat ctattach_base.py ctattach.py ctdownload.py ctdownload.bat ctdownload_base.py \
+    ctquery.py ctshowprojs.bat ctshowprojs.py ctunattach_base.py ctunattach.py ctupload.py \
+    ctupload.bat ctutils.py ctvspec.py
 
   #define INSTALL_CONFIG \
     dtool.alias-sh dtool.bat dtool.init dtool.sh

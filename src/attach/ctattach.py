@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.8
+#!/usr/bin/env python3.9
 
 # Attaches your environment to the given project.
 

@@ -1,5 +1,9 @@
 import os
+import stat
+import ftplib
 import re
+import sys
+import getpass
 from pathlib import Path
 
 hosts_prefix = "/hosts/"
@@ -87,6 +91,50 @@ if not ctvspec_path:
         # Must be running under Windows CMD.
         ctvspec_path = os.path.expanduser("~/player/vspec")
 ctvspec_path = Path(ctvspec_path)
+
+ftp_address = "127.0.0.1"
+
+ftp_username = None
+def get_ftp_username():
+    global ftp_username
+
+    if not ftp_username:
+        if "CTFTP_USERNAME" in os.environ:
+            print("Using FTP username from CTFTP_USERNAME", file=sys.stderr)
+            ftp_username = os.environ["CTFTP_USERNAME"]
+        else:
+            print("FTP Username: ", end="", file=sys.stderr)
+            ftp_username = input()
+
+    return ftp_username
+
+ftp_password = None
+def get_ftp_password():
+    global ftp_password
+
+    if not ftp_password:
+        if "CTFTP_PASSWORD" in os.environ:
+            print("Using FTP password from CTFTP_PASSWORD", file=sys.stderr)
+            ftp_password = os.environ["CTFTP_PASSWORD"]
+        else:
+            ftp_password = getpass.getpass("FTP Password: ")
+
+    return ftp_password
+
+def ftp_connect():
+    usr = get_ftp_username()
+    pwd = get_ftp_password()
+    try:
+        ftp = ftplib.FTP(ftp_address, usr, pwd)
+        ftp.cwd("player")
+        return ftp
+    except Exception as e:
+        print(f"Failed to connect to FTP server at {ftp_address} ({e})", file=sys.stderr)
+        return None
+
+def remove_readonly(func, path, excinfo):
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
 
 # Returns the environment path separator.  This returns ";" on Windows and ":"
 # on anything else.

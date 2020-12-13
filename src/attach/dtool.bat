@@ -44,7 +44,7 @@ if exist "%DTOOL%\built\etc" (
 set SETUP_SCRIPT=
 
 if "%1" == "" (
-  for /F "tokens=* delims=\n" %%a in ('%cttools_path%\ctattach.py dtool default') do echo %%a && set SETUP_SCRIPT=%%a
+  for /F "tokens=* delims=\n" %%a in ('%cttools_path%\ctattach.py dtool') do echo %%a && set SETUP_SCRIPT=%%a
 ) else (
   for /F "tokens=* delims=\n" %%a in ('%cttools_path%\ctattach.py dtool %1') do echo %%a && set SETUP_SCRIPT=%%a
 )

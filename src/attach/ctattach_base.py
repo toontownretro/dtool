@@ -2,6 +2,7 @@ import os
 import re
 import sys
 
+from ctdownload_base import *
 import ctutils
 import ctquery
 import ctvspec
@@ -303,6 +304,11 @@ def attach_compute(proj, flav, anydef):
             item = attachqueue.pop(0)
             print(f"attaching to {item}", file=sys.stderr)
             attach_compute(item, defflav, 1)
+
+        if "prebuilt" in flav:
+            # If we're trying to attach to a prebuilt tree, check that it's up
+            # to date.  If not, ask to download.
+            update_check_and_ask_download(proj, flav, ctutils.to_os_specific(root))
 
         # now we will do our extensions, then apply the mods from the .init
         # file, if any

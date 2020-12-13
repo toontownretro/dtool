@@ -39,6 +39,7 @@ ctunattach() {
 alias ctuna='ctunattach'
 
 alias ctupload='ctupload.py'
+alias ctdownload='ctdownload.py'
 
 rlogin() {
   rlogin $@
