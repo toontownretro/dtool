@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.9
+#!/usr/bin/env python
 
 # Uploads a prebuilt tree for others to use.
 
