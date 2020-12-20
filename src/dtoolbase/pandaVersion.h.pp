@@ -107,6 +107,7 @@ $[cdefine PANDA_NUMERIC_VERSION]
 # ifndef CHECKPANDAVERSION_H
 # define CHECKPANDAVERSION_H
 
+/* okcircular */
 # include "dtoolbase.h"
 
 extern EXPCL_DTOOL_DTOOLBASE int $[PANDA_VERSION_SYMBOL];
