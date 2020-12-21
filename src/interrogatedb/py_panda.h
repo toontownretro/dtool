@@ -406,6 +406,7 @@ private:
 
 #include "py_panda.I"
 
+/* okcircular */
 #include "py_wrappers.h"
 
 #endif  // HAVE_PYTHON && !CPPPARSER
