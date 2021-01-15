@@ -510,6 +510,11 @@ typedef struct _object PyObject;
 #define IMPORT_TEMPL extern
 #endif
 
+// Pad a number so it lies on an N byte boundary.
+// So PAD_NUMBER(0,4) is 0 and PAD_NUMBER(1,4) is 4
+#define PAD_NUMBER(number, boundary) \
+  ( ((number) + ((boundary)-1)) / (boundary) ) * (boundary)
+
 #ifdef __cplusplus
 #include "dtoolbase_cc.h"
 #endif
