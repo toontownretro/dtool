@@ -957,10 +957,18 @@ $[TAB] $[COMPILE_C++]
 // And now the rules to install the auxiliary files, like headers and
 // data files.
 #foreach file $[install_scripts]
+#if $[ne $[dir $[file]], ./]
 $[install_scripts_dir]/$[file] : $[file]
-#define local $[file]
-#define dest $[install_scripts_dir]
+  #define local $[file]
+  #define dest $[install_scripts_dir]/$[dir $[file]]
+$[TAB] mkdir -p $[install_scripts_dir]/$[dir $[file]] || echo
+$[TAB] chmod +x $[local]; cp $[install_dash_p] -f $[local] $[dest]
+#else
+$[install_scripts_dir]/$[file] : $[file]
+  #define local $[file]
+  #define dest $[install_scripts_dir]
 $[TAB] chmod +x $[local]; cp $[install_dash_p] -f $[local] $[dest]/
+#endif
 #end file
 
 #foreach file $[install_modules]
