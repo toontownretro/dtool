@@ -15,19 +15,6 @@
   #error You need at least ppremake version 0.58 to build models.
 #endif
 
-// Search for the texattrib dir definition.  This will be in the
-// models_topdir directory.
-#define texattrib_dir $[dir_type $[TEXATTRIB_DIR],models_toplevel]
-
-// Prefix $[TOPDIR].  If it wasn't defined, make a default.
-#if $[texattrib_dir]
-  #define texattrib_dir $[TOPDIR]/$[texattrib_dir]
-#else
-  #define texattrib_dir $[TOPDIR]/src/maps
-#endif
-
-#define texattrib_file $[texattrib_dir]/textures.txa
-
 #if $[eq $[BUILD_TYPE], nmake]
   #define TOUCH_CMD echo.>>
   #define COPY_CMD xcopy /I/Y
@@ -42,11 +29,18 @@
 #if $[eq $[DIR_TYPE], models]
 //////////////////////////////////////////////////////////////////////
 
-#define pal_egg_dir pal_egg
 #define bam_dir bams
-#defer phase_prefix $[if $[PHASE],phase_$[PHASE]/]
 
-#defer install_model_dir $[install_dir]/$[phase_prefix]$[INSTALL_TO]
+#defer install_model_dir $[install_dir]/models/$[INSTALL_TO]
+#defer install_mat_dir $[install_dir]/materials/$[INSTALL_TO]
+#defer install_tex_dir $[install_dir]/textures/$[INSTALL_TO]
+#defer install_dna_dir $[install_dir]/dna/$[INSTALL_TO]
+#defer install_misc_dir $[install_dir]/misc/$[INSTALL_TO]
+#defer install_maps_dir $[install_dir]/maps/$[INSTALL_TO]
+#defer install_audio_dir $[install_dir]/audio/$[INSTALL_TO]
+#defer install_shader_dir $[install_dir]/shaders/$[INSTALL_TO]
+#defer install_icon_dir $[install_dir]/icons/$[INSTALL_TO]
+
 #define filter_dirs $[sort $[TARGET_DIR(filter_egg filter_char_egg optchar_egg)]]
 
 #defer source_prefix $[SOURCE_DIR:%=%/]
@@ -87,9 +81,15 @@
 
   #forscopes maya_egg
     #if $[SOURCES]
-      #set SOURCES $[sort $[SOURCES] $[lang_add_files $[SOURCES], lwo LWO, ]]
+      #set SOURCES $[sort $[SOURCES] $[lang_add_files $[SOURCES], mb ma, ]]
     #endif
   #end maya_egg
+
+  #forscopes blender_egg
+    #if $[SOURCES]
+      #set SOURCES $[sort $[SOURCES] $[lang_add_files $[SOURCES], blend, ]]
+    #endif
+  #end blender_egg
 #endif
 
 #define build_flt_eggs \
@@ -107,12 +107,18 @@
    $[forscopes soft_char_egg,$[POLY_MODEL:%=$[EGG_PREFIX]%$[EGG_SUFFIX].egg] $[NURBS_MODEL:%=$[EGG_PREFIX]%$[EGG_SUFFIX].egg]] \
    $[forscopes soft_char_egg,$[ANIMS:%=$[EGG_PREFIX]%$[CHAN_SUFFIX].egg]]
 
+#define build_blender_eggs \
+   $[forscopes blender_egg,$[patsubst %.blend,$[EGG_PREFIX]%$[EGG_SUFFIX].egg,$[SOURCES]]] \
+   $[forscopes blender_char_egg,$[POLY_MODEL:%=$[EGG_PREFIX]%$[EGG_SUFFIX].egg]] \
+   $[forscopes blender_char_egg,$[ANIMS:%=$[EGG_PREFIX]%$[CHAN_SUFFIX].egg]]
+
 #define build_eggs \
    $[sort \
      $[build_flt_eggs] \
      $[build_lwo_eggs] \
      $[build_maya_eggs] \
-     $[build_soft_eggs]]
+     $[build_soft_eggs] \
+     $[build_blender_eggs]]
 
 #define optchar_dirs \
    $[unique $[forscopes optchar_egg,$[TARGET_DIR]]]
@@ -132,70 +138,69 @@
 #endif
 
 // Get the list of egg files that are to be installed
-#define install_pal_eggs
-#define install_unpal_eggs
+#define install_eggs
 #forscopes install_egg
-  #define egglist $[notdir $[SOURCES]]
-  #set install_pal_eggs $[install_pal_eggs] $[filter-out $[language_egg_filters],$[egglist]]
+  #define egglist $[notdir $[SOURCES] $[SOURCES_NC]]
+  #set install_eggs $[install_eggs] $[filter-out $[language_egg_filters],$[egglist]]
   #if $[LANGUAGES]
     // Now look for the eggs of the current language.
     #foreach egg $[filter %_$[DEFAULT_LANGUAGE].egg,$[egglist]]
       #define wantegg $[egg:%_$[DEFAULT_LANGUAGE].egg=%_$[LANGUAGE].egg]
       #if $[filter $[wantegg],$[egglist]]
           // The current language file exists.
-        #set install_pal_eggs $[install_pal_eggs] $[wantegg]
+        #set install_eggs $[install_eggs] $[wantegg]
       #else
-        #set install_pal_eggs $[install_pal_eggs] $[egg]
-      #endif
-    #end egg
-  #endif
-  #define egglist $[notdir $[UNPAL_SOURCES] $[UNPAL_SOURCES_NC]]
-  #set install_unpal_eggs $[install_unpal_eggs] $[filter-out $[language_egg_filters],$[egglist]]
-  #if $[LANGUAGES]
-    // Now look for the eggs of the current language.
-    #foreach egg $[filter %_$[DEFAULT_LANGUAGE].egg,$[egglist]]
-      #define wantegg $[egg:%_$[DEFAULT_LANGUAGE].egg=%_$[LANGUAGE].egg]
-      #if $[filter $[wantegg],$[egglist]]
-          // The current language file exists.
-        #set install_unpal_eggs $[install_unpal_eggs] $[wantegg]
-      #else
-        #set install_unpal_eggs $[install_unpal_eggs] $[egg]
+        #set install_eggs $[install_eggs] $[egg]
       #endif
     #end egg
   #endif
 #end install_egg
-#define install_eggs $[install_pal_eggs] $[install_unpal_eggs]
-
 
 // Get the list of bam files in the install directories
 #define install_egg_dirs $[sort $[forscopes install_egg,$[install_model_dir]]]
 
-#define installed_generic_eggs $[sort $[forscopes install_egg,$[patsubst %.egg,$[install_model_dir]/%.egg,$[notdir $[SOURCES] $[UNPAL_SOURCES] $[UNPAL_SOURCES_NC]]]]]
-#define installed_generic_bams $[sort $[forscopes install_egg,$[patsubst %.egg,$[install_model_dir]/%.bam,$[filter-out $[language_egg_filters],$[notdir $[SOURCES] $[UNPAL_SOURCES] $[UNPAL_SOURCES_NC]]]]]]
+#define installed_generic_eggs $[sort $[forscopes install_egg,$[patsubst %.egg,$[install_model_dir]/%.egg,$[notdir $[SOURCES] $[SOURCES_NC]]]]]
+#define installed_generic_bams $[sort $[forscopes install_egg,$[patsubst %.egg,$[install_model_dir]/%.bam,$[filter-out $[language_egg_filters],$[notdir $[SOURCES] $[SOURCES_NC]]]]]]
 #if $[LANGUAGES]
-  #define installed_language_bams $[sort $[forscopes install_egg,$[patsubst %.egg,$[install_model_dir]/%.bam,$[patsubst %_$[DEFAULT_LANGUAGE].egg,%.egg,%,,$[notdir $[SOURCES] $[UNPAL_SOURCES] $[UNPAL_SOURCES_NC]]]]]]
+  #define installed_language_bams $[sort $[forscopes install_egg,$[patsubst %.egg,$[install_model_dir]/%.bam,$[patsubst %_$[DEFAULT_LANGUAGE].egg,%.egg,%,,$[notdir $[SOURCES] $[SOURCES_NC]]]]]]
 #endif
 
 // And the list of dna files in the install directories.
-#define install_dna_dirs $[sort $[forscopes install_dna,$[install_model_dir]]]
-#define installed_generic_dna $[sort $[forscopes install_dna,$[patsubst %,$[install_model_dir]/%,$[filter-out $[language_dna_filters],$[notdir $[SOURCES]]]]]]
+#define install_dna_dirs $[sort $[forscopes install_dna,$[install_dna_dir]]]
+#define installed_generic_dna $[sort $[forscopes install_dna,$[patsubst %,$[install_dna_dir]/%,$[filter-out $[language_dna_filters],$[notdir $[SOURCES]]]]]]
 #if $[LANGUAGES]
-  #define installed_language_dna $[sort $[forscopes install_dna,$[patsubst %,$[install_model_dir]/%,$[patsubst %_$[DEFAULT_LANGUAGE].dna,%.dna,%,,$[notdir $[SOURCES]]]]]]
+  #define installed_language_dna $[sort $[forscopes install_dna,$[patsubst %,$[install_dna_dir]/%,$[patsubst %_$[DEFAULT_LANGUAGE].dna,%.dna,%,,$[notdir $[SOURCES]]]]]]
 #endif
 
-#define install_other_dirs $[sort $[forscopes install_audio install_icons install_shader install_misc,$[install_model_dir]]]
-#define installed_other $[sort $[forscopes install_audio install_icons install_shader install_misc,$[SOURCES:%=$[install_model_dir]/%]]]
+#define install_audio_dirs $[sort $[forscopes install_audio,$[install_audio_dir]]]
+#define installed_audio $[sort $[forscopes install_audio,$[SOURCES:%=$[install_audio_dir]/%]]]
 
-#define build_txos \
-  $[forscopes install_txo, \
-    $[if $[SINGLE], \
-      $[TARGET], \
-      $[foreach source,$[SOURCES],$[basename $[source]].txo]]]
+#define install_misc_dirs $[sort $[forscopes install_misc,$[install_misc_dir]]]
+#define installed_misc $[sort $[forscopes install_misc,$[SOURCES:%=$[install_misc_dir]/%]]]
 
-#define install_txo_dirs $[sort $[forscopes install_txo, $[install_model_dir]]]
-#define installed_txo $[sort $[foreach txo,$[build_txos],$[patsubst %,$[install_model_dir]/%,$[txo]]]]
+#define install_icon_dirs $[sort $[forscopes install_icons,$[install_icon_dir]]]
+#define installed_icons $[sort $[forscopes install_icons,$[SOURCES:%=$[install_icon_dir]/%]]]
 
-#define pal_egg_targets $[sort $[patsubst %,$[pal_egg_dir]/%,$[notdir $[install_pal_eggs]]]]
+#define install_shader_dirs $[sort $[forscopes install_shader,$[install_shader_dir]]]
+#define installed_shaders $[sort $[forscopes install_shader,$[SOURCES:%=$[install_shader_dir]/%]]]
+
+#define install_other_dirs $[install_audio_dirs] $[install_misc_dirs] $[install_icon_dirs] $[install_shader_dirs]
+#define installed_other $[installed_audio] $[installed_misc] $[installed_icons] $[installed_shaders]
+
+#define build_texs \
+  $[forscopes install_tex, \
+    $[foreach source,$[SOURCES],$[basename $[source]].txo]]
+
+#define install_tex_dirs $[sort $[forscopes install_tex, $[install_tex_dir]]]
+#define installed_tex $[sort $[foreach tex,$[build_texs],$[patsubst %,$[install_tex_dir]/%,$[tex]]]]
+
+#define build_mats \
+  $[forscopes install_mat, \
+    $[foreach source,$[SOURCES],$[basename $[source]].rso]]
+
+#define install_mat_dirs $[sort $[forscopes install_mat, $[install_mat_dir]]]
+#define installed_mat $[sort $[foreach mat,$[build_mats],$[patsubst %,$[install_mat_dir]/%,$[mat]]]]
+
 #define bam_targets $[install_eggs:%.egg=$[bam_dir]/%.bam]
 
 #output Makefile
@@ -205,24 +210,25 @@
 
 #define all_targets \
     Makefile \
-    $[texattrib_dir] \
+    tex mat \
     $[filter_dirs] \
     $[optchar_dirs] \
-    txo egg bam
+    egg bam
 all : $[all_targets]
 
-txo : $[build_txos]
+tex : $[build_texs]
+
+mat : tex $[build_mats]
 
 egg : $[build_eggs]
 
 flt : $[build_flt_eggs]
+blender : $[build_blender_eggs]
 lwo : $[build_lwo_eggs]
 maya : $[build_maya_eggs]
 soft : $[build_soft_eggs]
 
-pal : $[if $[pal_egg_targets],$[pal_egg_dir]] $[pal_egg_targets]
-
-bam : pal $[if $[bam_targets],$[bam_dir]] $[bam_targets]
+bam : mat $[if $[bam_targets],$[bam_dir]] $[bam_targets]
 
 #map soft_scenes soft_scene_files(soft_char_egg)
 
@@ -233,7 +239,9 @@ unpack-soft : $[soft_scenes]
     $[if $[INSTALL_EGG_FILES],$[installed_generic_eggs],$[installed_generic_bams] $[installed_language_bams]]
 install-bam : $[install_bam_targets]
 
-install-txo : $[install_txo_dirs] $[installed_txo]
+install-tex : $[install_tex_dirs] $[installed_tex]
+
+install-mat : $[install_mat_dirs] $[installed_mat]
 
 #define install_other_targets \
     $[install_dna_dirs] \
@@ -242,12 +250,23 @@ install-txo : $[install_txo_dirs] $[installed_txo]
     $[installed_other]
 install-other : $[install_other_targets]
 
-install : all install-other install-txo install-bam
-uninstall : uninstall-other uninstall-txo uninstall-bam
+install : all install-other install-tex install-mat install-bam
+uninstall : uninstall-other uninstall-tex uninstall-mat uninstall-bam
 
-clean-txo :
-#if $[build_txos]
-  #foreach f $[build_txos]
+clean-tex :
+#if $[build_texs]
+  #foreach f $[build_texs]
+    #if $[eq $[BUILD_TYPE],nmake]
+$[TAB]$[DEL_CMD] $[osfilename $[f]]
+    #else
+$[TAB]$[DEL_CMD] $[f]
+    #endif
+  #end f
+#endif
+
+clean-mat :
+#if $[build_mats]
+  #foreach f $[build_mats]
     #if $[eq $[BUILD_TYPE],nmake]
 $[TAB]$[DEL_CMD] $[osfilename $[f]]
     #else
@@ -265,18 +284,16 @@ $[TAB]$[DEL_CMD] $[bam_dir]
   #endif
 #endif
 
-clean-pal : clean-bam
-#if $[pal_egg_targets]
-  #if $[eq $[BUILD_TYPE], nmake]
-$[TAB]$[DEL_CMD] $[osfilename $[pal_egg_dir]]
-  #else
-$[TAB]rm -rf $[pal_egg_dir]
-  #endif
-#endif
-
 clean-flt :
 #if $[build_flt_eggs]
   #foreach f $[build_flt_eggs]
+$[TAB]$[DEL_CMD] $[f]
+  #end f
+#endif
+
+clean-blender :
+#if $[build_blender_eggs]
+  #foreach f $[build_blender_eggs]
 $[TAB]$[DEL_CMD] $[f]
   #end f
 #endif
@@ -311,7 +328,7 @@ $[TAB]$[DEL_CMD] $[optchar_dirs]
   #endif
 #endif
 
-clean : clean-pal
+clean : clean-bam
 #if $[build_eggs]
   #foreach egg $[build_eggs]
 $[TAB]$[DEL_CMD] $[egg]
@@ -331,14 +348,14 @@ $[TAB]rm -rf $[filter_dirs]
 // make each one, as needed.
 #foreach directory $[sort \
     $[filter_dirs] \
-    $[if $[pal_egg_targets],$[pal_egg_dir]] \
     $[if $[bam_targets],$[bam_dir]] \
     $[TARGET_DIR(filter_char_egg)] \
     $[texattrib_dir] \
     $[install_egg_dirs] \
     $[install_dna_dirs] \
     $[install_other_dirs] \
-    $[install_txo_dirs] \
+    $[install_tex_dirs] \
+    $[install_mat_dirs] \
     ]
 $[directory] :
 #if $[eq $[BUILD_TYPE], nmake]
@@ -375,26 +392,30 @@ $[TAB]gunzip $[GUNZIP_OPTS] < $[source] > $[target]
   #end gz
 #end gz
 
-// TXO file generation from source image files.
-#forscopes install_txo
-  #if $[SINGLE]
-    #define target $[TARGET]
-    #if $[not $[target]]
-      #error A SINGLE install_txo scope must define TARGET!
-    #endif
-    #define sources $[SOURCES]
-$[target] : $[sources]
-$[TAB]make-txo $[TXO_OPTS] -o $[target] $[sources]
-  #else
-    #foreach img $[SOURCES]
-      #define source $[img]
-      #define target $[basename $[source]].txo
-$[target] : $[source]
-$[TAB]make-txo $[TXO_OPTS] -o $[target] $[source]
-    #end img
-  #endif
+// TXO file generation from ptex files.
+#forscopes install_tex
+  #foreach img $[SOURCES]
+    #define source $[img]
+    #define target $[basename $[source]].txo
+// Don't depend on the source.  It has multiple dependencies that we can't
+// determine from ppremake, such as the image files.  ptex2txo will figure
+// that out for us.
+$[target] :
+$[TAB]ptex2txo -o $[target] $[source]
+  #end img
 
-#end install_txo
+#end install_tex
+
+// RSO file generation from pmat files.
+#forscopes install_mat
+  #foreach mat $[SOURCES]
+    #define source $[mat]
+    #define target $[basename $[source]].rso
+$[target] : $[source]
+$[TAB]pmat2rso -o $[target] $[source] -pr $[TOPDIR]/src=$[install_dir]/textures -ps rel -pd $[install_dir] -pp $[install_dir]
+  #end mat
+
+#end install_mat
 
 // Egg file generation from Flt files.
 #forscopes flt_egg
@@ -417,6 +438,55 @@ $[TAB]lwo2egg $[LWO2EGG_OPTS] -o $[target] $[source]
 
   #end lwo
 #end lwo_egg
+
+// Egg file generation from Blender files (for unanimated models).
+#forscopes blender_egg
+  #foreach blend $[SOURCES]
+    #define target $[or $[TARGET],$[patsubst %$[MODEL].blend,$[EGG_PREFIX]%$[EGG_SUFFIX].egg,$[blend]]]
+    #define source $[blend]
+$[target] : $[source]
+$[TAB]blend2egg.py $[BLEND2EGG_OPTS] $[source] $[target]
+
+  #end blend
+#end blender_egg
+
+// Egg character model generation from Blender files.
+#forscopes blender_char_egg
+  #if $[POLY_MODEL]
+    #define target $[EGG_PREFIX]$[POLY_MODEL].egg
+    #define source $[BLENDER_PREFIX]$[or $[MODEL],$[POLY_MODEL]].blend
+$[target] : $[source]
+$[TAB]blend2egg.py $[BLEND2EGG_OPTS] --ac model --cn "$[CHAR_NAME]" $[source] $[target]
+  #elif $[not $[or $[MODEL], $[POLY_MODEL], $[ANIMS]]]
+    #define target $[EGG_PREFIX].egg
+    #define source $[BLENDER_PREFIX].blend
+$[target] : $[source]
+$[TAB]blend2egg.py $[BLEND2EGG_OPTS] --ac model --cn "$[CHAR_NAME]" $[source] $[target]
+  #endif
+
+#end blender_char_egg
+
+// Egg animation generation from Blender files.
+#forscopes blender_char_egg
+  #foreach anim $[ANIMS]
+    #define target $[EGG_PREFIX]$[anim]$[CHAN_SUFFIX].egg
+    #define source $[BLENDER_PREFIX]$[anim].blend
+    #define begin
+    #define end
+    #define fps
+    #if $[$[CHAR_NAME]_$[anim]_frames]
+      #set begin $[word 1,$[$[CHAR_NAME]_$[anim]_frames]]
+      #set end $[word 2,$[$[CHAR_NAME]_$[anim]_frames]]
+      #set fps $[word 3,$[$[CHAR_NAME]_$[anim]_frames]]
+    #elif $[$[anim]_frames]
+      #set begin $[word 1,$[$[anim]_frames]]
+      #set end $[word 2,$[$[anim]_frames]]
+      #set fps $[word 3,$[$[anim]_frames]]
+    #endif
+$[target] : $[source]
+$[TAB]blend2egg.py $[BLEND2EGG_OPTS] --ac chan --cn "$[CHAR_NAME]" $[if $[begin],--sf $[begin]] $[if $[end],--ef $[end]] $[if $[fps],--fps $[fps]] $[source] $[target]
+  #end anim
+#end blender_char_egg
 
 // Egg file generation from Maya files (for unanimated models).
 #forscopes maya_egg
@@ -626,44 +696,16 @@ $[TAB]$[DEL_CMD] $[sources_file]
 
 #end optchar_egg
 
-
-// Palettization rules.
-#forscopes install_egg
-  #foreach egg $[SOURCES]
-    #define pt $[egg:%.egg=$[source_prefix]%.pt]
-    #define source $[source_prefix]$[egg]
-    #define target $[pal_egg_dir]/$[notdir $[egg]]
-$[target] : $[source] $[pt] $[pal_egg_dir]/stamp
-    #if $[PHASE]
-$[TAB]egg-palettize $[PALETTIZE_OPTS] -af $[texattrib_file] -dr $[install_dir] -dm $[install_dir]/%g/maps -ds $[install_dir]/shadow_pal -g phase_$[PHASE] -gdir phase_$[PHASE] -o $[target] $[source]
-    #else
-$[TAB]egg-palettize $[PALETTIZE_OPTS] -af $[texattrib_file] -dr $[install_dir] -dm $[install_dir]/%g/maps -ds $[install_dir]/shadow_pal -o $[target] $[source]
-    #endif
-
-$[pt] :
-$[TAB]$[TOUCH_CMD] $[pt]
-
-  #end egg
-#end install_egg
-
-
 // Bam file creation.
 #forscopes install_egg
   #foreach egg $[SOURCES]
-    #define source $[pal_egg_dir]/$[notdir $[egg]]
-    #define target $[bam_dir]/$[notdir $[egg:%.egg=%.bam]]
-$[target] : $[source] $[bam_dir]/stamp
-$[TAB]egg2bam -pp $[install_dir] -ps rel -pd $[install_dir] $[EGG2BAM_OPTS] -o $[target] $[source]
-  #end egg
-
-  #foreach egg $[UNPAL_SOURCES]
     #define source $[source_prefix]$[egg]
     #define target $[bam_dir]/$[notdir $[egg:%.egg=%.bam]]
 $[target] : $[source] $[bam_dir]/stamp
-$[TAB]egg2bam $[EGG2BAM_OPTS] -o $[target] $[source]
+$[TAB]egg2bam -pr $[TOPDIR]/src=$[install_dir]/materials -ps rel -pd $[install_dir] -pp $[install_dir] $[EGG2BAM_OPTS] -o $[target] $[source]
   #end egg
 
-  #foreach egg $[UNPAL_SOURCES_NC]
+  #foreach egg $[SOURCES_NC]
     #define source $[source_prefix]$[egg]
     #define target $[bam_dir]/$[notdir $[egg:%.egg=%.bam]]
 $[target] : $[source] $[bam_dir]/stamp
@@ -674,22 +716,7 @@ $[TAB]egg2bam $[EGG2BAM_OPTS] -NC -o $[target] $[source]
 
 // Egg file installation (used only if INSTALL_EGG_FILES is true).
 #forscopes install_egg
-  #foreach egg $[SOURCES]
-    #define basename $[notdir $[egg]]
-    #define source $[pal_egg_dir]/$[basename]
-    #define dest $[install_model_dir]
-
-$[dest]/$[basename] : $[source]
-    #if $[eq $[BUILD_TYPE], nmake]
-$[TAB]$[DEL_CMD] $[osfilename $[dest]/$[basename]]
-$[TAB]$[COPY_CMD] $[osfilename $[source]] $[osfilename $[dest]/$[basename]]
-    #else
-$[TAB]$[DEL_CMD] $[dest]/$[basename]
-$[TAB]$[COPY_CMD] $[source] $[dest]/$[basename]
-    #endif
-
-  #end egg
-  #foreach egg $[UNPAL_SOURCES] $[UNPAL_SOURCES_NC]
+  #foreach egg $[SOURCES] $[SOURCES_NC]
     #define basename $[notdir $[egg]]
     #define source $[source_prefix]$[basename]
     #define dest $[install_model_dir]
@@ -708,7 +735,7 @@ $[TAB]$[COPY_CMD] $[source] $[dest]/$[basename]
 
 // Bam file installation.
 #forscopes install_egg
-  #define egglist $[notdir $[SOURCES] $[UNPAL_SOURCES] $[UNPAL_SOURCES_NC]]
+  #define egglist $[notdir $[SOURCES] $[SOURCES_NC]]
   #foreach egg $[filter-out $[language_egg_filters],$[egglist]]
     #define local $[egg:%.egg=%.bam]
     #define sourcedir $[bam_dir]
@@ -755,7 +782,7 @@ $[TAB]$[COPY_CMD] $[sourcedir]/$[local] $[dest]/$[remote]
 // Bam file uninstallation.
 uninstall-bam :
 #forscopes install_egg
-  #define egglist $[notdir $[SOURCES] $[UNPAL_SOURCES] $[UNPAL_SOURCES_NC]]
+  #define egglist $[notdir $[SOURCES] $[SOURCES_NC]]
   #define generic_egglist $[filter-out $[language_egg_filters],$[egglist]]
   #if $[LANGUAGES]
     #define language_egglist $[patsubst %_$[DEFAULT_LANGUAGE].egg,%.egg,%,,$[egglist]]
@@ -778,7 +805,7 @@ $[TAB]$[DEL_CMD] $[file]
   #foreach file $[filter-out $[language_dna_filters],$[SOURCES]]
     #define local $[file]
     #define remote $[notdir $[file]]
-    #define dest $[install_model_dir]
+    #define dest $[install_dna_dir]
 $[dest]/$[remote] : $[local]
 //      $[INSTALL]
     #if $[eq $[BUILD_TYPE], nmake]
@@ -802,7 +829,7 @@ $[TAB]$[COPY_CMD] $[local] $[dest]
         #define local $[file]
       #endif
       #define remote $[notdir $[file:%_$[DEFAULT_LANGUAGE].dna=%.dna]]
-      #define dest $[install_model_dir]
+      #define dest $[install_dna_dir]
 $[dest]/$[remote] : $[local]
 //      cd ./$[sourcedir] && $[INSTALL]
       #if $[eq $[BUILD_TYPE], nmake]
@@ -825,7 +852,7 @@ uninstall-other:
   #if $[LANGUAGES]
     #define language_sources $[patsubst %_$[DEFAULT_LANGUAGE].dna,%.dna,%,,$[sources]]
   #endif
-  #define files $[patsubst %,$[install_model_dir]/%,$[generic_sources] $[language_sources]]
+  #define files $[patsubst %,$[install_dna_dir]/%,$[generic_sources] $[language_sources]]
   #if $[files]
     #foreach f $[files]
       #if $[eq $[BUILD_TYPE], nmake]
@@ -838,11 +865,11 @@ $[TAB]$[DEL_CMD] $[f]
 #end install_dna
 
 // TXO file installation.
-#forscopes install_txo
-  #if $[SINGLE]
-    #define local $[TARGET]
+#forscopes install_tex
+  #foreach file $[SOURCES]
+    #define local $[basename $[file]].txo
     #define remote $[notdir $[local]]
-    #define dest $[install_model_dir]
+    #define dest $[install_tex_dir]
 $[dest]/$[remote] : $[local]
     #if $[eq $[BUILD_TYPE], nmake]
 $[TAB]$[DEL_CMD] $[osfilename $[dest]/$[remote]]
@@ -851,30 +878,14 @@ $[TAB]$[COPY_CMD] $[osfilename $[local]] $[osfilename $[dest]]
 $[TAB]$[DEL_CMD] $[dest]/$[remote]
 $[TAB]$[COPY_CMD] $[local] $[dest]
     #endif
-  #else
-    #foreach file $[SOURCES]
-      #define local $[basename $[file]].txo
-      #define remote $[notdir $[local]]
-      #define dest $[install_model_dir]
-$[dest]/$[remote] : $[local]
-      #if $[eq $[BUILD_TYPE], nmake]
-$[TAB]$[DEL_CMD] $[osfilename $[dest]/$[remote]]
-$[TAB]$[COPY_CMD] $[osfilename $[local]] $[osfilename $[dest]]
-      #else
-$[TAB]$[DEL_CMD] $[dest]/$[remote]
-$[TAB]$[COPY_CMD] $[local] $[dest]
-      #endif
-    #end file
-  #endif
-#end install_txo
+  #end file
+#end install_tex
 
 // TXO file uninstallation.
-uninstall-txo :
-#forscopes install_txo
+uninstall-tex :
+#forscopes install_tex
   #define files \
-    $[if $[SINGLE], \
-      $[install_model_dir]/$[TARGET], \
-      $[foreach img,$[SOURCES],$[install_model_dir]/$[basename $[img]].txo]]
+    $[foreach img,$[SOURCES],$[install_tex_dir]/$[basename $[img]].txo]
   #if $[files]
     #foreach f $[files]
       #if $[eq $[BUILD_TYPE], nmake]
@@ -885,14 +896,58 @@ $[TAB]$[DEL_CMD] $[f]
     #end f
   #endif
 
-#end install_txo
+#end install_tex
+
+// RSO file installation.
+#forscopes install_mat
+  #foreach file $[SOURCES]
+    #define local $[basename $[file]].rso
+    #define remote $[notdir $[local]]
+    #define dest $[install_mat_dir]
+$[dest]/$[remote] : $[local]
+    #if $[eq $[BUILD_TYPE], nmake]
+$[TAB]$[DEL_CMD] $[osfilename $[dest]/$[remote]]
+$[TAB]$[COPY_CMD] $[osfilename $[local]] $[osfilename $[dest]]
+    #else
+$[TAB]$[DEL_CMD] $[dest]/$[remote]
+$[TAB]$[COPY_CMD] $[local] $[dest]
+    #endif
+  #end file
+#end install_mat
+
+// RSO file uninstallation.
+uninstall-mat :
+#forscopes install_mat
+  #define files \
+    $[foreach mat,$[SOURCES],$[install_mat_dir]/$[basename $[mat]].rso]
+  #if $[files]
+    #foreach f $[files]
+      #if $[eq $[BUILD_TYPE], nmake]
+$[TAB]$[DEL_CMD] $[osfilename $[f]]
+      #else
+$[TAB]$[DEL_CMD] $[f]
+      #endif
+    #end f
+  #endif
+
+#end install_mat
 
 // Miscellaneous file installation.
 #forscopes install_audio install_icons install_shader install_misc
+  #define dest $[install_model_dir]
+  #if $[eq $[SCOPE],install_audio]
+    #set dest $[install_audio_dir]
+  #elif $[eq $[SCOPE],install_icons]
+    #set dest $[install_icon_dir]
+  #elif $[eq $[SCOPE],install_shader]
+    #set dest $[install_shader_dir]
+  #elif $[eq $[SCOPE],install_misc]
+    #set dest $[install_misc_dir]
+  #endif
+
   #foreach file $[SOURCES]
     #define local $[file]
     #define remote $[notdir $[file]]
-    #define dest $[install_model_dir]
 $[dest]/$[remote] : $[local]
 //      $[INSTALL]
     #if $[eq $[BUILD_TYPE], nmake]
@@ -909,7 +964,17 @@ $[TAB]$[COPY_CMD] $[local] $[dest]
 // Miscellaneous file uninstallation.
 uninstall-other :
 #forscopes install_audio install_icons install_shader install_misc
-  #define files $[patsubst %,$[install_model_dir]/%,$[SOURCES]]
+  #if $[eq $[SCOPE],install_audio]
+    #set dest $[install_audio_dir]
+  #elif $[eq $[SCOPE],install_icons]
+    #set dest $[install_icon_dir]
+  #elif $[eq $[SCOPE],install_shader]
+    #set dest $[install_shader_dir]
+  #elif $[eq $[SCOPE],install_misc]
+    #set dest $[install_misc_dir]
+  #endif
+
+  #define files $[patsubst %,$[dest]/%,$[SOURCES]]
   #if $[files]
     #foreach f $[files]
       #if $[eq $[BUILD_TYPE], nmake]
@@ -960,78 +1025,21 @@ $[TAB]$[DEL_CMD] $[f]
 #### Generated automatically by $[PPREMAKE] $[PPREMAKE_VERSION] from $[SOURCEFILE].
 ################################# DO NOT EDIT ###########################
 
-all : txo egg pal repal $[subdirs]
+all : $[subdirs]
 
-install : all $[subdirs:%=install-%]
+install : $[subdirs:%=install-%]
 
 #define sub_targets \
-  txo egg flt lwo maya soft bam pal clean-txo clean-bam \
-  clean-pal clean-flt clean-lwo  clean-maya clean-soft clean-optchar clean \
-  cleanall unpack-soft install-txo install-bam install-other uninstall-txo \
-  uninstall-bam uninstall-other uninstall
+  tex mat egg flt lwo maya blender soft bam clean-tex clean-mat clean-bam \
+  clean-flt clean-lwo clean-maya clean-blender clean-soft clean-optchar clean \
+  cleanall unpack-soft install-tex install-mat install-bam install-other uninstall-tex \
+  uninstall-mat uninstall-bam uninstall-other uninstall
 
 // Define the rules to propogate these targets to the Makefile within
 // each directory.
 #foreach target $[sub_targets]
 $[target] : $[subdirs:%=$[target]-%]
 #end target
-
-
-#
-# opt-pal : reorder and resize the palettes to be as optimal as
-# possible.  This forces a rebuild of all the egg files.
-#
-opt-pal : pal do-opt-pal install
-optimize-palettes : opt-pal
-
-do-opt-pal :
-$[TAB]egg-palettize $[PALETTIZE_OPTS] -af $[texattrib_file] -dm $[install_dir]/%g/maps -opt -egg
-
-#
-# repal : reexamine the textures.txa file and do whatever needs to be
-# done to bring everything up to sync with it.  Also make sure all egg
-# files are up-to-date.
-#
-repal :
-$[TAB]egg-palettize $[PALETTIZE_OPTS] -af $[texattrib_file] -dm $[install_dir]/%g/maps -all -egg
-
-re-pal : repal
-
-#
-# fix-pal : something has gone wrong with the palettes; rebuild all
-# palette images to fix it.
-#
-fix-pal :
-$[TAB]egg-palettize $[PALETTIZE_OPTS] -af $[texattrib_file] -dm $[install_dir]/%g/maps -redo -all -egg
-
-#
-# undo-pal : blow away all the palettization information and start fresh.
-#
-undo-pal : clean-pal
-#if $[eq $[BUILD_TYPE], nmake]
-$[TAB]$[DEL_CMD] $[osfilename $[texattrib_file:%.txa=%.boo]]
-#else
-$[TAB]$[DEL_CMD] $[texattrib_file:%.txa=%.boo]
-#endif
-
-#
-# pi : report the palettization information to standard output for the
-# user's perusal.
-#
-pi :
-$[TAB]egg-palettize $[PALETTIZE_OPTS] -af $[texattrib_file] -dm $[install_dir]/%g/maps -pi
-
-.PHONY: pi.txt
-pi.txt :
-$[TAB]egg-palettize $[PALETTIZE_OPTS] -af $[texattrib_file] -dm $[install_dir]/%g/maps -pi >pi.txt
-
-#
-# pal-stats : report palettization statistics to standard output for the
-# user's perusal.
-#
-pal-stats :
-$[TAB]egg-palettize $[PALETTIZE_OPTS] -af $[texattrib_file] -dm $[install_dir]/%g/maps -s
-stats-pal : pal-stats
 
 // Somehow, something in the cttools confuses some shells, so that
 // when we are attached, 'cd foo' doesn't work, but 'cd ./foo' does.
