@@ -18,7 +18,11 @@ jobs:
       run: sudo wget -c https://github.com/toontownretro/ppremake/releases/download/v1.23/ppremake-v1.23-linux-amd64.tar.gz -O - | sudo tar -xz -C /usr/local/bin
     
     - name: ppremake
-      run: ppremake -c ./.github/workflows/Config.pp
+      run: |
+        export CTPROJS=DTOOL:default
+        export DTOOL=~/dtool/dtool
+        export PPREMAKE_CONFIG=$DTOOL/.github/workflows/Config.pp
+        ppremake
     
     - name: make install
       run: make install
