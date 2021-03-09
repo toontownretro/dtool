@@ -32,6 +32,9 @@
   #define TEMPLATE_FILE $[THISDIRPREFIX]Template.$[BUILD_TYPE].pp
 #endif
 
+#if $[eq $[POST_TEMPLATE_FILE],]
+  #define POST_TEMPLATE_FILE $[THISDIRPREFIX]PostTemplate.pp
+#endif
 
 #if $[eq $[DEPENDENCY_CACHE_FILENAME],]
   #define DEPENDENCY_CACHE_FILENAME pp.dep

@@ -927,6 +927,17 @@ Warning: Variable $[upcase $[tree]]_INSTALL is not set!
 // This is used for evaluating SoftImage unpack rules in Template.models.pp.
 #defer soft_scene_files $[matrix $[DATABASE]/SCENES/$[SCENE_PREFIX],$[MODEL] $[ANIMS],.1-0.dsc]
 
+// This is also only used by model builds.
+// This dictionary will be filled up by the templates within the source
+// hierarchy.  It maps source assets to their built and installed counterparts.
+#if $[eq $[dirnames $[DIR_TYPE], top], models_toplevel]
+#dict texture_index
+#dict material_index
+#dict model_index
+#dict dna_index
+#dict misc_index
+#endif
+
 // Include the global definitions for this particular build_type, if
 // the file is there.
 #sinclude $[GLOBAL_TYPE_FILE]
