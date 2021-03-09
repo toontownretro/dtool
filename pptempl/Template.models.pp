@@ -15,7 +15,7 @@
   #error You need at least ppremake version 0.58 to build models.
 #endif
 
-#if $[not $[findstring PANDATOOL,$[CTPROJS]]]
+#if $[and $[CTPROJS],$[not $[findstring PANDATOOL,$[CTPROJS]]]]
   #error You must be attached to PANDATOOL to build models.
 #endif
 
