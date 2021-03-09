@@ -20,7 +20,7 @@ jobs:
     - name: ppremake
       run: |
         export CTPROJS=DTOOL:default
-        export DTOOL=~/dtool/dtool
+        export DTOOL=~/work/dtool/dtool
         export PPREMAKE_CONFIG=$DTOOL/.github/workflows/Config.pp
         ppremake
     
