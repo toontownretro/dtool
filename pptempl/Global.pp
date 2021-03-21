@@ -931,6 +931,13 @@ Warning: Variable $[upcase $[tree]]_INSTALL is not set!
 // This dictionary will be filled up by the templates within the source
 // hierarchy.  It maps source assets to their built and installed counterparts.
 #if $[eq $[dirnames $[DIR_TYPE], top], models_toplevel]
+
+// #dict is a newer addition, make sure we are running a ppremake that supports
+// them.
+#if $[< $[PPREMAKE_VERSION],1.23]
+  #error You need at least ppremake version 1.23 to build models.
+#endif
+
 #dict texture_index
 #dict material_index
 #dict model_index

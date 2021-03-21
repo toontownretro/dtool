@@ -11,8 +11,8 @@
 // environment.
 //
 
-#if $[< $[PPREMAKE_VERSION],0.57]
-  #error You need at least ppremake version 0.58 to build models.
+#if $[< $[PPREMAKE_VERSION],1.23]
+  #error You need at least ppremake version 1.23 to build models.
 #endif
 
 #if $[and $[CTPROJS],$[not $[findstring PANDATOOL,$[CTPROJS]]]]
