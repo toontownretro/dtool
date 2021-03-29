@@ -188,7 +188,7 @@
 
 #define build_mats \
   $[forscopes install_mat, \
-    $[foreach source,$[SOURCES],$[basename $[source]].rso]]
+    $[foreach source,$[SOURCES],$[basename $[source]].mto]]
 
 #define install_mat_dirs $[sort $[forscopes install_mat, $[install_mats_dir]]]
 #define installed_mat $[sort $[foreach mat,$[build_mats],$[patsubst %,$[install_mats_dir]/%,$[notdir $[mat]]]]]
@@ -398,13 +398,13 @@ $[TAB]ptex2txo -o $[target] $[source]
 
 #end install_tex
 
-// RSO file generation from pmat files.
+// MTO file generation from pmat files.
 #forscopes install_mat
   #foreach mat $[SOURCES]
     #define source $[mat]
-    #define target $[basename $[source]].rso
+    #define target $[basename $[source]].mto
 $[target] : $[source]
-$[TAB]pmat2rso -o $[target] $[source] -i $[TOPDIR]/$[PACKAGE]_index.boo
+$[TAB]pmat2mto -o $[target] $[source] -i $[TOPDIR]/$[PACKAGE]_index.boo
   #end mat
 
 #end install_mat
@@ -875,10 +875,10 @@ $[TAB]$[DEL_CMD] $[f]
 
 #end install_tex
 
-// RSO file installation.
+// MTO file installation.
 #forscopes install_mat
   #foreach file $[SOURCES]
-    #define local $[basename $[file]].rso
+    #define local $[basename $[file]].mto
     #define remote $[notdir $[local]]
     #define dest $[install_mats_dir]
     #adddict material_index $[ABSDIR]/$[file],$[dest]/$[remote]
@@ -893,11 +893,11 @@ $[TAB]$[COPY_CMD] $[local] $[dest]
   #end file
 #end install_mat
 
-// RSO file uninstallation.
+// MTO file uninstallation.
 uninstall-mat :
 #forscopes install_mat
   #define files \
-    $[foreach mat,$[SOURCES],$[install_mats_dir]/$[notdir $[basename $[mat]].rso]]
+    $[foreach mat,$[SOURCES],$[install_mats_dir]/$[notdir $[basename $[mat]].mto]]
   #if $[files]
     #foreach f $[files]
       #if $[eq $[BUILD_TYPE], nmake]
