@@ -70,7 +70,7 @@
 #define BROWSEINFO_FLAG
 #endif
 
-#define CFLAGS_SHARED
+#define CFLAGS_SHARED /D_USE_MATH_DEFINES
 
 #include $[THISDIRPREFIX]compilerSettings.pp
 

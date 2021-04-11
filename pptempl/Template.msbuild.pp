@@ -95,8 +95,8 @@
 #defer target_ipath $[TOPDIR] $[sort $[complete_ipath]] $[other_trees_include] $[get_ipath]
 
 // These are the complete set of extra flags the compiler requires.
-#defer cflags $[patsubst -D%,/D%,$[get_cflags] $[CFLAGS] $[CFLAGS_OPT$[OPTIMIZE]]]
-#defer c++flags $[patsubst -D%,/D%,$[get_cflags] $[C++FLAGS] $[CFLAGS_OPT$[OPTIMIZE]]]
+#defer cflags $[patsubst -D%,/D%,$[get_cflags] $[CFLAGS] $[CFLAGS_OPT$[OPTIMIZE]]] $[CFLAGS_SHARED]
+#defer c++flags $[patsubst -D%,/D%,$[get_cflags] $[C++FLAGS] $[CFLAGS_OPT$[OPTIMIZE]]] $[CFLAGS_SHARED]
 
 // $[complete_lpath] is rather like $[complete_ipath]: the list of
 // directories (from within this tree) we should add to our -L list.
@@ -437,6 +437,13 @@
   #endif
   </ClCompile>
 #end file
+// If we are compositing, include the composited source files in the project,
+// but don't compile them.
+#if $[should_composite_sources]
+#foreach file $[COMPOSITE_SOURCES]
+  <None Include="$[osfilename $[file]]"/>
+#end file
+#endif
 </ItemGroup>
 
 // Add include directories and preprocessor definitions.
@@ -798,6 +805,48 @@
 
 #end $[TARGET].vcxproj
 
+// Add a filter file to organize the headers and source files.
+#output $[TARGET].vcxproj.filters
+#format collapse
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated automatically by $[PPREMAKE] $[PPREMAKE_VERSION] from $[SOURCEFILE]. -->
+<!--                              DO NOT EDIT                                       -->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+// Add each header file to the filter.
+<ItemGroup>
+#foreach file $[headers]
+  <ClInclude Include="$[osfilename $[file]]">
+    <Filter>Header Files</Filter>
+  </ClInclude>
+#end file
+</ItemGroup>
+
+// Now add each source file.
+<ItemGroup>
+#foreach file $[compile_sources]
+  <ClCompile Include="$[osfilename $[file]]">
+	<Filter>Source Files</Filter>
+  </ClCompile>
+#end file
+#if $[should_composite_sources]
+#foreach file $[COMPOSITE_SOURCES]
+  <None Include="$[osfilename $[file]]">
+    <Filter>Source Files</Filter>
+  </None>
+#end file
+#endif
+</ItemGroup>
+
+<ItemGroup>
+  <Filter Include="Source Files" />
+  <Filter Include="Header Files" />
+</ItemGroup>
+
+</Project>
+
+#end $[TARGET].vcxproj.filters
+
 #endif // $[and $[build_directory],$[build_target]]
 
 #end $[vcx_scopes]
@@ -1034,11 +1083,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 #forscopes $[project_scopes]
 #if $[and $[build_directory],$[build_target]]
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "$[TARGET]", "$[osfilename $[PATH]/$[TARGET].vcxproj]", "{$[makeguid $[TARGET]]}"
-  ProjectSection(ProjectDependencies) = postProject
-  #foreach depend $[get_depended_targets]
-    {$[makeguid $[depend]]} = {$[makeguid $[depend]]}
-  #end depend
-  EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+#foreach depend $[get_depended_targets]
+		{$[makeguid $[depend]]} = {$[makeguid $[depend]]}
+ #end depend
+	EndProjectSection
 EndProject
 #endif
 #end $[project_scopes]
@@ -1046,18 +1095,24 @@ EndProject
 #formap dirname subdirs
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dir_$[dirname]", "$[osfilename $[PATH]/dir_$[dirname].vcxproj]", "{$[makeguid dir_$[dirname]]}"
   // The directory-level project depends on all the target-level projects in the directory.
-  ProjectSection(ProjectDependencies) = postProject
+	ProjectSection(ProjectDependencies) = postProject
     #define depend_scopes $[patsubst %,$[dirname]/%,$[vcx_scopes]]
     #forscopes $[depend_scopes]
     #if $[and $[build_directory],$[build_target]]
-    {$[makeguid $[TARGET]]} = {$[makeguid $[TARGET]]}
+		{$[makeguid $[TARGET]]} = {$[makeguid $[TARGET]]}
     #endif
     #end $[depend_scopes]
-  EndProjectSection
+	EndProjectSection
+EndProject
+// Also add a solution folder that will group the targets in a directory.
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "$[dirname]", "$[dirname]", "{$[makeguid folder_$[dirname]]}"
 EndProject
 #end dirname
 // And the top-level project.
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dir_$[DIRNAME]", "$[osfilename $[PATH]/dir_$[DIRNAME].vcxproj]", "{$[makeguid dir_$[DIRNAME]]}"
+EndProject
+// Top-level solution folder.
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "$[DIRNAME]", "$[DIRNAME]", "{$[makeguid folder_$[DIRNAME]]}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -1083,6 +1138,17 @@ Global
 		{$[guid]}.Release|$[platform_config].Build.0 = Release|$[platform_config]
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+#forscopes $[project_scopes]
+#if $[and $[build_directory],$[build_target]]
+		{$[makeguid $[TARGET]]} = {$[makeguid folder_$[DIRNAME]]}
+#endif
+#end $[project_scopes]
+#formap dirname subdirs
+		{$[makeguid dir_$[dirname]]} = {$[makeguid folder_$[dirname]]}
+#end dirname
+		{$[makeguid dir_$[DIRNAME]]} = {$[makeguid folder_$[DIRNAME]]}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
     SolutionGuid = {$[makeguid $[PACKAGE].sln]}
