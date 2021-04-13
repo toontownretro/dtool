@@ -698,55 +698,66 @@
         DependsOnTargets="Build">
 #if $[and $[build_lib],$[is_lib]]
   <Copy SourceFiles="$[osfilename $[ODIR]/$[get_output_file]]"
-        DestinationFiles="$[osfilename $[install_lib_dir]/$[get_output_file]]" />
+        DestinationFiles="$[osfilename $[install_lib_dir]/$[get_output_file]]"
+        SkipUnchangedFiles="true" />
   #if $[not $[lib_is_static]]
   <Copy SourceFiles="$[osfilename $[ODIR]/$[get_output_lib]]"
-        DestinationFiles="$[osfilename $[install_lib_dir]/$[get_output_lib]]" />
+        DestinationFiles="$[osfilename $[install_lib_dir]/$[get_output_lib]]"
+        SkipUnchangedFiles="true" />
   #endif
   #if $[has_pdb]
   <Copy SourceFiles="$[osfilename $[ODIR]/$[get_output_pdb]]"
-        DestinationFiles="$[osfilename $[install_lib_dir]/$[get_output_pdb]]" />
+        DestinationFiles="$[osfilename $[install_lib_dir]/$[get_output_pdb]]"
+        SkipUnchangedFiles="true" />
   #endif
 #endif
 
 #if $[is_bin]
   <Copy SourceFiles="$[osfilename $[ODIR]/$[TARGET].exe]"
-        DestinationFiles="$[osfilename $[install_bin_dir]/$[TARGET].exe]" />
+        DestinationFiles="$[osfilename $[install_bin_dir]/$[TARGET].exe]"
+        SkipUnchangedFiles="true" />
 
   #if $[has_pdb]
   <Copy SourceFiles="$[osfilename $[ODIR]/$[TARGET].pdb]"
-        DestinationFiles="$[osfilename $[install_bin_dir]/$[TARGET].pdb]" />
+        DestinationFiles="$[osfilename $[install_bin_dir]/$[TARGET].pdb]"
+        SkipUnchangedFiles="true" />
   #endif
 #endif
 
 #if $[INSTALL_SCRIPTS]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_SCRIPTS]]]"
-        DestinationFiles="$[msjoin $[osfilename $[INSTALL_SCRIPTS:%=$[install_scripts_dir]/%]]]" />
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_SCRIPTS:%=$[install_scripts_dir]/%]]]"
+        SkipUnchangedFiles="true" />
 #endif
 
 #if $[INSTALL_MODULES]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_MODULES]]]"
-        DestinationFiles="$[msjoin $[osfilename $[INSTALL_MODULES:%=$[install_lib_dir]/%]]]" />
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_MODULES:%=$[install_lib_dir]/%]]]"
+        SkipUnchangedFiles="true" />
 #endif
 
 #if $[INSTALL_HEADERS]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_HEADERS]]]"
-        DestinationFiles="$[msjoin $[osfilename $[INSTALL_HEADERS:%=$[install_headers_dir]/%]]]" />
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_HEADERS:%=$[install_headers_dir]/%]]]"
+        SkipUnchangedFiles="true" />
 #endif
 
 #if $[INSTALL_DATA]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_DATA]]]"
-        DestinationFiles="$[msjoin $[osfilename $[INSTALL_DATA:%=$[install_data_dir]/%]]]" />
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_DATA:%=$[install_data_dir]/%]]]"
+        SkipUnchangedFiles="true" />
 #endif
 
 #if $[INSTALL_CONFIG]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_CONFIG]]]"
-        DestinationFiles="$[msjoin $[osfilename $[INSTALL_CONFIG:%=$[install_config_dir]/%]]]" />
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_CONFIG:%=$[install_config_dir]/%]]]"
+        SkipUnchangedFiles="true" />
 #endif
 
 #if $[igatedb]
   <Copy SourceFiles="$[msjoin $[osfilename $[igatedb]]]"
-        DestinationFiles="$[msjoin $[osfilename $[igatedb:$[ODIR]/%=$[install_igatedb_dir]/%]]]" />
+        DestinationFiles="$[msjoin $[osfilename $[igatedb:$[ODIR]/%=$[install_igatedb_dir]/%]]]"
+        SkipUnchangedFiles="true" />
 #endif
 </Target>
 
@@ -943,37 +954,44 @@
         Outputs="$[msjoin $[osfilename $[installed_files]]]">
 #if $[INSTALL_SCRIPTS]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_SCRIPTS]]]"
-        DestinationFiles="$[msjoin $[osfilename $[INSTALL_SCRIPTS:%=$[install_scripts_dir]/%]]]" />
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_SCRIPTS:%=$[install_scripts_dir]/%]]]"
+        SkipUnchangedFiles="true" />
 #endif
 
 #if $[INSTALL_MODULES]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_MODULES]]]"
-        DestinationFiles="$[msjoin $[osfilename $[INSTALL_MODULES:%=$[install_lib_dir]/%]]]" />
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_MODULES:%=$[install_lib_dir]/%]]]"
+        SkipUnchangedFiles="true" />
 #endif
 
 #if $[INSTALL_HEADERS]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_HEADERS]]]"
-        DestinationFiles="$[msjoin $[osfilename $[INSTALL_HEADERS:%=$[install_headers_dir]/%]]]" />
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_HEADERS:%=$[install_headers_dir]/%]]]"
+        SkipUnchangedFiles="true" />
 #endif
 
 #if $[INSTALL_PARSER_INC]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_PARSER_INC]]]"
-        DestinationFiles="$[msjoin $[osfilename $[INSTALL_PARSER_INC:%=$[install_parser_inc_dir]/%]]]" />
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_PARSER_INC:%=$[install_parser_inc_dir]/%]]]"
+        SkipUnchangedFiles="true" />
 #endif
 
 #if $[INSTALL_DATA]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_DATA]]]"
-        DestinationFiles="$[msjoin $[osfilename $[INSTALL_DATA:%=$[install_data_dir]/%]]]" />
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_DATA:%=$[install_data_dir]/%]]]"
+        SkipUnchangedFiles="true" />
 #endif
 
 #if $[INSTALL_CONFIG]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_CONFIG]]]"
-        DestinationFiles="$[msjoin $[osfilename $[INSTALL_CONFIG:%=$[install_config_dir]/%]]]" />
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_CONFIG:%=$[install_config_dir]/%]]]"
+        SkipUnchangedFiles="true" />
 #endif
 
 #if $[install_py]
   <Copy SourceFiles="$[msjoin $[osfilename $[install_py]]]"
-        DestinationFiles="$[msjoin $[osfilename $[install_py:%=$[install_py_dir]/%]]]" />
+        DestinationFiles="$[msjoin $[osfilename $[install_py:%=$[install_py_dir]/%]]]"
+        SkipUnchangedFiles="true" />
   <Touch Files="$[osfilename $[install_py_package_dir]/__init__.py]" AlwaysCreate="true" />
 #endif
 </Target>
@@ -1084,7 +1102,8 @@
         Outputs="$[msjoin $[osfilename $[installed_files]]]">
 #if $[install_files]
   <Copy SourceFiles="$[msjoin $[osfilename $[install_files]]]"
-        DestinationFiles="$[msjoin $[osfilename $[installed_files]]]" />
+        DestinationFiles="$[msjoin $[osfilename $[installed_files]]]"
+        SkipUnchangedFiles="true" />
 #endif
 </Target>
 
