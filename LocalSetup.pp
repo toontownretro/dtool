@@ -72,6 +72,7 @@
 #endif
 
 #call report_package BULLET,Bullet Physics
+#call report_package PHYSX,NVIDIA PhysX
 #call report_package VORBIS,Vorbis (Ogg Vorbis Decoder)
 #call report_package OPUS,Opus
 #call report_package HARFBUZZ,HarfBuzz

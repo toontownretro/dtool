@@ -314,6 +314,12 @@
   #define bullet_libs $[BULLET_LIBS]
 #endif
 
+#if $[HAVE_PHYSX]
+  #define physx_ipath $[wildcard $[PHYSX_IPATH]]
+  #define physx_lpath $[wildcard $[PHYSX_LPATH]]
+  #define physx_libs $[PHYSX_LIBS]
+#endif
+
 #if $[HAVE_VORBIS]
   #define vorbis_ipath $[wildcard $[VORBIS_IPATH]]
   #define vorbis_lpath $[wildcard $[VORBIS_LPATH]]

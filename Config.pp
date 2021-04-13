@@ -941,6 +941,19 @@
 #endif
 #defer HAVE_BULLET $[libtest $[BULLET_LPATH],$[BULLET_LIBS]]
 
+// Is NVIDIA PhysX installed?
+#define PHYSX_IPATH $[DEFAULT_IPATH]/physx
+#define PHYSX_LPATH $[DEFAULT_LPATH]
+#if $[WINDOWS_PLATFORM]
+#define PHYSX_LIBS PhysX_64.lib PhysXCommon_64.lib PhysXCooking_64.lib \
+                   PhysXFoundation_64.lib PhysXExtensions_static_64.lib \
+                   PhysXCharacterKinematic_static_64.lib
+#else
+#define PHYSX_LIBS PhysX_64 PhysXCommon_64 PhysXCooking_64 PhysXFoundation_64 \
+                   PhysXExtensions_static_64 PhysXCharacterKinematic_static_64
+#endif
+#defer HAVE_PHYSX $[and $[libtest $[PHYSX_LPATH],$[PHYSX_LIBS]],$[isfile $[PHYSX_IPATH]/PxPhysicsAPI.h]]
+
 // libvorbisfile is used for reading Ogg Vorbis audio files (.ogg).
 #define VORBIS_IPATH $[DEFAULT_IPATH]
 #define VORBIS_LPATH $[DEFAULT_LPATH]

@@ -287,6 +287,11 @@
 #set BULLET_LIBS $[BULLET_LIBS]
 #set HAVE_BULLET $[HAVE_BULLET]
 
+#set PHYSX_IPATH $[unixfilename $[PHYSX_IPATH]]
+#set PHYSX_LPATH $[unixfilename $[PHYSX_LPATH]]
+#set PHYSX_LIBS $[PHYSX_LIBS]
+#set HAVE_PHYSX $[HAVE_PHYSX]
+
 #set VORBIS_IPATH $[unixfilename $[VORBIS_IPATH]]
 #set VORBIS_LPATH $[unixfilename $[VORBIS_LPATH]]
 #set VORBIS_LIBS $[VORBIS_LIBS]
