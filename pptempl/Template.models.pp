@@ -114,7 +114,7 @@
 #define build_blender_eggs \
    $[forscopes blender_egg,$[patsubst %.blend,$[EGG_PREFIX]%$[EGG_SUFFIX].egg,$[SOURCES]]] \
    $[forscopes blender_char_egg,$[POLY_MODEL:%=$[EGG_PREFIX]%$[EGG_SUFFIX].egg]] \
-   $[forscopes blender_char_egg,$[ANIMS:%=$[EGG_PREFIX]%$[CHAN_SUFFIX].egg]]
+   $[forscopes blender_char_egg,$[ANIMS:%=$[if $[ANIMS_DIR],$[ANIMS_DIR]/,]$[EGG_PREFIX]%$[CHAN_SUFFIX].egg]]
 
 #define build_eggs \
    $[sort \
@@ -323,7 +323,11 @@ $[TAB]$[DEL_CMD] $[optchar_dirs]
 clean : clean-bam
 #if $[build_eggs]
   #foreach egg $[build_eggs]
+    #if $[eq $[BUILD_TYPE], nmake]
+$[TAB]$[DEL_CMD] $[osfilename $[egg]]
+    #else
 $[TAB]$[DEL_CMD] $[egg]
+    #endif
   #end egg
 $[TAB]$[DEL_CMD] *.pt
 #endif
@@ -460,9 +464,10 @@ $[TAB]blend2egg.py $[BLEND2EGG_OPTS] --ac model --cn "$[CHAR_NAME]" $[source] $[
 
 // Egg animation generation from Blender files.
 #forscopes blender_char_egg
+  #define anim_dir_prefix $[if $[ANIMS_DIR],$[ANIMS_DIR]/,]
   #foreach anim $[ANIMS]
-    #define target $[EGG_PREFIX]$[anim]$[CHAN_SUFFIX].egg
-    #define source $[BLENDER_PREFIX]$[anim].blend
+    #define target $[anim_dir_prefix]$[EGG_PREFIX]$[anim]$[CHAN_SUFFIX].egg
+    #define source $[anim_dir_prefix]$[BLENDER_PREFIX]$[anim].blend
     #define begin
     #define end
     #define fps
