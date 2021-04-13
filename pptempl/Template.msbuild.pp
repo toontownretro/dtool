@@ -229,6 +229,10 @@
   $[if $[filter bin_target noinst_bin_target test_bin_target,$[SCOPE]],Application, \
     $[if $[is_metalib_component],MetalibComponent, \
       $[if $[lib_is_static],StaticLibrary,DynamicLibrary]]]
+ 
+// Miscellaneous files that are added to the project just so they are visible
+// from within Visual Studio.
+#define misc_files $[lxx_sources] $[yxx_sources] $[INSTALL_DATA] $[INSTALL_CONFIG] $[INSTALL_SCRIPTS] 
 
 #output $[TARGET].vcxproj
 #format collapse
@@ -280,6 +284,15 @@
   <ClInclude Include="$[osfilename $[file]]" />
 #end file
 </ItemGroup>
+
+// Add the misc files.
+#if $[misc_files]
+<ItemGroup>
+#foreach file $[misc_files]
+  <None Include="$[file]" />
+#end file
+</ItemGroup>
+#endif
 
 #if $[compile_sources]
 
@@ -860,6 +873,12 @@
 <!--                              DO NOT EDIT                                       -->
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+// Miscellaneous files that are added to the project just so they are visible
+// from within Visual Studio.
+#define misc_files $[lxx_sources] $[yxx_sources] $[INSTALL_DATA] $[INSTALL_CONFIG] \
+                   $[INSTALL_SCRIPTS] $[INSTALL_HEADERS] \
+                   $[INSTALL_MODULES] $[INSTALL_PARSER_INC] $[install_py]
+
 // The directory-level project depends on all of the target-level projects.
 <ItemGroup>
 #forscopes $[vcx_scopes]
@@ -885,6 +904,20 @@
 <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
 
 <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Targets" />
+
+// Add the Sources.pp file so it is visible within Visual Studio.
+<ItemGroup>
+    <None Include="$[SOURCEFILE]"/>
+</ItemGroup>
+
+// And the misc files.
+#if $[misc_files]
+<ItemGroup>
+#foreach file $[misc_files]
+  <None Include="$[file]" />
+#end file
+</ItemGroup>
+#endif
 
 // Here are all the directory-level things we can install.
 #define install_files \
@@ -996,6 +1029,10 @@
 // root makefile and also synthesize the dtool_config.h (or whichever
 // file) we need.
 
+// Miscellaneous files that are added to the project just so they are visible
+// from within Visual Studio.
+#define misc_files $[CONFIG_HEADER]
+
 // We need a top-level project to install the config header... booo!
 #output dir_$[DIRNAME].vcxproj
 #format collapse
@@ -1020,6 +1057,21 @@
 <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
 
 <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Targets" />
+
+// Add the Sources.pp and Package.pp files.
+<ItemGroup>
+  <None Include="$[SOURCE_FILENAME]" />
+  <None Include="$[PACKAGE_FILENAME]" />
+</ItemGroup>
+
+// Add the misc files.
+#if $[misc_files]
+<ItemGroup>
+#foreach file $[misc_files]
+  <None Include="$[file]" />
+#end file
+</ItemGroup>
+#endif
 
 #define install_files \
   $[CONFIG_HEADER]
