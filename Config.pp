@@ -947,12 +947,13 @@
 #if $[WINDOWS_PLATFORM]
 #define PHYSX_LIBS PhysX_64.lib PhysXCommon_64.lib PhysXCooking_64.lib \
                    PhysXFoundation_64.lib PhysXExtensions_static_64.lib \
-                   PhysXCharacterKinematic_static_64.lib
+                   PhysXCharacterKinematic_static_64.lib PhysXPvdSDK_static_64.lib
 #else
 #define PHYSX_LIBS PhysX_64 PhysXCommon_64 PhysXCooking_64 PhysXFoundation_64 \
-                   PhysXExtensions_static_64 PhysXCharacterKinematic_static_64
+                   PhysXExtensions_static_64 PhysXCharacterKinematic_static_64 \
+                   PhysXPvdSDK_static_64
 #endif
-#defer HAVE_PHYSX $[and $[libtest $[PHYSX_LPATH],$[PHYSX_LIBS]],$[isfile $[PHYSX_IPATH]/PxPhysicsAPI.h]]
+#defer HAVE_PHYSX $[and $[libtest $[PHYSX_LPATH],$[PHYSX_LIBS]],$[isfile $[matrix $[PHYSX_IPATH],/PxPhysicsAPI.h]]]
 
 // libvorbisfile is used for reading Ogg Vorbis audio files (.ogg).
 #define VORBIS_IPATH $[DEFAULT_IPATH]
