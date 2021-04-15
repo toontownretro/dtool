@@ -127,14 +127,6 @@
     netdb.h \
     new \
     nurbs.hh \
-    NxBoxController.h \
-    NxCapsuleController.h \
-    NxController.h \
-    NxControllerManager.h \
-    NxCooking.h \
-    NxExtended.h \
-    NxPhysics.h \
-    NxStream.h \
     ode.h \
     ostream \
     os_types.h \
@@ -144,6 +136,7 @@
     process.h \
     pthread.h \
     pthreadtypes.h \
+    PxPhysicsAPI.h \
     pyconfig.h \
     py_panda.h \
     Python.h \
