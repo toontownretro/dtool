@@ -21,14 +21,22 @@ namespace physx {
   class PxFoundation;
   class PxCooking;
   class PxTolerancesScale;
-
-  struct PxErrorCode {
-    enum Enum {
-      BLAH,
-    };
+  class PxRaycastHit;
+  class PxRaycastBuffer;
+  class PxErrorCode {
+  public:
+    class Enum;
   };
-
-  typedef float PxReal;
+  class PxQueryHitType {
+  public:
+    class Enum;
+  };
+  class PxQueryHit;
+  class PxFilterFlags;
+  class PxFilterObjectAttributes;
+  class PxFilterData;
+  class PxReal;
+  class PxU32;
 }
 
 #endif
