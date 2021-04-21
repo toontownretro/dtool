@@ -37,6 +37,11 @@ namespace physx {
   class PxFilterData;
   class PxReal;
   class PxU32;
+  class PxTriggerPair;
+  class PxConstraintInfo;
+  class PxContactPairHeader;
+  class PxContactPair;
+  class PxTransform;
 }
 
 #endif
