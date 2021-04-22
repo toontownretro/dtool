@@ -37,11 +37,25 @@ namespace physx {
   class PxFilterData;
   class PxReal;
   class PxU32;
+  class PxVec3;
+  class PxQuat;
   class PxTriggerPair;
   class PxConstraintInfo;
   class PxContactPairHeader;
   class PxContactPair;
   class PxTransform;
+  class PxJoint;
+  class PxFixedJoint;
+  class PxSphericalJoint;
+  class PxRevoluteJoint;
+  class PxD6Joint;
+  class PxPrismaticJoint;
+  class PxDistanceJoint;
+  class PxJointLimitParameters;
+  class PxJointLimitCone;
+  class PxJointAngularLimitPair;
+  class PxJointLinearLimitPair;
+  class PxSpring;
 }
 
 #endif
