@@ -55,7 +55,15 @@ namespace physx {
   class PxJointLimitCone;
   class PxJointAngularLimitPair;
   class PxJointLinearLimitPair;
+  class PxJointLimitPyramid;
   class PxSpring;
+  class PxConvexMesh;
+  class PxConvexMeshGeometry;
+  class PxAggregate;
+  class PxArticulation;
+  class PxArticulationLink;
+  class PxSimulationFilterCallback;
+  class PxQueryFilterCallback;
 }
 
 #endif
