@@ -43,6 +43,7 @@ namespace physx {
   class PxConstraintInfo;
   class PxContactPairHeader;
   class PxContactPair;
+  class PxContactPairPoint;
   class PxTransform;
   class PxJoint;
   class PxFixedJoint;
