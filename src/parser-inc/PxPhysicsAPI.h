@@ -38,6 +38,7 @@ namespace physx {
   class PxReal;
   class PxU32;
   class PxVec3;
+  class PxExtendedVec3;
   class PxQuat;
   class PxTriggerPair;
   class PxConstraintInfo;
@@ -65,6 +66,13 @@ namespace physx {
   class PxArticulationLink;
   class PxSimulationFilterCallback;
   class PxQueryFilterCallback;
+  class PxController;
+  class PxBoxController;
+  class PxBoxControllerDesc;
+  class PxCapsuleController;
+  class PxCapsuleControllerDesc;
+  class PxControllerDesc;
+  class PxControllerManager;
 }
 
 #endif
