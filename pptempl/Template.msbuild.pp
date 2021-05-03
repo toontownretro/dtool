@@ -229,10 +229,10 @@
   $[if $[filter bin_target noinst_bin_target test_bin_target,$[SCOPE]],Application, \
     $[if $[is_metalib_component],MetalibComponent, \
       $[if $[lib_is_static],StaticLibrary,DynamicLibrary]]]
- 
+
 // Miscellaneous files that are added to the project just so they are visible
 // from within Visual Studio.
-#define misc_files $[lxx_sources] $[yxx_sources] $[INSTALL_DATA] $[INSTALL_CONFIG] $[INSTALL_SCRIPTS] 
+#define misc_files $[lxx_sources] $[yxx_sources] $[INSTALL_DATA] $[INSTALL_CONFIG] $[INSTALL_SCRIPTS]
 
 #output $[TARGET].vcxproj
 #format collapse
