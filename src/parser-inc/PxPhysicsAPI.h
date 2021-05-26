@@ -73,6 +73,10 @@ namespace physx {
   class PxCapsuleControllerDesc;
   class PxControllerDesc;
   class PxControllerManager;
+  class PxControllerShapeHit;
+  class PxControllersHit;
+  class PxControllerObstacleHit;
+  class PxUserControllerHitReport;
 }
 
 #endif
