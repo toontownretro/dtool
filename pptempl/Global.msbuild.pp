@@ -122,9 +122,9 @@
 // defined yet, so this just evaluates the reference to null and removes the reference and the
 // the defining extra_cflags in individual sources.pp's will not picked up.  use END_FLAGS instead
 #if $[eq $[USE_COMPILER], MSVC14.2x64]
-  #defer extra_cflags /EHsc /Zm500 /DWIN64_VC /DWIN64=1 /DWIN32_VC /DWIN32=1 $[WARNING_LEVEL_FLAG] $[END_CFLAGS]
+  #defer extra_cflags /EHsc /Zm500 /DWIN64_VC /DWIN64=1 /DWIN32_VC /DWIN32=1 /D_HAS_STD_BYTE=0 /std:c++17 $[WARNING_LEVEL_FLAG] $[END_CFLAGS]
 #else
-  #defer extra_cflags /EHsc /Zm500 /DWIN32_VC /DWIN32=1 $[WARNING_LEVEL_FLAG] $[END_CFLAGS]
+  #defer extra_cflags /EHsc /Zm500 /DWIN32_VC /DWIN32=1 /D_HAS_STD_BYTE=0 /std:c++17 $[WARNING_LEVEL_FLAG] $[END_CFLAGS]
 #endif
 
 #if $[direct_tau]

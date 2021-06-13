@@ -173,6 +173,7 @@
     unordered_map \
     unordered_set \
     utility \
+    variant \
     vector \
     vorbisfile.h \
     vrpn_Analog.h \

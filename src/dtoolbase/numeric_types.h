@@ -32,7 +32,7 @@ typedef float PN_stdfloat;
 typedef double PN_stdfloat;
 #endif  // STDFLOAT_DOUBLE
 
-typedef unsigned char byte;
+typedef unsigned char PN_byte;
 
 typedef PN_stdfloat vec_t;
 typedef vec_t vec3_t[3];

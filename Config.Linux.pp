@@ -31,7 +31,7 @@
 
   // gcc might run into template limits on some parts of Panda.
   // I upped this from 25 to build on OS X (GCC 3.3) -- skyler.
-  #define C++FLAGS_GEN -ftemplate-depth-70 -std=gnu++11
+  #define C++FLAGS_GEN -ftemplate-depth-70 -std=gnu++17
 #else
   #define CC cc
   #define CXX CC
