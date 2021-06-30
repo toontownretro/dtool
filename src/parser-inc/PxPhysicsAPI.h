@@ -77,6 +77,8 @@ namespace physx {
   class PxControllersHit;
   class PxControllerObstacleHit;
   class PxUserControllerHitReport;
+  class PxSweepHit;
+  class PxSweepBuffer;
 }
 
 #endif
