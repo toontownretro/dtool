@@ -301,7 +301,7 @@
 // This is the list of compiler flags that are set using built-in ClCompile
 // properties.  Anything not in this list is passed into AdditionalOptions.
 #define builtin_compiler_flags \
-  /RTCs /RTCu /RTC1 /GS /Gd /Gr /Gz /Z7 /Zi /ZI /arch:SSE2 /arch:SSE /GT /EHa /EHsc /EHs \
+  /RTCs /RTCu /RTC1 /GS /Gd /Gr /Gz /Gv /Z7 /Zi /ZI /arch:SSE2 /arch:SSE /GT /EHa /EHsc /EHs \
   /Os /Ot /fp:precise /fp:strict /fp:fast /Ob0 /Ob1 /Ob2 /Oi /Gm /MP /Oy /Od /O1 /O2 \
   /MTd /MDd /MT /MD /GR /RTCc /Zp16 /Zp8 /Zp4 /Zp2 /Zp1 /nologo /W0 /W1 /W2 /W3 /W4 \
   /Wall /GL /Fr"%" /D% /Fd"%" /Zc:forScope
@@ -321,13 +321,15 @@
   #set runtime_checks EnableFastChecks
 #endif
 #define buffer_security_check $[if $[filter /GS,$[compiler_flags]],true,false]
-#define calling_convention Cdecl
+#define calling_convention
 #if $[filter /Gd,$[compiler_flags]]
   #set calling_convention Cdecl
 #elif $[filter /Gr,$[compiler_flags]]
   #set calling_convention FastCall
 #elif $[filter /Gz,$[compiler_flags]]
   #set calling_convention StdCall
+#elif $[filter /Gv,$[compiler_flags]]
+  #set calling_convention VectorCall
 #endif
 #define debug_information_format
 #if $[filter /Z7,$[compiler_flags]]

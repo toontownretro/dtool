@@ -33,12 +33,12 @@
   #define LDFLAGS_OPT3 /NODEFAULTLIB:MSVCRTD.LIB /OPT:REF
   #define LDFLAGS_OPT4 /NODEFAULTLIB:MSVCRTD.LIB /OPT:REF $[LDFLAGS_OPT4]
 
-  #define COMMONFLAGS /DHAVE_DINKUM /Zc:forScope /bigobj
+  #define COMMONFLAGS /Zc:forScope /bigobj /MP /Gd /fp:fast
 
-  // use "unsafe" QIfist flt->int rounding only if FAST_FLT_TO_INT is defined
-  #define REGULAR_OPTFLAGS /O2 /Ob2 $[if $[ne $[FAST_FLT_TO_INT],], /QIfist,]
+  #define SMALL_OPTFLAGS /O1 /Os /Oy /Ob2 /GF /Gy
+  #define FAST_OPTFLAGS /O2 /Oi /Ot /Oy /Ob2 /GF /Gy
 
-  #defer OPTFLAGS $[if $[OPT_MINSIZE],/Ox /Og /Ob1 /Oi /Os /Oy /GL,$[REGULAR_OPTFLAGS]]
+  #defer OPTFLAGS $[if $[OPT_MINSIZE],$[SMALL_OPTFLAGS],$[FAST_OPTFLAGS]]
 
   //  #define OPT1FLAGS /RTCsu /GS  removing /RTCu because it crashes in dxgsg with internal compiler bug
   #define OPT1FLAGS /RTCs /GS
