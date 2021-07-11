@@ -79,6 +79,8 @@ namespace physx {
   class PxUserControllerHitReport;
   class PxSweepHit;
   class PxSweepBuffer;
+  class PxTriangleMesh;
+  class PxTriangleMeshGeometry;
 }
 
 #endif
