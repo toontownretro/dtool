@@ -284,6 +284,12 @@
   #define openal_framework $[OPENAL_FRAMEWORK]
 #endif
 
+#if $[HAVE_MIMALLOC]
+  #define mimalloc_ipath $[wildcard $[MIMALLOC_IPATH]]
+  #define mimalloc_lpath $[wildcard $[MIMALLOC_LPATH]]
+  #define mimalloc_libs $[MIMALLOC_LIBS]
+#endif
+
 #if $[HAVE_FCOLLADA]
   #define fcollada_ipath $[wildcard $[FCOLLADA_IPATH]]
   #define fcollada_lpath $[wildcard $[FCOLLADA_LPATH]]

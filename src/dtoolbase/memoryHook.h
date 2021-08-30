@@ -90,6 +90,10 @@ private:
   mutable MutexImpl _lock;
 };
 
+#ifdef HAVE_MIMALLOC
+extern EXPCL_DTOOL_DTOOLBASE size_t get_mi_malloc_size(void *ptr);
+#endif
+
 #include "memoryHook.I"
 
 #endif

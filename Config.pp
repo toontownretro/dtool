@@ -847,6 +847,17 @@
 #endif
 #defer HAVE_OPENAL $[or $[OPENAL_FRAMEWORK],$[libtest $[OPENAL_LPATH],$[OPENAL_LIBS]]]
 
+// Is mimalloc installed?  This is an optimized allocator by Microsoft.
+// Note that it is not Windows-specific.
+#define MIMALLOC_IPATH $[DEFAULT_IPATH]
+#define MIMALLOC_LPATH $[DEFAULT_LPATH]
+#if $[WINDOWS_PLATFORM]
+  #define MIMALLOC_LIBS mimalloc-static.lib
+#else
+  #define MIMALLOC_LIBS mimalloc-static
+#endif
+#defer HAVE_MIMALLOC $[and $[isdir $[MIMALLOC_IPATH]],$[libtest $[MIMALLOC_LPATH],$[MIMALLOC_LIBS]]]
+
 // Is gtk+-2 installed?  This is needed to build the pstats program on
 // Unix (or non-Windows) platforms.  It is also used to provide
 // support for XEmbed for the web plugin system, which is necessary to

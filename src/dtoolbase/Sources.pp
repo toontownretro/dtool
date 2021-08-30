@@ -1,10 +1,17 @@
 #define SELECT_TAU select.tau
 #define USE_PACKAGES threads eigen
+#if $[HAVE_MIMALLOC]
+  #define USE_PACKAGES $[USE_PACKAGES] mimalloc
+#endif
 
 #begin lib_target
   #define TARGET dtoolbase
 
   #define BUILDING_DLL BUILDING_DTOOL_DTOOLBASE
+
+  #if $[HAVE_MIMALLOC]
+    #define WIN_SYS_LIBS $[WIN_SYS_LIBS] advapi32.lib
+  #endif
 
   #define SOURCES \
     checkPandaVersion.h \
