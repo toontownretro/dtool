@@ -170,3 +170,6 @@
 
 // The Python module file extension
 #define PYTHON_MODULE_EXT .pyd
+
+// Use SSE2 instructions on Win32.
+#define ARCH_FLAGS /arch:SSE2

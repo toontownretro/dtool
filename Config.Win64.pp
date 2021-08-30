@@ -170,3 +170,6 @@
 
 // The Python module file extension
 #define PYTHON_MODULE_EXT .pyd
+
+// Use AVX instructions on Win64.
+#define ARCH_FLAGS /arch:AVX
