@@ -41,6 +41,13 @@
     neverFreeMemory.h neverFreeMemory.I \
     numeric_types.h \
     pdtoa.h pstrtod.h \
+    phmap_base.h \
+    phmap_bits.h \
+    phmap_config.h \
+    phmap_dump.h \
+    phmap_fwd_decl.h \
+    phmap_utils.h \
+    phmap.h \
     register_type.I register_type.h \
     selectThreadImpl.h \
     stl_compares.I stl_compares.h \
@@ -52,6 +59,7 @@
     pdeque.h plist.h pmap.h pset.h \
     pvector.h epvector.h \
     lookup3.h lookup3.c \
+    btree.h \
     dlmalloc_src.cxx ptmalloc2_smp_src.cxx
 
  #define COMPOSITE_SOURCES  \
@@ -105,6 +113,13 @@
     neverFreeMemory.h neverFreeMemory.I \
     numeric_types.h \
     pdtoa.h pstrtod.h \
+    phmap_base.h \
+    phmap_bits.h \
+    phmap_config.h \
+    phmap_dump.h \
+    phmap_fwd_decl.h \
+    phmap_utils.h \
+    phmap.h \
     register_type.I register_type.h \
     selectThreadImpl.h \
     stl_compares.I stl_compares.h \
@@ -115,7 +130,8 @@
     pallocator.T pallocator.h \
     pdeque.h plist.h pmap.h pset.h \
     pvector.h epvector.h \
-    lookup3.h
+    lookup3.h \
+    btree.h
 
 #end lib_target
 
@@ -123,6 +139,13 @@
   #define TARGET test_strtod
   #define SOURCES test_strtod.cxx pstrtod.cxx pstrtod.h
 
+#end test_bin_target
+
+#begin test_bin_target
+  #define BUILD_TESTS 1
+  #define LOCAL_LIBS $[LOCAL_LIBS] dtoolbase
+  #define TARGET test_pcontainer
+  #define SOURCES test_pcontainer.cxx
 #end test_bin_target
 
 #include $[THISDIRPREFIX]pandaVersion.h.pp
