@@ -269,6 +269,14 @@
 // nonempty string to force the package to be marked as installed).
 
 
+// On Windows, do you want to compile using LLVM Clang rather than MSVC?
+// Clang typically produces faster code and gives better errors and warnings
+// during compilation, but takes somewhat longer than MSVC to compile, due
+// to Clang not supporting multithreaded compilation.
+#define USE_CLANG
+#define CLANG_BIN_PATH $[unixshortname C:\Program Files\LLVM\bin]
+
+
 // Do you want to generate a Python-callable interrogate interface?
 // This is only necessary if you plan to make calls into Panda from a
 // program written in Python.  This is done only if HAVE_PYTHON,

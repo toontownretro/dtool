@@ -47,7 +47,7 @@
   // ordinary reference to the DTOOL environment variable, so
   // they will read from the right tree no matter which DTOOL they're
   // attached to.
-  #set DTOOL $[unixfilename $[DTOOL]]
+  #define DTOOL $[unixfilename $[DTOOL]]
   #define DTOOL_INSTALL $[DTOOL]/built
   #if $[eq $[DTOOL],]
     #error You seem to be attached to some trees, but not DTOOL!

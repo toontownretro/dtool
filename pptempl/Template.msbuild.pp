@@ -250,6 +250,17 @@
 #end depend
 </ItemGroup>
 
+#if $[USE_CLANG]
+<PropertyGroup>
+  <CLToolExe>clang-cl.exe</CLToolExe>
+  <LinkToolExe>lld-link.exe</LinkToolExe>
+  <LinkToolPath>$[osfilename $[CLANG_BIN_PATH]]</LinkToolPath>
+  <CLToolPath>$[osfilename $[CLANG_BIN_PATH]]</CLToolPath>
+  <UseMultiToolTask>$[if $[MSBUILD_MULTIPROC],true,false]</UseMultiToolTask>
+  <MultiProcMaxCount>$[MSBUILD_MULTIPROC_COUNT]</MultiProcMaxCount>
+</PropertyGroup>
+#endif
+
 <ItemGroup>
   <ProjectConfiguration Include="Release|$[platform_config]">
     <Configuration>Release</Configuration>
@@ -297,6 +308,13 @@
 #if $[compile_sources]
 
 #define compiler_flags $[c++flags] $[extra_cflags]
+#if $[USE_CLANG]
+  // Add some extra flags to shut Clang up a bit.
+  #define compiler_flags $[compiler_flags] \
+    -Wno-microsoft-template -Wno-inconsistent-missing-override \
+    -Wno-reorder-ctor -Wno-enum-compare-switch \
+    -Wno-microsoft -Wno-register
+#endif
 
 // This is the list of compiler flags that are set using built-in ClCompile
 // properties.  Anything not in this list is passed into AdditionalOptions.
@@ -482,8 +500,12 @@
     <FunctionLevelLinking>$[function_level_linking]</FunctionLevelLinking>
     <InlineFunctionExpansion>$[inline_function_expansion]</InlineFunctionExpansion>
     <IntrinsicFunctions>$[intrinsic_functions]</IntrinsicFunctions>
-    <MinimalRebuild>$[minimal_rebuild]</MinimalRebuild>
-    <MultiProcessorCompilation>$[multiprocessor_compilation]</MultiProcessorCompilation>
+
+    // These aren't supported on Clang.  If they are set they cause the project
+    // to always rebuild from scratch.
+    <MinimalRebuild>$[if $[not $[USE_CLANG]],$[minimal_rebuild]]</MinimalRebuild>
+    <MultiProcessorCompilation>$[if $[not $[USE_CLANG]],$[multiprocessor_compilation]]</MultiProcessorCompilation>
+
     <OmitFramePointers>$[omit_frame_pointers]</OmitFramePointers>
     <Optimization>$[optimization]</Optimization>
     <RuntimeLibrary>$[runtime_library]</RuntimeLibrary>
@@ -492,6 +514,7 @@
     <StructMemberAlignment>$[struct_member_alignment]</StructMemberAlignment>
     <SuppressStartupBanner>$[suppress_startup_banner]</SuppressStartupBanner>
     <WarningLevel>$[warning_level]</WarningLevel>
+    <ExternalWarningLevel></ExternalWarningLevel>
     <WholeProgramOptimization>$[whole_program_optimization]</WholeProgramOptimization>
   </ClCompile>
 </ItemDefinitionGroup>
@@ -1118,12 +1141,6 @@
 <Target Name="clean-igate" />
 <Target Name="clean" DependsOnTargets="clean-igate" />
 <Target Name="cleanall" DependsOnTargets="clean" />
-
-// Take this opportunity to freshen ourselves up.
-<Target Name="freshen"
-        Inputs="$[msjoin $[osfilename $[SOURCE_FILENAME] $[EXTRA_PPREMAKE_SOURCE]]]">
-  <Exec Command="ppremake" />
-</Target>
 
 </Project>
 

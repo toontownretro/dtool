@@ -45,8 +45,13 @@
 
   #define WARNING_LEVEL_FLAG /W3   // WL
 
-  // Note: Zi cannot be used on multiproc builds with precomp hdrs, Z7 must be used instead
-  #defer DEBUGPDBFLAGS /Zi /Fd"$[osfilename $[patsubst %.obj,%.pdb, $[target]]]"
+  // Note: Clang does not support /Zi, so /Z7 must be used instead.  /Zi causes
+  // a full rebuild every time on Clang.
+  #if $[USE_CLANG]
+    #defer DEBUGPDBFLAGS /Z7
+  #else
+    #defer DEBUGPDBFLAGS /Zi /Fd"$[osfilename $[patsubst %.obj,%.pdb, $[target]]]"
+  #endif
 
   // if LINK_FORCE_STATIC_C_RUNTIME is defined, it always links with static c runtime (release version
   // for both Opt1 and Opt4!) instead of the msvcrt dlls
