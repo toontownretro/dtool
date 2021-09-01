@@ -541,6 +541,9 @@ $[cdefine UNIVERSAL_BINARIES]
 /* Do we have Mimalloc installed? */
 $[cdefine HAVE_MIMALLOC]
 
+/* Do we have NVIDIA PhysX? */
+$[cdefine HAVE_PHYSX]
+
 #if $[DTOOL_PLATFORM]
 # define DTOOL_PLATFORM "$[DTOOL_PLATFORM]"
 #endif

@@ -1092,7 +1092,7 @@
 // script; leave it clear to generate Unix-style sh scripts.
 #defer MAKE_BAT_SCRIPTS $[or $[eq $[PLATFORM],Win32],$[eq $[PLATFORM],Win64]]
 
-#defer HAVE_MAPBUILDER $[and $[HAVE_EIGEN],$[HAVE_PHYSX]]
+#defer HAVE_MAPBUILDER $[and $[HAVE_EMBREE],$[HAVE_PHYSX]]
 
 // Define USE_COMPILER to switch the particular compiler that should
 // be used.  A handful of tokens are recognized, depending on BUILD_TYPE.
