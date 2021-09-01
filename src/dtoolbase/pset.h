@@ -49,16 +49,19 @@ namespace phmap {
 // If we're not using custom allocators, just use the standard class
 // definition.
 #define pset std::set
+#define pflat_set std::set
 #define pnode_set std::set
 #define pmultiset std::multiset
 #define pnode_multiset std::multiset
 
 #ifdef HAVE_STL_HASH
 #define phash_set std::unordered_set
+#define pflat_hash_set std::unordered_set
 #define pnode_hash_set std::unordered_set
 #define phash_multiset std::unordered_multiset
 #else  // HAVE_STL_HASH
 #define phash_set std::set
+#define pflat_hash_set std::set
 #define pnode_hash_set std::set
 #define phash_multiset std::multiset
 #endif  // HAVE_STL_HASH
@@ -71,13 +74,13 @@ namespace phmap {
  * allocated memory.
  */
 template<class Key, class Compare = std::less<Key> >
-class pset : public phmap::btree_set<Key, Compare, pallocator_array<Key> > {
+class pflat_set : public phmap::btree_set<Key, Compare, pallocator_array<Key> > {
 public:
   typedef pallocator_array<Key> allocator;
   typedef phmap::btree_set<Key, Compare, allocator> base_class;
-  pset(TypeHandle type_handle = pset_type_handle) : base_class({}, Compare(), allocator(type_handle)) { }
-  pset(const Compare &comp, TypeHandle type_handle = pset_type_handle) : base_class({}, comp, allocator(type_handle)) { }
-  pset(std::initializer_list<Key> init, TypeHandle type_handle = pset_type_handle) : base_class(std::move(init), Compare(), allocator(type_handle)) { }
+  pflat_set(TypeHandle type_handle = pset_type_handle) : base_class({}, Compare(), allocator(type_handle)) { }
+  pflat_set(const Compare &comp, TypeHandle type_handle = pset_type_handle) : base_class({}, comp, allocator(type_handle)) { }
+  pflat_set(std::initializer_list<Key> init, TypeHandle type_handle = pset_type_handle) : base_class(std::move(init), Compare(), allocator(type_handle)) { }
 };
 
 /**
@@ -97,20 +100,22 @@ public:
   pnode_set(std::initializer_list<Key> init, TypeHandle type_handle = pset_type_handle) : base_class(std::move(init), allocator(type_handle)) { }
 };
 
+#define pset pnode_set
+
 /**
  * This is our own Panda specialization on the default STL multiset.  Its main
  * purpose is to call the hooks for MemoryUsage to properly track STL-
  * allocated memory.
  */
 template<class Key, class Compare = std::less<Key> >
-class pmultiset : public phmap::btree_multiset<Key, Compare, pallocator_array<Key> > {
+class pflat_multiset : public phmap::btree_multiset<Key, Compare, pallocator_array<Key> > {
 public:
   typedef pallocator_array<Key> allocator;
-  pmultiset(TypeHandle type_handle = pset_type_handle) :
+  pflat_multiset(TypeHandle type_handle = pset_type_handle) :
     phmap::btree_multiset<Key, Compare, allocator>({}, Compare(), allocator(type_handle)) { }
-  pmultiset(const Compare &comp, TypeHandle type_handle = pset_type_handle) :
+  pflat_multiset(const Compare &comp, TypeHandle type_handle = pset_type_handle) :
     phmap::btree_multiset<Key, Compare, allocator>({}, comp, allocator(type_handle)) { }
-  pmultiset(std::initializer_list<Key> init, TypeHandle type_handle = pset_type_handle) :
+  pflat_multiset(std::initializer_list<Key> init, TypeHandle type_handle = pset_type_handle) :
     phmap::btree_multiset<Key, Compare, allocator>(std::move(init), Compare(), allocator(type_handle)) { }
 };
 
@@ -130,6 +135,8 @@ public:
   pnode_multiset(std::initializer_list<Key> init, TypeHandle type_handle = pset_type_handle) : std::multiset<Key, Compare, allocator>(std::move(init), allocator(type_handle)) { }
 };
 
+#define pmultiset pnode_multiset
+
 #ifdef HAVE_STL_HASH
 /**
  * This is our own Panda specialization on the default STL hash_set.  Its main
@@ -137,9 +144,9 @@ public:
  * allocated memory.
  */
 template<class Key, class Compare = method_hash<Key, std::less<Key> > >
-class phash_set : public phmap::flat_hash_set<Key, Compare, internal_stl_equals<Key, Compare>, pallocator_array<Key> > {
+class pflat_hash_set : public phmap::flat_hash_set<Key, Compare, internal_stl_equals<Key, Compare>, pallocator_array<Key> > {
 public:
-  phash_set() : phmap::flat_hash_set<Key, Compare, internal_stl_equals<Key, Compare>, pallocator_array<Key> >() { }
+  pflat_hash_set() : phmap::flat_hash_set<Key, Compare, internal_stl_equals<Key, Compare>, pallocator_array<Key> >() { }
   //phash_set(const Compare &comp) : phmap::flat_hash_set<Key, Compare, internal_stl_equals<Key, Compare>, pallocator_array<Key> >(comp) { }
 };
 
@@ -152,6 +159,18 @@ template<class Key, class Compare = method_hash<Key, std::less<Key> > >
 class pnode_hash_set : public phmap::node_hash_set<Key, Compare, internal_stl_equals<Key, Compare>, pallocator_array<Key> > {
 public:
   pnode_hash_set() : phmap::node_hash_set<Key, Compare, internal_stl_equals<Key, Compare>, pallocator_array<Key> >() { }
+  //phash_set(const Compare &comp) : phmap::flat_hash_set<Key, Compare, internal_stl_equals<Key, Compare>, pallocator_array<Key> >(comp) { }
+};
+
+/**
+ * This is our own Panda specialization on the default STL hash_set.  Its main
+ * purpose is to call the hooks for MemoryUsage to properly track STL-
+ * allocated memory.
+ */
+template<class Key, class Compare = method_hash<Key, std::less<Key> > >
+class phash_set : public std::unordered_set<Key, Compare, internal_stl_equals<Key, Compare>, pallocator_array<Key> > {
+public:
+  phash_set() : std::unordered_set<Key, Compare, internal_stl_equals<Key, Compare>, pallocator_array<Key> >() { }
   //phash_set(const Compare &comp) : phmap::flat_hash_set<Key, Compare, internal_stl_equals<Key, Compare>, pallocator_array<Key> >(comp) { }
 };
 
@@ -169,6 +188,8 @@ public:
 
 #else // HAVE_STL_HASH
 #define phash_set pset
+#define pflat_hash_set pset
+#define pnode_hash_set pset
 #define phash_multiset pmultiset
 #endif  // HAVE_STL_HASH
 

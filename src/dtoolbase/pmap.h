@@ -50,13 +50,17 @@ namespace phmap {
 #define pmultimap std::multimap
 #define pnode_map std::map
 #define pnode_multimap std::multimap
+#define pflat_map std::map
+#define pflat_multimap std::multimap
 
 #ifdef HAVE_STL_HASH
 #define phash_map std::unordered_map
 #define pnode_hash_map std::unordered_map
+#define pflat_hash_map std::unordered_map
 #define phash_multimap std::unordered_multimap
 #else  // HAVE_STL_HASH
 #define phash_map map
+#define pflat_hash_map map
 #define pnode_hash_map map
 #define phash_multimap multimap
 #endif  // HAVE_STL_HASH
@@ -69,13 +73,13 @@ namespace phmap {
  * pointer/iterator stability.  If you need that, use pnode_map instead.
  */
 template<class Key, class Value, class Compare = std::less<Key> >
-class pmap : public phmap::btree_map<Key, Value, Compare, pallocator_array<std::pair<const Key, Value> > > {
+class pflat_map : public phmap::btree_map<Key, Value, Compare, pallocator_array<std::pair<const Key, Value> > > {
 public:
   typedef pallocator_array<std::pair<const Key, Value> > allocator;
   typedef phmap::btree_map<Key, Value, Compare, allocator> base_class;
 
-  pmap(TypeHandle type_handle = pmap_type_handle) : base_class({}, Compare(), allocator(type_handle)) { }
-  pmap(const Compare &comp, TypeHandle type_handle = pmap_type_handle) : base_class({}, comp, allocator(type_handle)) { }
+  pflat_map(TypeHandle type_handle = pmap_type_handle) : base_class({}, Compare(), allocator(type_handle)) { }
+  pflat_map(const Compare &comp, TypeHandle type_handle = pmap_type_handle) : base_class({}, comp, allocator(type_handle)) { }
 };
 
 /**
@@ -92,6 +96,8 @@ public:
   pnode_map(const Compare &comp, TypeHandle type_handle = pmap_type_handle) : base_class(comp, allocator(type_handle)) { }
 };
 
+#define pmap pnode_map
+
 /**
  * This is our own Panda specialization on the parallel-hashmap btree_multimap.
  * Its main purpose is to call the hooks for MemoryUsage to properly track STL-
@@ -99,12 +105,12 @@ public:
  * stability.  Use pnode_multimap if you need pointer/iterator stability.
  */
 template<class Key, class Value, class Compare = phmap::Less<Key> >
-class pmultimap : public phmap::btree_multimap<Key, Value, Compare, pallocator_array<std::pair<const Key, Value> > > {
+class pflat_multimap : public phmap::btree_multimap<Key, Value, Compare, pallocator_array<std::pair<const Key, Value> > > {
 public:
   typedef pallocator_array<std::pair<const Key, Value> > allocator;
-  pmultimap(TypeHandle type_handle = pmap_type_handle) :
+  pflat_multimap(TypeHandle type_handle = pmap_type_handle) :
     phmap::btree_multimap<Key, Value, Compare, allocator>({}, Compare(), allocator(type_handle)) { }
-  pmultimap(const Compare &comp, TypeHandle type_handle = pmap_type_handle) :
+  pflat_multimap(const Compare &comp, TypeHandle type_handle = pmap_type_handle) :
     phmap::btree_multimap<Key, Value, Compare, allocator>({}, comp, allocator(type_handle)) { }
 };
 
@@ -119,6 +125,8 @@ public:
   pnode_multimap(const Compare &comp, TypeHandle type_handle = pmap_type_handle) : std::multimap<Key, Value, Compare, allocator>(comp, allocator(type_handle)) { }
 };
 
+#define pmultimap pnode_multimap
+
 #ifdef HAVE_STL_HASH
 /**
  * This is our own Panda specialization on the default STL unordered_map.
@@ -126,10 +134,10 @@ public:
  * allocated memory.
  */
 template<class Key, class Value, class Compare = method_hash<Key, std::less<Key> > >
-class phash_map : public phmap::flat_hash_map<Key, Value, Compare, internal_stl_equals<Key, Compare>, pallocator_array<std::pair<const Key, Value> > > {
+class pflat_hash_map : public phmap::flat_hash_map<Key, Value, Compare, internal_stl_equals<Key, Compare>, pallocator_array<std::pair<const Key, Value> > > {
 public:
   typedef pallocator_array<std::pair<const Key, Value>> allocator;
-  phash_map() :
+  pflat_hash_map() :
     phmap::flat_hash_map<Key, Value, Compare, internal_stl_equals<Key, Compare>, pallocator_array<std::pair<const Key, Value> > >() { }
   //phash_map(const Compare &comp) :
   //  phmap::flat_hash_map<Key, Value, Compare, internal_stl_equals<Key, Compare>, pallocator_array<std::pair<const Key, Value> > >(comp) { }
@@ -151,6 +159,21 @@ public:
 };
 
 /**
+ * This is our own Panda specialization on the default STL unordered_map.
+ * Its main purpose is to call the hooks for MemoryUsage to properly track STL-
+ * allocated memory.
+ */
+template<class Key, class Value, class Compare = method_hash<Key, std::less<Key> > >
+class phash_map : public std::unordered_map<Key, Value, Compare, internal_stl_equals<Key, Compare>, pallocator_array<std::pair<const Key, Value> > > {
+public:
+  typedef pallocator_array<std::pair<const Key, Value>> allocator;
+  phash_map() :
+    std::unordered_map<Key, Value, Compare, internal_stl_equals<Key, Compare>, pallocator_array<std::pair<const Key, Value> > >() { }
+  //phash_map(const Compare &comp) :
+  //  phmap::node_hash_map<Key, Value, Compare, internal_stl_equals<Key, Compare>, pallocator_array<std::pair<const Key, Value> > >(comp) { }
+};
+
+/**
  * This is our own Panda specialization on the default STL unordered_multimap.
  * Its main purpose is to call the hooks for MemoryUsage to properly track STL-
  * allocated memory.
@@ -163,6 +186,8 @@ public:
 };
 
 #else // HAVE_STL_HASH
+#define pflat_hash_map pmap
+#define pnode_hash_map pmap
 #define phash_map pmap
 #define phash_multimap pmultimap
 #endif  // HAVE_STL_HASH
