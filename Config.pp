@@ -384,7 +384,10 @@
 // fixed-function support completely.  Alternatively, you can disable
 // fixed-function support at runtime by setting gl-version 3 2 in your
 // Config.prc.
-#define SUPPORT_FIXED_FUNCTION 1
+//
+// This is now turned off by default as we have a completely shader-based
+// rendering pipeline.
+#define SUPPORT_FIXED_FUNCTION
 
 // These are two optional alternative memory-allocation schemes
 // available within Panda.  You can experiment with either of them to
@@ -442,7 +445,12 @@
 // calls to malloc() and free() for frequently-created and -deleted
 // objects.  There's usually no reason to set this false, unless you
 // suspect a bug in Panda's memory management code.
-#define USE_DELETED_CHAIN 1
+//
+// Turning this off for now as we're using mimalloc which manages its
+// own free-chain.  TODO: Need to look more closely at the performance of
+// using mimalloc with the DeletedChain vs mimalloc without the
+// DeletedChain.
+#define USE_DELETED_CHAIN
 
 // Define this if you are building on Windows 7 or better, and you
 // want your Panda build to run only on Windows 7 or better, and you
@@ -757,7 +765,12 @@
 // whenever threads are enabled, assuming that if you have threads,
 // you also want to use pipelining.  We also enable it at OPTIMIZE
 // level 1, since that enables additional runtime checks.
-#defer DO_PIPELINING $[or $[<= $[OPTIMIZE], 1],$[HAVE_THREADS]]
+//
+// Actually, don't turn this on even if we have threads.  It adds significant
+// overhead and complexity to Panda for not much performance benefit.  We
+// would be better off using data-parallelism instead of task-parallelism.
+//#defer DO_PIPELINING $[or $[<= $[OPTIMIZE], 1],$[HAVE_THREADS]]
+#define DO_PIPELINING
 
 // Define this true to implement mutexes and condition variables via
 // user-space spinlocks, instead of via OS-provided constructs.  This

@@ -85,6 +85,9 @@
 #endif
 
 // Force disable RTTI on release builds.
-#if $[>= $[OPTIMIZE],4]
-  #define HAVE_RTTI
-#endif
+//#if $[>= $[OPTIMIZE],4]
+//  #define HAVE_RTTI
+//#endif
+
+// Force disable for now.
+#define HAVE_RTTI
