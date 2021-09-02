@@ -48,6 +48,7 @@
     phmap_fwd_decl.h \
     phmap_utils.h \
     phmap.h \
+    phmap_include.h \
     register_type.I register_type.h \
     selectThreadImpl.h \
     stl_compares.I stl_compares.h \
@@ -120,6 +121,7 @@
     phmap_fwd_decl.h \
     phmap_utils.h \
     phmap.h \
+    phmap_include.h \
     register_type.I register_type.h \
     selectThreadImpl.h \
     stl_compares.I stl_compares.h \

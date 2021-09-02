@@ -19,24 +19,7 @@
 #include "stl_compares.h"
 #include "register_type.h"
 
-#ifndef CPPPARSER
-#include "phmap.h"
-#include "btree.h"
-#else
-namespace phmap {
-  template <class Key, class Value, class Compare, class Alloc>
-  class btree_map {};
-
-  template <class Key, class Value, class Compare, class Alloc>
-  class btree_multimap {};
-
-  template <class Key, class Value, class Compare, class Alloc>
-  class flat_hash_map {};
-
-  template <class Key, class Value, class Compare, class Alloc>
-  class node_hash_map {};
-};
-#endif
+#include "phmap_include.h"
 
 #include <map>
 #ifdef HAVE_STL_HASH
