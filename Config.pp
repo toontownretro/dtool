@@ -376,7 +376,10 @@
 // overhead to have this option available even if it is unused, it is
 // by default enabled only in a development build.  This has no effect
 // on DirectX rendering.
-#defer SUPPORT_IMMEDIATE_MODE $[<= $[OPTIMIZE], 3]
+//#defer SUPPORT_IMMEDIATE_MODE $[<= $[OPTIMIZE], 3]
+//
+// Off all the time now.  OpenGL immediate mode is deprecated.
+#define SUPPORT_IMMEDIATE_MODE
 
 // This option compiles in support for legacy fixed-function OpenGL
 // rendering.  You may want to turn this off if your application is
