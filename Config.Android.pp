@@ -53,7 +53,7 @@
 #defer CC $[TOOLCHAIN_PATH]/$[TOOLCHAIN_PREFIX]-gcc
 #defer CXX $[TOOLCHAIN_PATH]/$[TOOLCHAIN_PREFIX]-g++
 #defer AR $[TOOLCHAIN_PATH]/$[TOOLCHAIN_PREFIX]-ar
-#define C++FLAGS_GEN -fno-exceptions -fno-rtti
+#define C++FLAGS_GEN -fno-exceptions -fno-rtti -std=gnu++17
 
 #defer SYSROOT $[ANDROID_NDK_HOME]/platforms/$[ANDROID_NDK_PLATFORM]/arch-$[ANDROID_ARCH]
 #defer SYSROOT_FLAGS --sysroot=$[subst \,/,$[osfilename $[SYSROOT]]]

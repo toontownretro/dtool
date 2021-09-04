@@ -379,6 +379,10 @@ typedef struct _object PyObject;
 // underlying implementation is likely to provide anyway.
 #undef MEMORY_HOOK_DO_ALIGN
 
+#elif defined(HAVE_MIMALLOC)
+// We can call into mimalloc's aligned allocation API.
+#undef MEMORY_HOOK_DO_ALIGN
+
 #elif defined(USE_MEMORY_DLMALLOC)
 // This specialized malloc implementation can perform the required alignment.
 #undef MEMORY_HOOK_DO_ALIGN
@@ -407,20 +411,29 @@ typedef struct _object PyObject;
 #ifdef LINMATH_ALIGN
 /* We require 16-byte alignment of certain structures, to support SSE2.  We
    don't strictly have to align everything, but it's just easier to do so. */
-#if defined(HAVE_EIGEN) && defined(__AVX__) && defined(STDFLOAT_DOUBLE)
-/* Eigen uses AVX instructions, but let's only enable this when compiling with
-   double precision, so that we can keep our ABI a bit more stable. */
+
+#if defined(HAVE_EIGEN)
+/* If using Eigen, adjust alignment based on architecture. */
+
+#if defined(__AVX512F__)
+#define MEMORY_HOOK_ALIGNMENT 64
+#elif defined(__AVX2__) || defined(__AVX__)
 #define MEMORY_HOOK_ALIGNMENT 32
 #else
 #define MEMORY_HOOK_ALIGNMENT 16
 #endif
+
+#endif // HAVE_EIGEN
+
 /* Otherwise, align to two words.  This seems to be pretty standard to the
    point where some code may rely on this being the case. */
 #elif defined(IS_OSX) || NATIVE_WORDSIZE >= 64
 #define MEMORY_HOOK_ALIGNMENT 16
+
 #else
 #define MEMORY_HOOK_ALIGNMENT 8
-#endif
+
+#endif // LINMATH_ALIGN
 
 #ifdef HAVE_EIGEN
 /* Make sure that Eigen doesn't assume alignment guarantees we don't offer. */
@@ -434,7 +447,7 @@ typedef struct _object PyObject;
 #endif
 
 /* Determine our memory-allocation requirements. */
-#if defined(USE_MEMORY_PTMALLOC2) || defined(USE_MEMORY_DLMALLOC) || defined(DO_MEMORY_USAGE) || defined(MEMORY_HOOK_DO_ALIGN)
+#if defined(USE_MEMORY_PTMALLOC2) || defined(USE_MEMORY_DLMALLOC) || defined(DO_MEMORY_USAGE) || defined(MEMORY_HOOK_DO_ALIGN) || defined(HAVE_MIMALLOC)
 /* In this case we have some custom memory management requirements. */
 #else
 /* Otherwise, if we have no custom memory management needs at all, we

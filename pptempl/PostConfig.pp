@@ -1,12 +1,12 @@
 // This file is included after including all of $DTOOL/Config.pp and
-// the user's personal Config.pp file.  It makes decisions necessary 
+// the user's personal Config.pp file.  It makes decisions necessary
 // following the user's Config settings.
 
 #if $[and $[OSX_PLATFORM],$[BUILD_IPHONE]]
   //#define IPH_PLATFORM iPhoneSimulator
   #define IPH_PLATFORM $[BUILD_IPHONE]
   #define IPH_VERSION 2.0
-  
+
   #if $[eq $[IPH_PLATFORM], iPhoneOS]
     #define ARCH_FLAGS -arch armv6 -mcpu=arm1176jzf-s
     #define osflags -fpascal-strings -fasm-blocks -miphoneos-version-min=2.0
@@ -19,7 +19,7 @@
   #else
     #error Inappropriate value for BUILD_IPHONE.
   #endif
-  
+
   #define dev /Developer/Platforms/$[IPH_PLATFORM].platform/Developer
   #define env env MACOSX_DEPLOYMENT_TARGET=10.5 PATH="$[dev]/usr/bin:/Developer/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin"
   #define CC $[env] $[dev]/usr/bin/gcc-4.0
@@ -83,3 +83,11 @@
 #define ANDROID_LDFLAGS $[target_ldflags] $[ANDROID_LDFLAGS]
 
 #endif
+
+// Force disable RTTI on release builds.
+//#if $[>= $[OPTIMIZE],4]
+//  #define HAVE_RTTI
+//#endif
+
+// Force disable for now.
+#define HAVE_RTTI

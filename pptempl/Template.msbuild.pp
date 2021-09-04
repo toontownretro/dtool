@@ -95,8 +95,8 @@
 #defer target_ipath $[TOPDIR] $[sort $[complete_ipath]] $[other_trees_include] $[get_ipath]
 
 // These are the complete set of extra flags the compiler requires.
-#defer cflags $[patsubst -D%,/D%,$[get_cflags] $[CFLAGS] $[CFLAGS_OPT$[OPTIMIZE]]]
-#defer c++flags $[patsubst -D%,/D%,$[get_cflags] $[C++FLAGS] $[CFLAGS_OPT$[OPTIMIZE]]]
+#defer cflags $[patsubst -D%,/D%,$[get_cflags] $[CFLAGS] $[CFLAGS_OPT$[OPTIMIZE]]] $[CFLAGS_SHARED]
+#defer c++flags $[patsubst -D%,/D%,$[get_cflags] $[C++FLAGS] $[CFLAGS_OPT$[OPTIMIZE]]] $[CFLAGS_SHARED]
 
 // $[complete_lpath] is rather like $[complete_ipath]: the list of
 // directories (from within this tree) we should add to our -L list.
@@ -230,6 +230,10 @@
     $[if $[is_metalib_component],MetalibComponent, \
       $[if $[lib_is_static],StaticLibrary,DynamicLibrary]]]
 
+// Miscellaneous files that are added to the project just so they are visible
+// from within Visual Studio.
+#define misc_files $[lxx_sources] $[yxx_sources] $[INSTALL_DATA] $[INSTALL_CONFIG] $[INSTALL_SCRIPTS]
+
 #output $[TARGET].vcxproj
 #format collapse
 <?xml version="1.0" encoding="utf-8"?>
@@ -245,6 +249,17 @@
   <ProjectReference Include="$[osfilename $[all_libs $[RELDIR],$[depend]]/$[depend].vcxproj]"/>
 #end depend
 </ItemGroup>
+
+#if $[USE_CLANG]
+<PropertyGroup>
+  <CLToolExe>clang-cl.exe</CLToolExe>
+  <LinkToolExe>lld-link.exe</LinkToolExe>
+  <LinkToolPath>$[osfilename $[CLANG_BIN_PATH]]</LinkToolPath>
+  <CLToolPath>$[osfilename $[CLANG_BIN_PATH]]</CLToolPath>
+  <UseMultiToolTask>$[if $[MSBUILD_MULTIPROC],true,false]</UseMultiToolTask>
+  <MultiProcMaxCount>$[MSBUILD_MULTIPROC_COUNT]</MultiProcMaxCount>
+</PropertyGroup>
+#endif
 
 <ItemGroup>
   <ProjectConfiguration Include="Release|$[platform_config]">
@@ -281,14 +296,30 @@
 #end file
 </ItemGroup>
 
+// Add the misc files.
+#if $[misc_files]
+<ItemGroup>
+#foreach file $[misc_files]
+  <None Include="$[file]" />
+#end file
+</ItemGroup>
+#endif
+
 #if $[compile_sources]
 
 #define compiler_flags $[c++flags] $[extra_cflags]
+#if $[USE_CLANG]
+  // Add some extra flags to shut Clang up a bit.
+  #define compiler_flags $[compiler_flags] \
+    -Wno-microsoft-template -Wno-inconsistent-missing-override \
+    -Wno-reorder-ctor -Wno-enum-compare-switch \
+    -Wno-microsoft -Wno-register
+#endif
 
 // This is the list of compiler flags that are set using built-in ClCompile
 // properties.  Anything not in this list is passed into AdditionalOptions.
 #define builtin_compiler_flags \
-  /RTCs /RTCu /RTC1 /GS /Gd /Gr /Gz /Z7 /Zi /ZI /arch:SSE2 /arch:SSE /GT /EHa /EHsc /EHs \
+  /RTCs /RTCu /RTC1 /GS /Gd /Gr /Gz /Gv /Z7 /Zi /ZI /arch:SSE2 /arch:SSE /GT /EHa /EHsc /EHs \
   /Os /Ot /fp:precise /fp:strict /fp:fast /Ob0 /Ob1 /Ob2 /Oi /Gm /MP /Oy /Od /O1 /O2 \
   /MTd /MDd /MT /MD /GR /RTCc /Zp16 /Zp8 /Zp4 /Zp2 /Zp1 /nologo /W0 /W1 /W2 /W3 /W4 \
   /Wall /GL /Fr"%" /D% /Fd"%" /Zc:forScope
@@ -308,13 +339,15 @@
   #set runtime_checks EnableFastChecks
 #endif
 #define buffer_security_check $[if $[filter /GS,$[compiler_flags]],true,false]
-#define calling_convention Cdecl
+#define calling_convention
 #if $[filter /Gd,$[compiler_flags]]
   #set calling_convention Cdecl
 #elif $[filter /Gr,$[compiler_flags]]
   #set calling_convention FastCall
 #elif $[filter /Gz,$[compiler_flags]]
   #set calling_convention StdCall
+#elif $[filter /Gv,$[compiler_flags]]
+  #set calling_convention VectorCall
 #endif
 #define debug_information_format
 #if $[filter /Z7,$[compiler_flags]]
@@ -437,6 +470,13 @@
   #endif
   </ClCompile>
 #end file
+// If we are compositing, include the composited source files in the project,
+// but don't compile them.
+#if $[should_composite_sources]
+#foreach file $[COMPOSITE_SOURCES]
+  <None Include="$[osfilename $[file]]"/>
+#end file
+#endif
 </ItemGroup>
 
 // Add include directories and preprocessor definitions.
@@ -460,8 +500,12 @@
     <FunctionLevelLinking>$[function_level_linking]</FunctionLevelLinking>
     <InlineFunctionExpansion>$[inline_function_expansion]</InlineFunctionExpansion>
     <IntrinsicFunctions>$[intrinsic_functions]</IntrinsicFunctions>
-    <MinimalRebuild>$[minimal_rebuild]</MinimalRebuild>
-    <MultiProcessorCompilation>$[multiprocessor_compilation]</MultiProcessorCompilation>
+
+    // These aren't supported on Clang.  If they are set they cause the project
+    // to always rebuild from scratch.
+    <MinimalRebuild>$[if $[not $[USE_CLANG]],$[minimal_rebuild]]</MinimalRebuild>
+    <MultiProcessorCompilation>$[if $[not $[USE_CLANG]],$[multiprocessor_compilation]]</MultiProcessorCompilation>
+
     <OmitFramePointers>$[omit_frame_pointers]</OmitFramePointers>
     <Optimization>$[optimization]</Optimization>
     <RuntimeLibrary>$[runtime_library]</RuntimeLibrary>
@@ -470,6 +514,7 @@
     <StructMemberAlignment>$[struct_member_alignment]</StructMemberAlignment>
     <SuppressStartupBanner>$[suppress_startup_banner]</SuppressStartupBanner>
     <WarningLevel>$[warning_level]</WarningLevel>
+    <ExternalWarningLevel></ExternalWarningLevel>
     <WholeProgramOptimization>$[whole_program_optimization]</WholeProgramOptimization>
   </ClCompile>
 </ItemDefinitionGroup>
@@ -678,55 +723,66 @@
         DependsOnTargets="Build">
 #if $[and $[build_lib],$[is_lib]]
   <Copy SourceFiles="$[osfilename $[ODIR]/$[get_output_file]]"
-        DestinationFiles="$[osfilename $[install_lib_dir]/$[get_output_file]]" />
+        DestinationFiles="$[osfilename $[install_lib_dir]/$[get_output_file]]"
+        SkipUnchangedFiles="true" />
   #if $[not $[lib_is_static]]
   <Copy SourceFiles="$[osfilename $[ODIR]/$[get_output_lib]]"
-        DestinationFiles="$[osfilename $[install_lib_dir]/$[get_output_lib]]" />
+        DestinationFiles="$[osfilename $[install_lib_dir]/$[get_output_lib]]"
+        SkipUnchangedFiles="true" />
   #endif
   #if $[has_pdb]
   <Copy SourceFiles="$[osfilename $[ODIR]/$[get_output_pdb]]"
-        DestinationFiles="$[osfilename $[install_lib_dir]/$[get_output_pdb]]" />
+        DestinationFiles="$[osfilename $[install_lib_dir]/$[get_output_pdb]]"
+        SkipUnchangedFiles="true" />
   #endif
 #endif
 
 #if $[is_bin]
   <Copy SourceFiles="$[osfilename $[ODIR]/$[TARGET].exe]"
-        DestinationFiles="$[osfilename $[install_bin_dir]/$[TARGET].exe]" />
+        DestinationFiles="$[osfilename $[install_bin_dir]/$[TARGET].exe]"
+        SkipUnchangedFiles="true" />
 
   #if $[has_pdb]
   <Copy SourceFiles="$[osfilename $[ODIR]/$[TARGET].pdb]"
-        DestinationFiles="$[osfilename $[install_bin_dir]/$[TARGET].pdb]" />
+        DestinationFiles="$[osfilename $[install_bin_dir]/$[TARGET].pdb]"
+        SkipUnchangedFiles="true" />
   #endif
 #endif
 
 #if $[INSTALL_SCRIPTS]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_SCRIPTS]]]"
-        DestinationFiles="$[msjoin $[osfilename $[INSTALL_SCRIPTS:%=$[install_scripts_dir]/%]]]" />
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_SCRIPTS:%=$[install_scripts_dir]/%]]]"
+        SkipUnchangedFiles="true" />
 #endif
 
 #if $[INSTALL_MODULES]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_MODULES]]]"
-        DestinationFiles="$[msjoin $[osfilename $[INSTALL_MODULES:%=$[install_lib_dir]/%]]]" />
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_MODULES:%=$[install_lib_dir]/%]]]"
+        SkipUnchangedFiles="true" />
 #endif
 
 #if $[INSTALL_HEADERS]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_HEADERS]]]"
-        DestinationFiles="$[msjoin $[osfilename $[INSTALL_HEADERS:%=$[install_headers_dir]/%]]]" />
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_HEADERS:%=$[install_headers_dir]/%]]]"
+        SkipUnchangedFiles="true" />
 #endif
 
 #if $[INSTALL_DATA]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_DATA]]]"
-        DestinationFiles="$[msjoin $[osfilename $[INSTALL_DATA:%=$[install_data_dir]/%]]]" />
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_DATA:%=$[install_data_dir]/%]]]"
+        SkipUnchangedFiles="true" />
 #endif
 
 #if $[INSTALL_CONFIG]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_CONFIG]]]"
-        DestinationFiles="$[msjoin $[osfilename $[INSTALL_CONFIG:%=$[install_config_dir]/%]]]" />
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_CONFIG:%=$[install_config_dir]/%]]]"
+        SkipUnchangedFiles="true" />
 #endif
 
 #if $[igatedb]
   <Copy SourceFiles="$[msjoin $[osfilename $[igatedb]]]"
-        DestinationFiles="$[msjoin $[osfilename $[igatedb:$[ODIR]/%=$[install_igatedb_dir]/%]]]" />
+        DestinationFiles="$[msjoin $[osfilename $[igatedb:$[ODIR]/%=$[install_igatedb_dir]/%]]]"
+        SkipUnchangedFiles="true" />
 #endif
 </Target>
 
@@ -798,6 +854,48 @@
 
 #end $[TARGET].vcxproj
 
+// Add a filter file to organize the headers and source files.
+#output $[TARGET].vcxproj.filters
+#format collapse
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated automatically by $[PPREMAKE] $[PPREMAKE_VERSION] from $[SOURCEFILE]. -->
+<!--                              DO NOT EDIT                                       -->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+// Add each header file to the filter.
+<ItemGroup>
+#foreach file $[headers]
+  <ClInclude Include="$[osfilename $[file]]">
+    <Filter>Header Files</Filter>
+  </ClInclude>
+#end file
+</ItemGroup>
+
+// Now add each source file.
+<ItemGroup>
+#foreach file $[compile_sources]
+  <ClCompile Include="$[osfilename $[file]]">
+	<Filter>Source Files</Filter>
+  </ClCompile>
+#end file
+#if $[should_composite_sources]
+#foreach file $[COMPOSITE_SOURCES]
+  <None Include="$[osfilename $[file]]">
+    <Filter>Source Files</Filter>
+  </None>
+#end file
+#endif
+</ItemGroup>
+
+<ItemGroup>
+  <Filter Include="Source Files" />
+  <Filter Include="Header Files" />
+</ItemGroup>
+
+</Project>
+
+#end $[TARGET].vcxproj.filters
+
 #endif // $[and $[build_directory],$[build_target]]
 
 #end $[vcx_scopes]
@@ -810,6 +908,12 @@
 <!-- Generated automatically by $[PPREMAKE] $[PPREMAKE_VERSION] from $[SOURCEFILE]. -->
 <!--                              DO NOT EDIT                                       -->
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+// Miscellaneous files that are added to the project just so they are visible
+// from within Visual Studio.
+#define misc_files $[lxx_sources] $[yxx_sources] $[INSTALL_DATA] $[INSTALL_CONFIG] \
+                   $[INSTALL_SCRIPTS] $[INSTALL_HEADERS] \
+                   $[INSTALL_MODULES] $[INSTALL_PARSER_INC] $[install_py]
 
 // The directory-level project depends on all of the target-level projects.
 <ItemGroup>
@@ -837,6 +941,20 @@
 
 <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Targets" />
 
+// Add the Sources.pp file so it is visible within Visual Studio.
+<ItemGroup>
+    <None Include="$[SOURCEFILE]"/>
+</ItemGroup>
+
+// And the misc files.
+#if $[misc_files]
+<ItemGroup>
+#foreach file $[misc_files]
+  <None Include="$[file]" />
+#end file
+</ItemGroup>
+#endif
+
 // Here are all the directory-level things we can install.
 #define install_files \
   $[INSTALL_SCRIPTS] \
@@ -861,37 +979,44 @@
         Outputs="$[msjoin $[osfilename $[installed_files]]]">
 #if $[INSTALL_SCRIPTS]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_SCRIPTS]]]"
-        DestinationFiles="$[msjoin $[osfilename $[INSTALL_SCRIPTS:%=$[install_scripts_dir]/%]]]" />
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_SCRIPTS:%=$[install_scripts_dir]/%]]]"
+        SkipUnchangedFiles="true" />
 #endif
 
 #if $[INSTALL_MODULES]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_MODULES]]]"
-        DestinationFiles="$[msjoin $[osfilename $[INSTALL_MODULES:%=$[install_lib_dir]/%]]]" />
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_MODULES:%=$[install_lib_dir]/%]]]"
+        SkipUnchangedFiles="true" />
 #endif
 
 #if $[INSTALL_HEADERS]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_HEADERS]]]"
-        DestinationFiles="$[msjoin $[osfilename $[INSTALL_HEADERS:%=$[install_headers_dir]/%]]]" />
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_HEADERS:%=$[install_headers_dir]/%]]]"
+        SkipUnchangedFiles="true" />
 #endif
 
 #if $[INSTALL_PARSER_INC]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_PARSER_INC]]]"
-        DestinationFiles="$[msjoin $[osfilename $[INSTALL_PARSER_INC:%=$[install_parser_inc_dir]/%]]]" />
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_PARSER_INC:%=$[install_parser_inc_dir]/%]]]"
+        SkipUnchangedFiles="true" />
 #endif
 
 #if $[INSTALL_DATA]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_DATA]]]"
-        DestinationFiles="$[msjoin $[osfilename $[INSTALL_DATA:%=$[install_data_dir]/%]]]" />
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_DATA:%=$[install_data_dir]/%]]]"
+        SkipUnchangedFiles="true" />
 #endif
 
 #if $[INSTALL_CONFIG]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_CONFIG]]]"
-        DestinationFiles="$[msjoin $[osfilename $[INSTALL_CONFIG:%=$[install_config_dir]/%]]]" />
+        DestinationFiles="$[msjoin $[osfilename $[INSTALL_CONFIG:%=$[install_config_dir]/%]]]"
+        SkipUnchangedFiles="true" />
 #endif
 
 #if $[install_py]
   <Copy SourceFiles="$[msjoin $[osfilename $[install_py]]]"
-        DestinationFiles="$[msjoin $[osfilename $[install_py:%=$[install_py_dir]/%]]]" />
+        DestinationFiles="$[msjoin $[osfilename $[install_py:%=$[install_py_dir]/%]]]"
+        SkipUnchangedFiles="true" />
   <Touch Files="$[osfilename $[install_py_package_dir]/__init__.py]" AlwaysCreate="true" />
 #endif
 </Target>
@@ -947,6 +1072,10 @@
 // root makefile and also synthesize the dtool_config.h (or whichever
 // file) we need.
 
+// Miscellaneous files that are added to the project just so they are visible
+// from within Visual Studio.
+#define misc_files $[CONFIG_HEADER]
+
 // We need a top-level project to install the config header... booo!
 #output dir_$[DIRNAME].vcxproj
 #format collapse
@@ -972,6 +1101,21 @@
 
 <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Targets" />
 
+// Add the Sources.pp and Package.pp files.
+<ItemGroup>
+  <None Include="$[SOURCE_FILENAME]" />
+  <None Include="$[PACKAGE_FILENAME]" />
+</ItemGroup>
+
+// Add the misc files.
+#if $[misc_files]
+<ItemGroup>
+#foreach file $[misc_files]
+  <None Include="$[file]" />
+#end file
+</ItemGroup>
+#endif
+
 #define install_files \
   $[CONFIG_HEADER]
 
@@ -983,7 +1127,8 @@
         Outputs="$[msjoin $[osfilename $[installed_files]]]">
 #if $[install_files]
   <Copy SourceFiles="$[msjoin $[osfilename $[install_files]]]"
-        DestinationFiles="$[msjoin $[osfilename $[installed_files]]]" />
+        DestinationFiles="$[msjoin $[osfilename $[installed_files]]]"
+        SkipUnchangedFiles="true" />
 #endif
 </Target>
 
@@ -996,12 +1141,6 @@
 <Target Name="clean-igate" />
 <Target Name="clean" DependsOnTargets="clean-igate" />
 <Target Name="cleanall" DependsOnTargets="clean" />
-
-// Take this opportunity to freshen ourselves up.
-<Target Name="freshen"
-        Inputs="$[msjoin $[osfilename $[SOURCE_FILENAME] $[EXTRA_PPREMAKE_SOURCE]]]">
-  <Exec Command="ppremake" />
-</Target>
 
 </Project>
 
@@ -1034,11 +1173,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 #forscopes $[project_scopes]
 #if $[and $[build_directory],$[build_target]]
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "$[TARGET]", "$[osfilename $[PATH]/$[TARGET].vcxproj]", "{$[makeguid $[TARGET]]}"
-  ProjectSection(ProjectDependencies) = postProject
-  #foreach depend $[get_depended_targets]
-    {$[makeguid $[depend]]} = {$[makeguid $[depend]]}
-  #end depend
-  EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+#foreach depend $[get_depended_targets]
+		{$[makeguid $[depend]]} = {$[makeguid $[depend]]}
+ #end depend
+	EndProjectSection
 EndProject
 #endif
 #end $[project_scopes]
@@ -1046,18 +1185,24 @@ EndProject
 #formap dirname subdirs
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dir_$[dirname]", "$[osfilename $[PATH]/dir_$[dirname].vcxproj]", "{$[makeguid dir_$[dirname]]}"
   // The directory-level project depends on all the target-level projects in the directory.
-  ProjectSection(ProjectDependencies) = postProject
+	ProjectSection(ProjectDependencies) = postProject
     #define depend_scopes $[patsubst %,$[dirname]/%,$[vcx_scopes]]
     #forscopes $[depend_scopes]
     #if $[and $[build_directory],$[build_target]]
-    {$[makeguid $[TARGET]]} = {$[makeguid $[TARGET]]}
+		{$[makeguid $[TARGET]]} = {$[makeguid $[TARGET]]}
     #endif
     #end $[depend_scopes]
-  EndProjectSection
+	EndProjectSection
+EndProject
+// Also add a solution folder that will group the targets in a directory.
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "$[dirname]", "$[dirname]", "{$[makeguid folder_$[dirname]]}"
 EndProject
 #end dirname
 // And the top-level project.
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dir_$[DIRNAME]", "$[osfilename $[PATH]/dir_$[DIRNAME].vcxproj]", "{$[makeguid dir_$[DIRNAME]]}"
+EndProject
+// Top-level solution folder.
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "$[DIRNAME]", "$[DIRNAME]", "{$[makeguid folder_$[DIRNAME]]}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -1083,6 +1228,17 @@ Global
 		{$[guid]}.Release|$[platform_config].Build.0 = Release|$[platform_config]
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+#forscopes $[project_scopes]
+#if $[and $[build_directory],$[build_target]]
+		{$[makeguid $[TARGET]]} = {$[makeguid folder_$[DIRNAME]]}
+#endif
+#end $[project_scopes]
+#formap dirname subdirs
+		{$[makeguid dir_$[dirname]]} = {$[makeguid folder_$[dirname]]}
+#end dirname
+		{$[makeguid dir_$[DIRNAME]]} = {$[makeguid folder_$[DIRNAME]]}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
     SolutionGuid = {$[makeguid $[PACKAGE].sln]}

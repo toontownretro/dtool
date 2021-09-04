@@ -31,7 +31,7 @@
 
   // gcc might run into template limits on some parts of Panda.
   // I upped this from 25 to build on OS X (GCC 3.3) -- skyler.
-  #define C++FLAGS_GEN -ftemplate-depth-70 -std=gnu++11
+  #define C++FLAGS_GEN -ftemplate-depth-70 -fno-exceptions -std=gnu++17
 #else
   #define CC cc
   #define CXX CC
@@ -39,7 +39,7 @@
 #endif
 
 // Linux doesn't (yet) have any funny architecture flags.
-#defer ARCH_FLAGS
+#defer ARCH_FLAGS -march=native
 
 // How to compile a C or C++ file into a .o file.  $[target] is the
 // name of the .o file, $[source] is the name of the source file,

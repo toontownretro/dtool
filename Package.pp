@@ -47,7 +47,7 @@
   // ordinary reference to the DTOOL environment variable, so
   // they will read from the right tree no matter which DTOOL they're
   // attached to.
-  #set DTOOL $[unixfilename $[DTOOL]]
+  #define DTOOL $[unixfilename $[DTOOL]]
   #define DTOOL_INSTALL $[DTOOL]/built
   #if $[eq $[DTOOL],]
     #error You seem to be attached to some trees, but not DTOOL!
@@ -249,6 +249,11 @@
 #set OPENAL_FRAMEWORK $[unixfilename $[OPENAL_FRAMEWORK]]
 #set HAVE_OPENAL $[HAVE_OPENAL]
 
+#set MIMALLOC_IPATH $[unixfilename $[MIMALLOC_IPATH]]
+#set MIMALLOC_LPATH $[unixfilename $[MIMALLOC_LPATH]]
+#set MIMALLOC_LIBS $[MIMALLOC_LIBS]
+#set HAVE_MIMALLOC $[HAVE_MIMALLOC]
+
 #set PKG_CONFIG $[PKG_CONFIG]
 #set HAVE_GTK $[HAVE_GTK]
 
@@ -286,6 +291,11 @@
 #set BULLET_LPATH $[unixfilename $[BULLET_LPATH]]
 #set BULLET_LIBS $[BULLET_LIBS]
 #set HAVE_BULLET $[HAVE_BULLET]
+
+#set PHYSX_IPATH $[unixfilename $[PHYSX_IPATH]]
+#set PHYSX_LPATH $[unixfilename $[PHYSX_LPATH]]
+#set PHYSX_LIBS $[PHYSX_LIBS]
+#set HAVE_PHYSX $[HAVE_PHYSX]
 
 #set VORBIS_IPATH $[unixfilename $[VORBIS_IPATH]]
 #set VORBIS_LPATH $[unixfilename $[VORBIS_LPATH]]

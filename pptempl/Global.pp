@@ -284,6 +284,12 @@
   #define openal_framework $[OPENAL_FRAMEWORK]
 #endif
 
+#if $[HAVE_MIMALLOC]
+  #define mimalloc_ipath $[wildcard $[MIMALLOC_IPATH]]
+  #define mimalloc_lpath $[wildcard $[MIMALLOC_LPATH]]
+  #define mimalloc_libs $[MIMALLOC_LIBS]
+#endif
+
 #if $[HAVE_FCOLLADA]
   #define fcollada_ipath $[wildcard $[FCOLLADA_IPATH]]
   #define fcollada_lpath $[wildcard $[FCOLLADA_LPATH]]
@@ -312,6 +318,12 @@
   #define bullet_ipath $[wildcard $[BULLET_IPATH]]
   #define bullet_lpath $[wildcard $[BULLET_LPATH]]
   #define bullet_libs $[BULLET_LIBS]
+#endif
+
+#if $[HAVE_PHYSX]
+  #define physx_ipath $[wildcard $[PHYSX_IPATH]]
+  #define physx_lpath $[wildcard $[PHYSX_LPATH]]
+  #define physx_libs $[PHYSX_LIBS]
 #endif
 
 #if $[HAVE_VORBIS]
@@ -926,6 +938,24 @@ Warning: Variable $[upcase $[tree]]_INSTALL is not set!
 
 // This is used for evaluating SoftImage unpack rules in Template.models.pp.
 #defer soft_scene_files $[matrix $[DATABASE]/SCENES/$[SCENE_PREFIX],$[MODEL] $[ANIMS],.1-0.dsc]
+
+// This is also only used by model builds.
+// This dictionary will be filled up by the templates within the source
+// hierarchy.  It maps source assets to their built and installed counterparts.
+#if $[eq $[dirnames $[DIR_TYPE], top], models_toplevel]
+
+// #dict is a newer addition, make sure we are running a ppremake that supports
+// them.
+#if $[< $[PPREMAKE_VERSION],1.23]
+  #error You need at least ppremake version 1.23 to build models.
+#endif
+
+#dict texture_index
+#dict material_index
+#dict model_index
+#dict dna_index
+#dict misc_index
+#endif
 
 // Include the global definitions for this particular build_type, if
 // the file is there.

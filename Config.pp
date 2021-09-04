@@ -269,6 +269,14 @@
 // nonempty string to force the package to be marked as installed).
 
 
+// On Windows, do you want to compile using LLVM Clang rather than MSVC?
+// Clang typically produces faster code and gives better errors and warnings
+// during compilation, but takes somewhat longer than MSVC to compile, due
+// to Clang not supporting multithreaded compilation.
+#define USE_CLANG
+#define CLANG_BIN_PATH $[unixshortname C:\Program Files\LLVM\bin]
+
+
 // Do you want to generate a Python-callable interrogate interface?
 // This is only necessary if you plan to make calls into Panda from a
 // program written in Python.  This is done only if HAVE_PYTHON,
@@ -321,7 +329,7 @@
 // impact memory usage on very-low-memory platforms.)  Currently
 // experimental.
 #define EIGEN_IPATH $[DEFAULT_IPATH]/eigen3
-#defer EIGEN_CFLAGS $[if $[X86_PLATFORM],$[if $[WINDOWS_PLATFORM],/arch:SSE2,-msse2]]
+#define EIGEN_CFLAGS -DEIGEN_NO_DEBUG
 #defer HAVE_EIGEN $[isdir $[EIGEN_IPATH]/Eigen]
 #define LINMATH_ALIGN 1
 
@@ -368,7 +376,10 @@
 // overhead to have this option available even if it is unused, it is
 // by default enabled only in a development build.  This has no effect
 // on DirectX rendering.
-#defer SUPPORT_IMMEDIATE_MODE $[<= $[OPTIMIZE], 3]
+//#defer SUPPORT_IMMEDIATE_MODE $[<= $[OPTIMIZE], 3]
+//
+// Off all the time now.  OpenGL immediate mode is deprecated.
+#define SUPPORT_IMMEDIATE_MODE
 
 // This option compiles in support for legacy fixed-function OpenGL
 // rendering.  You may want to turn this off if your application is
@@ -376,7 +387,10 @@
 // fixed-function support completely.  Alternatively, you can disable
 // fixed-function support at runtime by setting gl-version 3 2 in your
 // Config.prc.
-#define SUPPORT_FIXED_FUNCTION 1
+//
+// This is now turned off by default as we have a completely shader-based
+// rendering pipeline.
+#define SUPPORT_FIXED_FUNCTION
 
 // These are two optional alternative memory-allocation schemes
 // available within Panda.  You can experiment with either of them to
@@ -434,7 +448,12 @@
 // calls to malloc() and free() for frequently-created and -deleted
 // objects.  There's usually no reason to set this false, unless you
 // suspect a bug in Panda's memory management code.
-#define USE_DELETED_CHAIN 1
+//
+// Turning this off for now as we're using mimalloc which manages its
+// own free-chain.  TODO: Need to look more closely at the performance of
+// using mimalloc with the DeletedChain vs mimalloc without the
+// DeletedChain.
+#define USE_DELETED_CHAIN
 
 // Define this if you are building on Windows 7 or better, and you
 // want your Panda build to run only on Windows 7 or better, and you
@@ -749,7 +768,12 @@
 // whenever threads are enabled, assuming that if you have threads,
 // you also want to use pipelining.  We also enable it at OPTIMIZE
 // level 1, since that enables additional runtime checks.
-#defer DO_PIPELINING $[or $[<= $[OPTIMIZE], 1],$[HAVE_THREADS]]
+//
+// Actually, don't turn this on even if we have threads.  It adds significant
+// overhead and complexity to Panda for not much performance benefit.  We
+// would be better off using data-parallelism instead of task-parallelism.
+//#defer DO_PIPELINING $[or $[<= $[OPTIMIZE], 1],$[HAVE_THREADS]]
+#define DO_PIPELINING
 
 // Define this true to implement mutexes and condition variables via
 // user-space spinlocks, instead of via OS-provided constructs.  This
@@ -847,6 +871,17 @@
 #endif
 #defer HAVE_OPENAL $[or $[OPENAL_FRAMEWORK],$[libtest $[OPENAL_LPATH],$[OPENAL_LIBS]]]
 
+// Is mimalloc installed?  This is an optimized allocator by Microsoft.
+// Note that it is not Windows-specific.
+#define MIMALLOC_IPATH $[DEFAULT_IPATH]
+#define MIMALLOC_LPATH $[DEFAULT_LPATH]
+#if $[WINDOWS_PLATFORM]
+  #define MIMALLOC_LIBS mimalloc-static.lib
+#else
+  #define MIMALLOC_LIBS mimalloc-static
+#endif
+#defer HAVE_MIMALLOC $[and $[isdir $[MIMALLOC_IPATH]],$[libtest $[MIMALLOC_LPATH],$[MIMALLOC_LIBS]]]
+
 // Is gtk+-2 installed?  This is needed to build the pstats program on
 // Unix (or non-Windows) platforms.  It is also used to provide
 // support for XEmbed for the web plugin system, which is necessary to
@@ -940,6 +975,20 @@
 #define BULLET_LIBS BulletSoftBody BulletDynamics BulletCollision LinearMath
 #endif
 #defer HAVE_BULLET $[libtest $[BULLET_LPATH],$[BULLET_LIBS]]
+
+// Is NVIDIA PhysX installed?
+#define PHYSX_IPATH $[DEFAULT_IPATH]/physx
+#define PHYSX_LPATH $[DEFAULT_LPATH]
+#if $[WINDOWS_PLATFORM]
+#define PHYSX_LIBS PhysX_64.lib PhysXCommon_64.lib PhysXCooking_64.lib \
+                   PhysXFoundation_64.lib PhysXExtensions_static_64.lib \
+                   PhysXCharacterKinematic_static_64.lib PhysXPvdSDK_static_64.lib
+#else
+#define PHYSX_LIBS PhysX_64 PhysXCommon_64 PhysXCooking_64 PhysXFoundation_64 \
+                   PhysXExtensions_static_64 PhysXCharacterKinematic_static_64 \
+                   PhysXPvdSDK_static_64
+#endif
+#defer HAVE_PHYSX $[and $[libtest $[PHYSX_LPATH],$[PHYSX_LIBS]],$[isfile $[matrix $[PHYSX_IPATH],/PxPhysicsAPI.h]]]
 
 // libvorbisfile is used for reading Ogg Vorbis audio files (.ogg).
 #define VORBIS_IPATH $[DEFAULT_IPATH]
@@ -1058,6 +1107,8 @@
 // Define this to generate .bat files when a Sources.pp makes a
 // script; leave it clear to generate Unix-style sh scripts.
 #defer MAKE_BAT_SCRIPTS $[or $[eq $[PLATFORM],Win32],$[eq $[PLATFORM],Win64]]
+
+#defer HAVE_MAPBUILDER $[and $[HAVE_EMBREE],$[HAVE_PHYSX]]
 
 // Define USE_COMPILER to switch the particular compiler that should
 // be used.  A handful of tokens are recognized, depending on BUILD_TYPE.

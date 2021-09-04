@@ -1,9 +1,9 @@
 //
-// Global.gmsvc.pp
+// Global.msbuild.pp
 //
 // This file is read in before any of the individual Sources.pp files
 // are read.  It defines a few global variables to assist
-// Template.gmsvc.pp.
+// Template.msbuild.pp.
 //
 
 #defun get_metalibs target,complete_libs
@@ -70,7 +70,7 @@
 #define BROWSEINFO_FLAG
 #endif
 
-#define CFLAGS_SHARED
+#define CFLAGS_SHARED /D_USE_MATH_DEFINES
 
 #include $[THISDIRPREFIX]compilerSettings.pp
 
@@ -89,10 +89,10 @@
 #defer cdefines $[CDEFINES_OPT$[OPTIMIZE]]
 
 //  Opt1 /GZ disables OPT flags, so make sure its OPT1 only
-#defer CFLAGS_OPT1 $[CDEFINES_OPT1:%=/D%] $[COMMONFLAGS] $[DEBUGFLAGS] $[OPT1FLAGS]
-#defer CFLAGS_OPT2 $[CDEFINES_OPT2:%=/D%] $[COMMONFLAGS] $[DEBUGFLAGS] $[if $[no_opt],$[OPT1FLAGS],$[OPTFLAGS]]
+#defer CFLAGS_OPT1 $[CDEFINES_OPT1:%=/D%] $[COMMONFLAGS] $[DEBUGFLAGS] $[OPT1FLAGS] $[DEBUGPDBFLAGS]
+#defer CFLAGS_OPT2 $[CDEFINES_OPT2:%=/D%] $[COMMONFLAGS] $[DEBUGFLAGS] $[if $[no_opt],$[OPT1FLAGS],$[OPTFLAGS]] $[DEBUGPDBFLAGS]
 #defer CFLAGS_OPT3 $[CDEFINES_OPT3:%=/D%] $[COMMONFLAGS] $[RELEASEFLAGS] $[if $[no_opt],$[OPT1FLAGS],$[OPTFLAGS]] $[DEBUGPDBFLAGS]
-#defer CFLAGS_OPT4 $[CDEFINES_OPT4:%=/D%] $[COMMONFLAGS] $[RELEASEFLAGS] $[if $[no_opt],$[OPT1FLAGS],$[OPTFLAGS] $[OPT4FLAGS]] $[DEBUGPDBFLAGS]
+#defer CFLAGS_OPT4 $[CDEFINES_OPT4:%=/D%] $[COMMONFLAGS] $[RELEASEFLAGS] $[if $[no_opt],$[OPT1FLAGS],$[OPTFLAGS] $[OPT4FLAGS]]
 
 //#if $[FORCE_DEBUG_FLAGS]
 // make them all link with non-debug msvc runtime dlls for this case
@@ -122,9 +122,15 @@
 // defined yet, so this just evaluates the reference to null and removes the reference and the
 // the defining extra_cflags in individual sources.pp's will not picked up.  use END_FLAGS instead
 #if $[eq $[USE_COMPILER], MSVC14.2x64]
-  #defer extra_cflags /EHsc /Zm500 /DWIN64_VC /DWIN64=1 /DWIN32_VC /DWIN32=1 $[WARNING_LEVEL_FLAG] $[END_CFLAGS]
+  #defer extra_cflags /Zm500 /DWIN64_VC /DWIN64=1 /DWIN32_VC \
+    /DWIN32=1 /D_HAS_STD_BYTE=0 /std:c++17 /D_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS \
+    /D_ENABLE_EXTENDED_ALIGNED_STORAGE \ // This one is needed for phmap.
+    /D_HAS_EXCEPTIONS=0 \
+    $[if $[HAVE_RTTI],/GR] $[WARNING_LEVEL_FLAG] $[ARCH_FLAGS] $[END_CFLAGS]
 #else
-  #defer extra_cflags /EHsc /Zm500 /DWIN32_VC /DWIN32=1 $[WARNING_LEVEL_FLAG] $[END_CFLAGS]
+  #defer extra_cflags /Zm500 /DWIN32_VC /DWIN32=1 /D_HAS_STD_BYTE=0 /std:c++17 \
+    /D_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS $[if $[HAVE_RTTI],/GR] $[WARNING_LEVEL_FLAG] \
+    $[ARCH_FLAGS] $[END_CFLAGS]
 #endif
 
 #if $[direct_tau]

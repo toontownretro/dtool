@@ -93,7 +93,7 @@ is_derived_from(const TypeRegistryNode *child, const TypeRegistryNode *base) {
   // If child_top does not inherit from base_top, it follows that child does
   // not inherit from base.
   TopInheritance::const_iterator ti =
-    lower_bound(child_top->_top_inheritance.begin(),
+    std::lower_bound(child_top->_top_inheritance.begin(),
                 child_top->_top_inheritance.end(),
                 Inherit(base_top, 0, 0));
 
@@ -256,7 +256,7 @@ r_build_subtrees(TypeRegistryNode *top, int bit_count,
       // This is the last time we'll visit this node, so continue the
       // recursion now.
       assert(_inherit._top == nullptr);
-      sort(_top_inheritance.begin(), _top_inheritance.end());
+      std::sort(_top_inheritance.begin(), _top_inheritance.end());
       define_subtree();
     }
 
@@ -291,7 +291,7 @@ r_build_subtrees(TypeRegistryNode *top, int bit_count,
       assert(top != this);
       _top_inheritance = top->_top_inheritance;
       _top_inheritance.push_back(_inherit);
-      sort(_top_inheritance.begin(), _top_inheritance.end());
+      std::sort(_top_inheritance.begin(), _top_inheritance.end());
       _inherit = Inherit();
       define_subtree();
 

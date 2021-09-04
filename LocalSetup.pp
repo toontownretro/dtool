@@ -45,6 +45,7 @@
 #call report_package RAD_MSS,Miles Sound System
 #call report_package FMOD,FMOD sound library
 #call report_package OPENAL,OpenAL sound library
+#call report_package MIMALLOC,mimalloc allocator
 #call report_package GTK,gtk+-2
 #call report_package FREETYPE,Freetype
 #call report_package GL,OpenGL
@@ -72,6 +73,7 @@
 #endif
 
 #call report_package BULLET,Bullet Physics
+#call report_package PHYSX,NVIDIA PhysX
 #call report_package VORBIS,Vorbis (Ogg Vorbis Decoder)
 #call report_package OPUS,Opus
 #call report_package HARFBUZZ,HarfBuzz
@@ -535,6 +537,12 @@ $[cdefine IS_LINUX]
 $[cdefine IS_FREEBSD]
 $[cdefine BUILD_IPHONE]
 $[cdefine UNIVERSAL_BINARIES]
+
+/* Do we have Mimalloc installed? */
+$[cdefine HAVE_MIMALLOC]
+
+/* Do we have NVIDIA PhysX? */
+$[cdefine HAVE_PHYSX]
 
 #if $[DTOOL_PLATFORM]
 # define DTOOL_PLATFORM "$[DTOOL_PLATFORM]"

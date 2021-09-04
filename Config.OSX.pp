@@ -25,10 +25,10 @@
 
 #define CC gcc
 #define CXX g++
-#define C++FLAGS_GEN -ftemplate-depth-70 -std=gnu++11
+#define C++FLAGS_GEN -ftemplate-depth-70 -fno-exceptions -std=gnu++17
 
 // Configure for universal binaries on OSX.
-#defer ARCH_FLAGS $[if $[UNIVERSAL_BINARIES],-arch i386 -arch ppc -arch x86_64,]
+#defer ARCH_FLAGS $[if $[UNIVERSAL_BINARIES],-arch i386 -arch ppc -arch x86_64,] -march=native
 #define OSX_CDEFS
 #define OSX_CFLAGS -Wno-deprecated-declarations
 

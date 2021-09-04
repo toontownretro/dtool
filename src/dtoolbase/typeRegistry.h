@@ -18,8 +18,9 @@
 #include "mutexImpl.h"
 #include "memoryBase.h"
 
+#include "phmap_include.h"
+
 #include <set>
-#include <map>
 #include <vector>
 
 class TypeHandle;
@@ -104,7 +105,7 @@ private:
   typedef std::vector<TypeRegistryNode *> HandleRegistry;
   HandleRegistry _handle_registry;
 
-  typedef std::map<std::string, TypeRegistryNode *> NameRegistry;
+  typedef phmap::flat_hash_map<std::string, TypeRegistryNode *> NameRegistry;
   NameRegistry _name_registry;
 
   typedef std::vector<TypeRegistryNode *> RootClasses;
