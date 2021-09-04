@@ -144,7 +144,6 @@
 #end test_bin_target
 
 #begin test_bin_target
-  #define BUILD_TESTS 1
   #define LOCAL_LIBS $[LOCAL_LIBS] dtoolbase
   #define TARGET test_pcontainer
   #define SOURCES test_pcontainer.cxx
