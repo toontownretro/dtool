@@ -119,7 +119,7 @@
 // What flags should be passed to both C and C++ compilers to enable
 // compiler optimizations?  This will be supplied when OPTIMIZE
 // (above) is set to 2, 3, or 4.
-#defer OPTFLAGS -O3
+#defer OPTFLAGS -Ofast
 
 // By convention, any source file that contains the string _no_opt_ in
 // its filename won't have the above compiler optimizations run for it.
