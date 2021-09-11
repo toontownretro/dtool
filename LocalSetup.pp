@@ -238,9 +238,6 @@ $[cdefine HAVE_SWRESAMPLE]
 /* Define if we have GLX installed and want to build for GLX.  */
 $[cdefine HAVE_GLX]
 
-/* Define if we have EGL installed and want to build for EGL.  */
-$[cdefine HAVE_EGL]
-
 /* Define if we have Windows-GL installed and want to build for Wgl.  */
 $[cdefine HAVE_WGL]
 
