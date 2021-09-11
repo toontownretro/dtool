@@ -878,7 +878,7 @@
 #if $[WINDOWS_PLATFORM]
   #define MIMALLOC_LIBS mimalloc-static.lib
 #else
-  #define MIMALLOC_LIBS mimalloc-static
+  #define MIMALLOC_LIBS mimalloc
 #endif
 #defer HAVE_MIMALLOC $[and $[isdir $[MIMALLOC_IPATH]],$[libtest $[MIMALLOC_LPATH],$[MIMALLOC_LIBS]]]
 
@@ -984,7 +984,7 @@
                    PhysXFoundation_64.lib PhysXExtensions_static_64.lib \
                    PhysXCharacterKinematic_static_64.lib PhysXPvdSDK_static_64.lib
 #else
-#define PHYSX_LIBS PhysX_64 PhysXCommon_64 PhysXCooking_64 PhysXFoundation_64 \
+#define PHYSX_LIBS PhysX_static_64 PhysXCommon_static_64 PhysXCooking_static_64 PhysXFoundation_static_64 \
                    PhysXExtensions_static_64 PhysXCharacterKinematic_static_64 \
                    PhysXPvdSDK_static_64
 #endif
