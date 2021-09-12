@@ -1031,7 +1031,7 @@
 #define GLSLANG_LIBS \
   $[if $[WINDOWS_PLATFORM], \
     GenericCodeGen.lib glslang.lib HLSL.lib MachineIndependent.lib OGLCompiler.lib OSDependent.lib SPIRV.lib, \
-    GenericCodeGen glslang HLSL MachineIndependent OGLCompiler OSDependent SPIRV]
+    glslang HLSL OGLCompiler OSDependent SPIRV]
 #defer HAVE_GLSLANG $[libtest $[GLSLANG_LPATH], $[GLSLANG_LIBS]]
 
 // Is spirv-tools installed, and where?
