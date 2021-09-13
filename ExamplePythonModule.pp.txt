@@ -8,10 +8,10 @@ panda/
     pandabullet/
     pandaphysics/
   modules/
-    core/
-    physics/
-    bullet/
-    ode/
+    py_core/
+    py_physics/
+    py_bullet/
+    py_ode/
 
 src - individual component libraries
 metalibs - library containing component libraries
@@ -21,8 +21,8 @@ To build a python module:
 
 #begin python_module_target
   #define TARGET panda3d.core
-  #define LIBS \
-    p3pgraph p3gobj p3putil p3linmath p3mathutil
+  #define IGATE_LIBS \
+    pgraph gobj putil linmath mathutil
     ...
 
 
