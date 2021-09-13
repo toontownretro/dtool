@@ -638,7 +638,7 @@ $[target] : $[sources] $[TARGET_DIR]/stamp
   // The name of the file includes the basename of the first source file so
   // we don't have race conditions with parallel make, when multiple optchar/
   // filter passes run in the same directory.
-  #define sources_file eoc$[basename $[notdir $[word 1,$[sources]]]].tmp
+  #define sources_file $[basename $[notdir $[word 1,$[sources]]]].optchar
 $[TAB] $[DEL_CMD] $[osfilename $[sources_file]]
   #foreach file $[sources]
 $[TAB]echo $[file]>> $[sources_file]
@@ -681,7 +681,7 @@ $[target] : $[sources] $[TARGET_DIR]/stamp
 ///// out to a file then having egg-optchar read in the    //////
 ///// list from that file.  Comment out four lines below   //////
 ///// and uncomment line above to revert to the old way.   //////
-  #define sources_file eoc$[basename $[notdir $[word 1,$[sources]]]].tmp
+  #define sources_file $[basename $[notdir $[word 1,$[sources]]]].optchar
 $[TAB] $[DEL_CMD] $[sources_file]
   #foreach file $[sources]
 $[TAB]echo $[file]>> $[sources_file]
