@@ -17,7 +17,7 @@
 #include "dtoolbase.h"
 #include "selectThreadImpl.h"
 
-#if (defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7))) || (defined(__clang__) && (__clang_major__ >= 3))
+#if (defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7))) || (defined(__clang__) && (__clang_major__ >= 3)) && !defined(_WIN32)
 
 /**
  * Uses GCC built-ins to implement atomic adjustments.
