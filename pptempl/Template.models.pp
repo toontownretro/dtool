@@ -965,7 +965,9 @@ $[TAB] ppremake
 #### Generated automatically by $[PPREMAKE] $[PPREMAKE_VERSION] from $[SOURCEFILE].
 ################################# DO NOT EDIT ###########################
 
-all : Makefile $[PACKAGE]_index.boo tex mat egg pal repal $[subdirs]
+index : $[PACKAGE]_index.boo
+
+all : Makefile index tex mat egg pal repal $[subdirs]
 install : all $[subdirs:%=install-%]
 #define sub_targets \
   tex mat egg flt lwo maya soft blender bam pal clean-tex clean-mat clean-bam \
