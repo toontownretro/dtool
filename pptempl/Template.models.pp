@@ -11,8 +11,8 @@
 // environment.
 //
 
-#if $[< $[PPREMAKE_VERSION],1.23]
-  #error You need at least ppremake version 1.23 to build models.
+#if $[< $[PPREMAKE_VERSION],1.24]
+  #error You need at least ppremake version 1.24 to build models.
 #endif
 
 #if $[and $[CTPROJS],$[not $[findstring PANDATOOL,$[CTPROJS]]]]
@@ -211,7 +211,7 @@
 
 #define build_texs \
   $[forscopes install_tex, \
-    $[foreach source,$[SOURCES],$[basename $[source]].txo]]
+    $[foreach source,$[SOURCES],$[basename $[source]].txo.pz]]
 
 #define install_tex_dirs $[sort $[forscopes install_tex, $[install_tex_dir]]]
 #define installed_tex $[sort $[foreach tex,$[build_texs],$[patsubst %,$[install_tex_dir]/%,$[notdir $[tex]]]]]
@@ -223,8 +223,14 @@
 #define install_mat_dirs $[sort $[forscopes install_mat, $[install_mats_dir]]]
 #define installed_mat $[sort $[foreach mat,$[build_mats],$[patsubst %,$[install_mats_dir]/%,$[notdir $[mat]]]]]
 
+#define build_mdls \
+  $[forscopes install_mdl, \
+    $[patsubst %.pmdl,$[bam_dir]/%.bam,$[SOURCES]]]
+#define install_mdl_dirs $[sort $[forscopes install_mdl, $[install_model_dir]]]
+#define installed_mdl $[sort $[foreach mdl,$[build_mdls],$[patsubst %,$[install_model_dir]/%,$[notdir $[mdl]]]]]
+
 #define pal_egg_targets $[sort $[patsubst %,$[pal_egg_dir]/%,$[notdir $[install_pal_eggs]]]]
-#define bam_targets $[install_eggs:%.egg=$[bam_dir]/%.bam]
+#define bam_targets $[install_eggs:%.egg=$[bam_dir]/%.bam] $[build_mdls]
 
 #output Makefile
 #format makefile
@@ -262,7 +268,9 @@ unpack-soft : $[soft_scenes]
 
 #define install_bam_targets \
     $[install_egg_dirs] \
-    $[if $[INSTALL_EGG_FILES],$[installed_generic_eggs],$[installed_generic_bams] $[installed_language_bams]]
+    $[install_mdl_dirs] \
+    $[if $[INSTALL_EGG_FILES],$[installed_generic_eggs],$[installed_generic_bams] $[installed_language_bams]] \
+    $[installed_mdl]
 install-bam : $[install_bam_targets]
 
 install-tex : $[install_tex_dirs] $[installed_tex]
@@ -364,6 +372,7 @@ $[TAB]$[DEL_CMD] $[osfilename $[filter_dirs]]
     $[TARGET_DIR(filter_char_egg)] \
     $[texattrib_dir] \
     $[install_egg_dirs] \
+    $[install_mdl_dirs] \
     $[install_dna_dirs] \
     $[install_other_dirs] \
     $[install_tex_dirs] \
@@ -408,11 +417,8 @@ $[TAB]gunzip $[GUNZIP_OPTS] < $[source] > $[target]
 #forscopes install_tex
   #foreach img $[SOURCES]
     #define source $[img]
-    #define target $[basename $[source]].txo
-// Don't depend on the source.  It has multiple dependencies that we can't
-// determine from ppremake, such as the image files.  ptex2txo will figure
-// that out for us.
-$[target] :
+    #define target $[basename $[source]].txo.pz
+$[target] : $[source] $[shell asset-list-depends $[source]]
 $[TAB]ptex2txo -o $[target] $[source]
   #end img
 
@@ -428,6 +434,16 @@ $[TAB]pmat2mto -o $[target] $[source] -i $[TOPDIR]/$[PACKAGE]_index.boo
   #end mat
 
 #end install_mat
+
+// BAM file generation from pmdl files.
+#forscopes install_mdl
+  #foreach file $[SOURCES]
+    #define source $[file]
+    #define target $[bam_dir]/$[notdir $[file:%.pmdl=%.bam]]
+$[target] : $[source] $[shell asset-list-depends $[source]]
+$[TAB]pmdl2bam -o $[target] $[source] -i $[TOPDIR]/$[PACKAGE]_index.boo
+  #end file
+#end install_mdl
 
 // Egg file generation from Flt files.
 #forscopes flt_egg
@@ -782,6 +798,21 @@ $[TAB]$[COPY_CMD] $[osfilename $[sourcedir]/$[local]] $[osfilename $[dest]/$[rem
   #endif
 #end install_egg
 
+// Installation of bam files generated from pmdl files.
+#forscopes install_mdl
+  #foreach file $[SOURCES]
+    #define local $[file:%.pmdl=$[bam_dir]/%.bam]
+    #define remote $[file:%.pmdl=$[notdir %.bam]]
+    #define sourcedir $[bam_dir]
+    #define dest $[install_model_dir]
+
+    #adddict model_index $[ABSDIR]/$[source_prefix]$[file],$[dest]/$[remote]
+$[dest]/$[remote] : $[local]
+$[TAB]$[DEL_CMD] $[osfilename $[dest]/$[remote]]
+$[TAB]$[COPY_CMD] $[osfilename $[local]] $[osfilename $[dest]]
+  #end file
+#end install_mdl
+
 // Bam file uninstallation.
 uninstall-bam :
 #forscopes install_egg
@@ -797,7 +828,14 @@ $[TAB]$[DEL_CMD] $[osfilename $[file]]
     #end file
   #endif
 #end install_egg
-
+#forscopes install_mdl
+  #define files $[patsubst %.pmdl,$[install_model_dir]/%.bam,$[SOURCES]]
+  #if $[files]
+    #foreach f $[files]
+$[TAB]$[DEL_CMD] $[osfilename $[f]]
+    #end f
+  #endif
+#end install_mdl
 
 // DNA file installation.
 #forscopes install_dna
@@ -853,7 +891,7 @@ $[TAB]$[DEL_CMD] $[osfilename $[f]]
 // TXO file installation.
 #forscopes install_tex
   #foreach file $[SOURCES]
-    #define local $[basename $[file]].txo
+    #define local $[basename $[file]].txo.pz
     #define remote $[notdir $[local]]
     #define dest $[install_tex_dir]
     #adddict texture_index $[ABSDIR]/$[file],$[dest]/$[remote]
@@ -867,7 +905,7 @@ $[TAB]$[COPY_CMD] $[osfilename $[local]] $[osfilename $[dest]]
 uninstall-tex :
 #forscopes install_tex
   #define files \
-    $[foreach img,$[SOURCES],$[install_tex_dir]/$[notdir $[basename $[img]].txo]]
+    $[foreach img,$[SOURCES],$[install_tex_dir]/$[notdir $[basename $[img]].txo.pz]]
   #if $[files]
     #foreach f $[files]
 $[TAB]$[DEL_CMD] $[osfilename $[f]]
