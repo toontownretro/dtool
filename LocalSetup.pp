@@ -83,6 +83,7 @@
 #call report_package SPIRV_TOOLS,SPIR-V Tools
 #call report_package SPIRV_CROSS,SPIR-V Cross
 #call report_package EMBREE,Intel Embree
+#call report_package OIDN,Intel OpenImageDenoise
 
 #print
 #if $[and $[HAVE_INTERROGATE],$[HAVE_PYTHON]]

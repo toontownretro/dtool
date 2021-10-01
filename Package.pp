@@ -342,6 +342,11 @@
 #set EMBREE_LIBS $[EMBREE_LIBS]
 #set HAVE_EMBREE $[HAVE_EMBREE]
 
+#set OIDN_IPATH $[unixfilename $[OIDN_IPATH]]
+#set OIDN_LPATH $[unixfilename $[OIDN_LPATH]]
+#set OIDN_LIBS $[OIDN_LIBS]
+#set HAVE_OIDN $[HAVE_OIDN]
+
 // Now infer a few more variables based on what was defined.
 #if $[and $[HAVE_GTK],$[PKG_CONFIG]]
   #define cflags $[shell $[PKG_CONFIG] gtk+-2.0 --cflags]

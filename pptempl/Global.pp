@@ -381,6 +381,12 @@
   #define embree_libs $[EMBREE_LIBS]
 #endif
 
+#if $[HAVE_OIDN]
+  #define oidn_ipath $[wildcard $[OIDN_IPATH]]
+  #define oidn_lpath $[wildcard $[OIDN_LPATH]]
+  #define oidn_libs $[OIDN_LIBS]
+#endif
+
 // We define these two variables true here in the global scope; a
 // particular Sources.pp file can redefine these to be false to
 // prevent a particular directory or target from being built in
