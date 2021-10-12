@@ -3,7 +3,8 @@
 //
 // This file is loaded and run after each Sources.pp is read.  It
 // defines the inter-directory dependencies, which is useful for
-// determining build order.
+// determining build order, and makes necessary decisions about the
+// different targets in each Sources.pp.
 //
 
 #if $[eq $[DIR_TYPE], toplevel]
