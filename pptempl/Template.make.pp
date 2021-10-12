@@ -375,8 +375,9 @@ igate : $[get_igatedb(python_module_target lib_target ss_lib_target)]
 // we define BUILDING_DLL directly for the target.
 
 #define building_var
-#if $[eq $[module $[TARGET],$[TARGET]],]
-  // If we're not on a metalib, use the BUILDING_DLL directly from the target.
+#if $[or $[BUILD_COMPONENTS], $[eq $[module $[TARGET],$[TARGET]],]]
+  // If we're not on a metalib or building components, use the BUILDING_DLL
+  // directly from the target.
   #set building_var $[BUILDING_DLL]
 #else
   // If we're on a metalib, use the metalib's BUILDING_DLL instead of ours.

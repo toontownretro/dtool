@@ -178,8 +178,8 @@
 // we define BUILDING_DLL directly for the target.
 
 #define building_var
-#if $[or $[BUILD_COMPONENTS],$[eq $[module $[TARGET],$[TARGET]],]]
-  // If we're not on a metalib, or building components, use the BUILDING_DLL
+#if $[or $[BUILD_COMPONENTS], $[eq $[module $[TARGET],$[TARGET]],]]
+  // If we're not on a metalib or building components, use the BUILDING_DLL
   // directly from the target.
   #set building_var $[BUILDING_DLL]
 #else
