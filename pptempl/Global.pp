@@ -459,6 +459,7 @@
 // The default library extension various based on the OS.
 #defer dynamic_lib_ext $[DYNAMIC_LIB_EXT]
 #defer static_lib_ext $[STATIC_LIB_EXT]
+#defer prog_ext $[PROG_EXT]
 #defer lib_ext $[if $[link_as_bundle],$[bundle_ext],$[if $[lib_is_static],$[static_lib_ext],$[dynamic_lib_ext]]]
 
 #defer link_lib_c $[if $[link_as_bundle],$[bundle_lib_c],$[if $[lib_is_static],$[static_lib_c],$[shared_lib_c]]]
@@ -475,8 +476,9 @@
 // This variable is true if the lib has an associated pdb (Windows
 // only).  It appears that pdb's are generated only for dll's, not for
 // static libs.
-#defer has_pdb $[and $[build_pdbs],$[not $[lib_is_static]]]
-
+#defer obj_has_pdb $[and $[build_pdbs],$[HAVE_DEBUG_INFORMATION],$[not $[EMBED_OBJECT_DEBUG_INFO]]]
+#defer lib_has_pdb $[and $[build_pdbs],$[HAVE_DEBUG_INFORMATION],$[not $[lib_is_static]]]
+#defer prog_has_pdb $[and $[build_pdbs],$[HAVE_DEBUG_INFORMATION]]
 
 // This takes advantage of the above two variables to get the actual
 // list of local libraries we are to link with, eliminating those that
@@ -930,6 +932,48 @@ Warning: Variable $[upcase $[tree]]_INSTALL is not set!
     $[if $[INTERROGATE_C_INTERFACE],-c] \
     $[if $[IMPORT],$[patsubst %,-import %, $[IMPORT]]]
 
+#defun get_metalibs target,complete_libs
+  // In Windows, we need to know the complete set of metalibs that
+  // encapsulates each of the libraries we'd be linking with normally.
+  // In the case where a particular library is not part of a metalib,
+  // we include the library itself.  If we're building components, this
+  // just returns exactly what was passed in.
+
+  #define actual_libs
+  #define my_modmeta $[module $[TARGET],$[target]]
+  #if $[not $[BUILD_COMPONENTS]]
+    #foreach lib $[complete_libs]
+      #if $[all_libs $[TARGET],$[lib]]
+        // This is a local library (within this tree).  Only link with it if
+        // it's actually being built and it's not part of a metalib.
+        #if $[all_libs $[and $[build_directory],$[build_target]],$[lib]]
+          #define modmeta $[module $[TARGET],$[lib]]
+          // Check if this dependent lib is on a metalib.  If it is, we should
+          // depend on the metalib instead, but not if we are both components
+          // of the same metalib.
+          #if $[and $[ne $[modmeta],],$[ne $[modmeta],$[my_modmeta]]]
+            #if $[ne $[modmeta],$[target]]  // We don't link with ourselves.
+              #set actual_libs $[actual_libs] $[modmeta]
+            #endif
+          #else
+            #set actual_libs $[actual_libs] $[lib]
+          #endif
+        #endif
+      #else
+        // This library isn't local to this tree, link with it.
+        #set actual_libs $[actual_libs] $[lib]
+      #endif
+    #end lib
+  #else
+    // If we're not building components, we link with everything.
+    #set actual_libs $[complete_libs]
+  #endif
+
+  #set actual_libs $[unique $[actual_libs]]
+  $[actual_libs]
+#end get_metalibs
+
+#defer actual_local_libs $[get_metalibs $[TARGET],$[complete_local_libs]]
 
 // The language stuff is used by model builds only.
 // Set language_filters to be "%_english %_castillian %_japanese %_german" etc.

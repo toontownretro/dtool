@@ -20,7 +20,7 @@
 // *******************************************************************
 
 // What additional flags should we pass to interrogate?
-#define SYSTEM_IGATE_FLAGS -D__int64 -D_X86_ -DWIN32_VC -D"_declspec(param)=" -D"__declspec(param)=" -D_near  -D_far -D__near  -D__far -D_WIN32 -D__stdcall -Dvolatile -Dmutable -DWIN32
+#define SYSTEM_IGATE_FLAGS $[if $[WIN64_PLATFORM], -D_X64 -DWIN64_VC -DWIN64 -D_WIN64, -D_X86_ -DWIN32 -DWIN32_VC] -D__int64 -D"_declspec(param)=" -D"__declspec(param)=" -D_near  -D_far -D__near  -D__far -D_WIN32 -D__stdcall -Dvolatile -Dmutable
 
 // Additional flags to pass to the Tau instrumentor.
 #define TAU_INSTRUMENTOR_FLAGS -DTAU_USE_C_API -DPROFILING_ON -DWIN32_VC -D_WIN32 -D__cdecl= -D__stdcall= -D__fastcall= -D__i386 -D_MSC_VER=1310 -D_W64=  -D_INTEGRAL_MAX_BITS=64 --exceptions --late_tiebreaker --no_class_name_injection --no_warnings --restrict --microsoft --new_for_init
@@ -166,10 +166,110 @@
 // The dynamic library file extension (usually .so .dll or .dylib):
 #define DYNAMIC_LIB_EXT .dll
 #define STATIC_LIB_EXT .lib
+#define PROG_EXT .exe
 #define BUNDLE_EXT
 
 // The Python module file extension
 #define PYTHON_MODULE_EXT .pyd
 
-// Use SSE2 instructions on Win32.
-#define ARCH_FLAGS /arch:SSE2
+// Use AVX instructions on Win64, SSE2 on Win32
+#define ARCH_FLAGS $[if $[WIN64_PLATFORM], /arch:AVX, /arch:SSE2]
+
+// How to install files and programs.  On Windows, this just copies the file.
+#defer INSTALL $[COPY_CMD $[local], $[dest]]
+#defer INSTALL_PROG $[INSTALL]
+
+// What define variables should be passed to the compilers for each
+// value of OPTIMIZE?  We separate this so we can pass these same
+// options to interrogate, guaranteeing that the correct interfaces
+// are generated.  Do not include -D here; that will be supplied
+// automatically.
+#defer CDEFINES_OPT1 $[EXTRA_CDEFS]
+#defer CDEFINES_OPT2 $[EXTRA_CDEFS]
+#defer CDEFINES_OPT3 $[EXTRA_CDEFS]
+#defer CDEFINES_OPT4 $[EXTRA_CDEFS]
+
+#define CFLAGS_SHARED /D_USE_MATH_DEFINES
+
+#define DO_CROSSOBJ_OPT 1
+
+// Should debugging information for object files be embedded into the
+// object file or outputted to a separate .pdb file?  This is forced
+// to true when using Clang.
+#define EMBED_OBJECT_DEBUG_INFO
+
+#defer DEBUGFLAGS $[if $[ne $[LINK_FORCE_STATIC_RELEASE_C_RUNTIME],],/MTd, /MDd] $[BROWSEINFO_FLAG] $[DEBUGINFOFLAGS] $[DEBUGPDBFLAGS]
+#defer RELEASEFLAGS $[if $[ne $[LINK_FORCE_STATIC_RELEASE_C_RUNTIME],],/MT, /MD]
+
+// What additional flags should be passed for each value of OPTIMIZE
+// (above)?  We separate out the compiler-optimization flags, above,
+// so we can compile certain files that give optimizers trouble (like
+// the output of lex and yacc) without them, but with all the other
+// relevant flags.
+#defer CFLAGS_OPT1 $[CDEFINES_OPT1:%=/D%] $[COMMONFLAGS] $[DEBUGFLAGS] $[OPT1FLAGS] $[DEBUGPDBFLAGS]
+#defer CFLAGS_OPT2 $[CDEFINES_OPT2:%=/D%] $[COMMONFLAGS] $[DEBUGFLAGS] $[if $[no_opt],$[OPT1FLAGS],$[OPTFLAGS]] $[DEBUGPDBFLAGS]
+#defer CFLAGS_OPT3 $[CDEFINES_OPT3:%=/D%] $[COMMONFLAGS] $[RELEASEFLAGS] $[if $[no_opt],$[OPT1FLAGS],$[OPTFLAGS]] $[DEBUGPDBFLAGS]
+#defer CFLAGS_OPT4 $[CDEFINES_OPT4:%=/D%] $[COMMONFLAGS] $[RELEASEFLAGS] $[if $[no_opt],$[OPT1FLAGS],$[OPTFLAGS] $[OPT4FLAGS]]
+
+// What flags should be passed to the linker for each value of optimize?
+#defer LDFLAGS_OPT1 $[LINKER_FLAGS] $[LDFLAGS_OPT1]
+#defer LDFLAGS_OPT2 $[LINKER_FLAGS] $[LDFLAGS_OPT2]
+#defer LDFLAGS_OPT3 $[LINKER_FLAGS] $[LDFLAGS_OPT3]
+#defer LDFLAGS_OPT4 $[LINKER_FLAGS] $[LDFLAGS_OPT4]
+
+#define COMMONFLAGS /Zc:forScope /bigobj /Gd /fp:fast /MP
+
+#define SMALL_OPTFLAGS /O1 /Os /Oy /Ob2 /GF /Gy
+#define FAST_OPTFLAGS /O2 /Oi /Ot /Oy /Ob2 /GF /Gy
+
+#defer OPTFLAGS $[if $[OPT_MINSIZE],$[SMALL_OPTFLAGS],$[FAST_OPTFLAGS]]
+
+#define OPT1FLAGS /RTCs /GS
+
+#define WARNING_LEVEL_FLAG /W3
+
+// Note: Clang does not support /Zi, so /Z7 must be used instead.  /Zi causes
+// a full rebuild every time on Clang.
+
+#defer HAVE_DEBUG_INFORMATION $[< $[OPTIMIZE], 4]
+
+#defer DEBUGPDBFLAGS $[if $[HAVE_DEBUG_INFORMATION], $[if $[EMBED_OBJECT_DEBUG_INFO], /Z7, /Zi /Fd"$[osfilename $[patsubst %.obj,%.pdb, $[target]]]"]]
+
+#define LINKER_FLAGS /DEBUG $[if $[WIN64_PLATFORM], /MACHINE:X64, /MACHINE:X86] /fixed:no /incremental:no /stack:4194304
+
+#define C++FLAGS_GEN /DWIN32_VC /DWIN32=1 /D_HAS_STD_BYTE=0 \
+                     /std:c++17 /D_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS \
+                     /D_ENABLE_EXTENDED_ALIGNED_STORAGE /D_HAS_EXCEPTIONS=0
+
+// How to compile a C or C++ file into a .obj file.  $[target] is the
+// name of the .obj file, $[source] is the name of the source file,
+// $[ipath] is a space-separated list of directories to search for
+// include files, and $[flags] is a list of additional flags to pass
+// to the compiler.
+#defer COMPILE_C $[COMPILER] $[patsubst -D%,/D%,$[CFLAGS_GEN] $[ARCH_FLAGS]] $[DEBUGPDBFLAGS] /c /Fo"$[osfilename $[target]]" \
+                 $[patsubst %,-I$[osfilename %],$[ipath]] $[patsubst -D%,/D%,$[flags]] "$[osfilename $[source]]"
+#defer COMPILE_C++ $[COMPILER] $[patsubst -D%,/D%,$[C++FLAGS_GEN] $[ARCH_FLAGS]] $[DEBUGPDBFLAGS] /c /Fo"$[osfilename $[target]]" \
+                   $[patsubst %,-I$[osfilename %],$[ipath]] $[patsubst -D%,/D%,$[flags]] "$[osfilename $[source]]"
+
+// How to generate a static C or C++ library.  $[target] is the
+// name of the library to generate, and $[sources] is the list of .obj
+// files that will go into the library.
+#defer STATIC_LIB_C $[LINKER] /LIB /OUT:"$[osfilename $[target]]" $[osfilename $[sources]]
+#defer STATIC_LIB_C++ $[STATIC_LIB_C]
+
+// How to generate a shared C or C++ library.  $[source] and $[target]
+// as above, and $[libs] is a space-separated list of dependent
+// libraries, and $[lpath] is a space-separated list of directories in
+// which those libraries can be found.
+#defer SHARED_LIB_C $[LINKER] /DLL $[LDFLAGS_OPT$[OPTIMIZE]] /OUT:"$[osfilename $[target]]" $[osfilename $[sources]] $[patsubst %,/LIBPATH:"$[osfilename %]",$[lpath] $[EXTRA_LIBPATH] $[tau_lpath]] $[patsubst %.lib,%.lib,%,lib%.lib,$[libs]] $[tau_libs]
+#defer SHARED_LIB_C++ $[SHARED_LIB_C]
+
+// How to generate a C or C++ executable from a collection of .obj
+// files.  $[target] is the name of the binary to generate, and
+// $[sources] is the list of .obj files.  $[libs] is a space-separated
+// list of dependent libraries, and $[lpath] is a space-separated list
+// of directories in which those libraries can be found.
+#defer LINK_BIN_C $[LINKER] $[LDFLAGS_OPT$[OPTIMIZE]] $[osfilename $[sources]] $[patsubst %,/LIBPATH:"$[osfilename %]",$[lpath] $[EXTRA_LIBPATH] $[tau_lpath]] $[patsubst %.lib,%.lib,%,lib%.lib,$[libs]] $[tau_libs] /OUT:"$[osfilename $[target]]"
+#defer LINK_BIN_C++ $[LINK_BIN_C]
+
+#define build_pdbs 1

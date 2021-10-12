@@ -31,18 +31,6 @@
 #endif
 #define texattrib_file $[texattrib_dir]/textures.txa
 
-#if $[eq $[BUILD_TYPE], nmake]
-  #define TOUCH_CMD echo.>>
-  #define COPY_CMD xcopy /I/Y
-  #define DEL_CMD del /f/s/q
-  #define DEL_DIR_CMD rmdir /s/q
-#else
-  #define TOUCH_CMD touch
-  #define COPY_CMD cp
-  #define DEL_CMD rm -rf
-  #define DEL_DIR_CMD rm -rf
-#endif
-
 //////////////////////////////////////////////////////////////////////
 #if $[eq $[DIR_TYPE], models]
 //////////////////////////////////////////////////////////////////////
@@ -290,76 +278,76 @@ uninstall : uninstall-other uninstall-tex uninstall-mat uninstall-bam
 clean-tex :
 #if $[build_texs]
   #foreach f $[build_texs]
-$[TAB]$[DEL_CMD] $[osfilename $[f]]
+$[TAB]$[DEL_CMD $[f]]
   #end f
 #endif
 
 clean-mat :
 #if $[build_mats]
   #foreach f $[build_mats]
-$[TAB]$[DEL_CMD] $[osfilename $[f]]
+$[TAB]$[DEL_CMD $[f]]
   #end f
 #endif
 
 clean-bam :
 #if $[bam_targets]
-$[TAB]$[DEL_CMD] $[osfilename $[bam_dir]]
+$[TAB]$[DEL_CMD $[bam_dir]]
 #endif
 
 clean-pal : clean-bam
 #if $[pal_egg_targets]
-$[TAB]$[DEL_CMD] $[osfilename $[pal_egg_dir]]
+$[TAB]$[DEL_CMD $[pal_egg_dir]]
 #endif
 
 clean-flt :
 #if $[build_flt_eggs]
   #foreach f $[build_flt_eggs]
-$[TAB]$[DEL_CMD] $[osfilename $[f]]
+$[TAB]$[DEL_CMD $[f]]
   #end f
 #endif
 
 clean-blender :
 #if $[build_blender_eggs]
   #foreach f $[build_blender_eggs]
-$[TAB]$[DEL_CMD] $[osfilename $[f]]
+$[TAB]$[DEL_CMD $[f]]
   #end f
 #endif
 
 clean-lwo :
 #if $[build_lwo_eggs]
   #foreach f $[build_lwo_eggs]
-$[TAB]$[DEL_CMD] $[osfilename $[f]]
+$[TAB]$[DEL_CMD $[f]]
   #end f
 #endif
 
 clean-maya :
 #if $[build_maya_eggs]
   #foreach f $[build_maya_eggs]
-$[TAB]$[DEL_CMD] $[osfilename $[f]]
+$[TAB]$[DEL_CMD $[f]]
   #end f
 #endif
 
 clean-soft :
 #if $[build_soft_eggs]
   #foreach f $[build_soft_eggs]
-$[TAB]$[DEL_CMD] $[osfilename $[f]]
+$[TAB]$[DEL_CMD $[f]]
   #end f
 #endif
 
 clean-optchar :
 #if $[optchar_dirs]
-$[TAB]$[DEL_CMD] $[osfilename $[optchar_dirs]]
+$[TAB]$[DEL_CMD $[optchar_dirs]]
 #endif
 
 clean : clean-pal
 #if $[build_eggs]
   #foreach egg $[build_eggs]
-$[TAB]$[DEL_CMD] $[osfilename $[egg]]
+$[TAB]$[DEL_CMD $[egg]]
   #end egg
-$[TAB]$[DEL_CMD] *.pt
+$[TAB]$[DEL_CMD *.pt]
 #endif
 #if $[filter_dirs]
-$[TAB]$[DEL_CMD] $[osfilename $[filter_dirs]]
+$[TAB]$[DEL_CMD $[filter_dirs]]
 #endif
 
 // We need a rule for each directory we might need to make.  This
@@ -392,11 +380,11 @@ $[TAB]@test -d $[directory] || mkdir -p $[directory]
 $[directory]/stamp :
 #if $[eq $[BUILD_TYPE], nmake]
 $[TAB]if not exist $[osfilename $[directory]] mkdir $[osfilename $[directory]]
-$[TAB]$[TOUCH_CMD] $[osfilename $[directory]/stamp]
+$[TAB]$[TOUCH_CMD $[directory]/stamp]
 #else
 $[TAB]@test -d $[directory] || echo mkdir -p $[directory]
 $[TAB]@test -d $[directory] || mkdir -p $[directory]
-$[TAB]$[TOUCH_CMD] $[directory]/stamp
+$[TAB]$[TOUCH_CMD $[directory]/stamp]
 #endif
 
 #end directory
@@ -407,7 +395,7 @@ $[TAB]$[TOUCH_CMD] $[directory]/stamp
     #define target $[gz:%.gz=%]
     #define source $[gz]
 $[target] : $[source]
-$[TAB]$[DEL_CMD] $[osfilename $[target]]
+$[TAB]$[DEL_CMD $[target]]
 $[TAB]gunzip $[GUNZIP_OPTS] < $[source] > $[target]
 
   #end gz
@@ -618,7 +606,7 @@ $[TAB]$[SOFT2EGG] $[SOFT2EGG_OPTS] $[if $[SOFTIMAGE_RSRC],-r "$[osfilename $[SOF
     #define source $[word $[i],$[SOURCES]]
     #define target $[word $[i],$[TARGETS]]
 $[target] : $[source]
-$[TAB]$[COPY_CMD] $[osfilename $[source]] $[osfilename $[target]]
+$[TAB]$[COPY_CMD $[source], $[target]]
   #end i
 #end copy_egg
 
@@ -643,7 +631,7 @@ $[TAB]$[COMMAND]
    // first one.
   #foreach egg $[notdir $[wordlist 2,9999,$[SOURCES]]]
 $[TARGET_DIR]/$[egg] : $[target] $[TARGET_DIR]/stamp
-$[TAB]$[TOUCH_CMD] $[osfilename $[TARGET_DIR]/$[egg]]
+$[TAB]$[TOUCH_CMD $[TARGET_DIR]/$[egg]]
   #end egg
 
    // And this is the actual filter pass.
@@ -655,12 +643,12 @@ $[target] : $[sources] $[TARGET_DIR]/stamp
   // we don't have race conditions with parallel make, when multiple optchar/
   // filter passes run in the same directory.
   #define sources_file $[basename $[notdir $[word 1,$[sources]]]].optchar
-$[TAB] $[DEL_CMD] $[osfilename $[sources_file]]
+$[TAB]$[DEL_CMD $[sources_file]]
   #foreach file $[sources]
-$[TAB]echo $[file]>> $[sources_file]
+$[TAB]$[ECHO_TO_FILE $[file],$[sources_file],1]
   #end file
 $[TAB]$[COMMAND] -inf $[sources_file]
-$[TAB]$[DEL_CMD] $[sources_file]
+$[TAB]$[DEL_CMD $[sources_file]]
 #end filter_char_egg
 
 
@@ -686,7 +674,7 @@ $[TAB]egg-optchar -keepall $[OPTCHAR_OPTS] -d $[TARGET_DIR] $[source]
    // first one.
   #foreach egg $[notdir $[wordlist 2,9999,$[SOURCES]]]
 $[TARGET_DIR]/$[egg] : $[target] $[TARGET_DIR]/stamp
-$[TAB]$[TOUCH_CMD] $[osfilename $[TARGET_DIR]/$[egg]]
+$[TAB]$[TOUCH_CMD $[TARGET_DIR]/$[egg]]
   #end egg
 
    // And this is the actual optchar pass.
@@ -698,12 +686,12 @@ $[target] : $[sources] $[TARGET_DIR]/stamp
 ///// list from that file.  Comment out four lines below   //////
 ///// and uncomment line above to revert to the old way.   //////
   #define sources_file $[basename $[notdir $[word 1,$[sources]]]].optchar
-$[TAB] $[DEL_CMD] $[sources_file]
+$[TAB] $[DEL_CMD $[sources_file]]
   #foreach file $[sources]
-$[TAB]echo $[file]>> $[sources_file]
+$[TAB]$[ECHO_TO_FILE $[file],$[sources_file],1]
   #end file
 $[TAB]egg-optchar $[OPTCHAR_OPTS] -d $[TARGET_DIR] -inf $[sources_file]
-$[TAB]$[DEL_CMD] $[sources_file]
+$[TAB]$[DEL_CMD $[sources_file]]
 ////////////////////////////////
 #endif
 
@@ -723,7 +711,7 @@ $[TAB]egg-palettize $[PALETTIZE_OPTS] -af $[texattrib_file] -dr $[install_dir] -
     #endif
 
 $[pt] :
-$[TAB]$[TOUCH_CMD] $[pt]
+$[TAB]$[TOUCH_CMD $[pt]]
 
   #end egg
 #end install_egg
@@ -770,8 +758,8 @@ $[TAB]egg2bam -i $[TOPDIR]/$[PACKAGE]_index.boo $[EGG2BAM_OPTS] -NC -o $[target]
     #adddict model_index $[ABSDIR]/$[source_prefix]$[egg],$[dest]/$[local]
 
 $[dest]/$[local] : $[sourcedir]/$[local]
-$[TAB]$[DEL_CMD] $[osfilename $[dest]/$[local]]
-$[TAB]$[COPY_CMD] $[osfilename $[sourcedir]/$[local]] $[osfilename $[dest]]
+$[TAB]$[DEL_CMD $[dest]/$[local]]
+$[TAB]$[COPY_CMD $[sourcedir]/$[local], $[dest]]
 
   #end egg
   #if $[LANGUAGES]
@@ -791,8 +779,8 @@ $[TAB]$[COPY_CMD] $[osfilename $[sourcedir]/$[local]] $[osfilename $[dest]]
       #adddict model_index $[ABSDIR]/$[sourcedir]/$[local],$[dest]/$[remote]
 $[dest]/$[remote] : $[sourcedir]/$[local]
 //      cd ./$[sourcedir] && $[INSTALL]
-$[TAB]$[DEL_CMD] $[osfilename $[dest]/$[remote]]
-$[TAB]$[COPY_CMD] $[osfilename $[sourcedir]/$[local]] $[osfilename $[dest]/$[remote]]
+$[TAB]$[DEL_CMD $[dest]/$[remote]]
+$[TAB]$[COPY_CMD $[sourcedir]/$[local], $[dest]/$[remote]]
 
     #end egg
   #endif
@@ -808,8 +796,8 @@ $[TAB]$[COPY_CMD] $[osfilename $[sourcedir]/$[local]] $[osfilename $[dest]/$[rem
 
     #adddict model_index $[ABSDIR]/$[source_prefix]$[file],$[dest]/$[remote]
 $[dest]/$[remote] : $[local]
-$[TAB]$[DEL_CMD] $[osfilename $[dest]/$[remote]]
-$[TAB]$[COPY_CMD] $[osfilename $[local]] $[osfilename $[dest]]
+$[TAB]$[DEL_CMD $[dest]/$[remote]]
+$[TAB]$[COPY_CMD $[local], $[dest]]
   #end file
 #end install_mdl
 
@@ -824,7 +812,7 @@ uninstall-bam :
   #define files $[patsubst %.egg,$[install_model_dir]/%.bam,$[generic_egglist] $[language_egglist]]
   #if $[files]
     #foreach file $[files]
-$[TAB]$[DEL_CMD] $[osfilename $[file]]
+$[TAB]$[DEL_CMD $[file]]
     #end file
   #endif
 #end install_egg
@@ -832,7 +820,7 @@ $[TAB]$[DEL_CMD] $[osfilename $[file]]
   #define files $[patsubst %.pmdl,$[install_model_dir]/%.bam,$[SOURCES]]
   #if $[files]
     #foreach f $[files]
-$[TAB]$[DEL_CMD] $[osfilename $[f]]
+$[TAB]$[DEL_CMD $[f]]
     #end f
   #endif
 #end install_mdl
@@ -846,8 +834,8 @@ $[TAB]$[DEL_CMD] $[osfilename $[f]]
     #adddict dna_index $[ABSDIR]/$[local],$[dest]/$[remote]
 $[dest]/$[remote] : $[local]
 //      $[INSTALL]
-$[TAB]$[DEL_CMD] $[osfilename $[dest]/$[remote]]
-$[TAB]$[COPY_CMD] $[osfilename $[local]] $[osfilename $[dest]]
+$[TAB]$[DEL_CMD $[dest]/$[remote]]
+$[TAB]$[COPY_CMD $[local], $[dest]]
 
   #end file
   #if $[LANGUAGES]
@@ -865,8 +853,8 @@ $[TAB]$[COPY_CMD] $[osfilename $[local]] $[osfilename $[dest]]
       #define dest $[install_model_dir]
       #adddict dna_index $[ABSDIR]/$[local],$[dest]/$[remote]
 $[dest]/$[remote] : $[local]
-$[TAB]$[DEL_CMD] $[osfilename $[dest]/$[remote]]
-$[TAB]$[COPY_CMD] $[osfilename $[local]] $[osfilename $[dest]/$[remote]]
+$[TAB]$[DEL_CMD $[dest]/$[remote]]
+$[TAB]$[COPY_CMD $[local], $[dest]/$[remote]]
 
     #end file
   #endif
@@ -883,7 +871,7 @@ uninstall-other:
   #define files $[patsubst %,$[install_model_dir]/%,$[generic_sources] $[language_sources]]
   #if $[files]
     #foreach f $[files]
-$[TAB]$[DEL_CMD] $[osfilename $[f]]
+$[TAB]$[DEL_CMD $[f]]
     #end f
   #endif
 #end install_dna
@@ -896,8 +884,8 @@ $[TAB]$[DEL_CMD] $[osfilename $[f]]
     #define dest $[install_tex_dir]
     #adddict texture_index $[ABSDIR]/$[file],$[dest]/$[remote]
 $[dest]/$[remote] : $[local]
-$[TAB]$[DEL_CMD] $[osfilename $[dest]/$[remote]]
-$[TAB]$[COPY_CMD] $[osfilename $[local]] $[osfilename $[dest]]
+$[TAB]$[DEL_CMD $[dest]/$[remote]]
+$[TAB]$[COPY_CMD $[local], $[dest]]
   #end file
 #end install_tex
 
@@ -908,7 +896,7 @@ uninstall-tex :
     $[foreach img,$[SOURCES],$[install_tex_dir]/$[notdir $[basename $[img]].txo.pz]]
   #if $[files]
     #foreach f $[files]
-$[TAB]$[DEL_CMD] $[osfilename $[f]]
+$[TAB]$[DEL_CMD $[f]]
     #end f
   #endif
 
@@ -922,8 +910,8 @@ $[TAB]$[DEL_CMD] $[osfilename $[f]]
     #define dest $[install_mats_dir]
     #adddict material_index $[ABSDIR]/$[file],$[dest]/$[remote]
 $[dest]/$[remote] : $[local]
-$[TAB]$[DEL_CMD] $[osfilename $[dest]/$[remote]]
-$[TAB]$[COPY_CMD] $[osfilename $[local]] $[osfilename $[dest]]
+$[TAB]$[DEL_CMD $[dest]/$[remote]]
+$[TAB]$[COPY_CMD $[local], $[dest]]
   #end file
 #end install_mat
 
@@ -934,7 +922,7 @@ uninstall-mat :
     $[foreach mat,$[SOURCES],$[install_mats_dir]/$[notdir $[basename $[mat]].mto]]
   #if $[files]
     #foreach f $[files]
-$[TAB]$[DEL_CMD] $[osfilename $[f]]
+$[TAB]$[DEL_CMD $[f]]
     #end f
   #endif
 
@@ -949,8 +937,8 @@ $[TAB]$[DEL_CMD] $[osfilename $[f]]
     #adddict misc_index $[ABSDIR]/$[local],$[dest]/$[remote]
 $[dest]/$[remote] : $[local]
 //      $[INSTALL]
-$[TAB]$[DEL_CMD] $[osfilename $[dest]/$[remote]]
-$[TAB]$[COPY_CMD] $[osfilename $[local]] $[osfilename $[dest]]
+$[TAB]$[DEL_CMD $[dest]/$[remote]]
+$[TAB]$[COPY_CMD $[local], $[dest]]
 
   #end file
 #end install_audio install_icons install_shader install_misc
@@ -962,7 +950,7 @@ uninstall-other :
   #define files $[patsubst %,$[dest]/%,$[SOURCES]]
   #if $[files]
     #foreach f $[files]
-$[TAB]$[DEL_CMD] $[osfilename $[f]]
+$[TAB]$[DEL_CMD $[f]]
     #end f
   #endif
 #end install_audio install_icons install_shader install_misc
@@ -1049,9 +1037,9 @@ $[TAB]egg-palettize $[PALETTIZE_OPTS] -af $[texattrib_file] -dm $[install_dir]/%
 #
 undo-pal : clean-pal
 #if $[eq $[BUILD_TYPE], nmake]
-$[TAB]$[DEL_CMD] $[osfilename $[texattrib_file:%.txa=%.boo]]
+$[TAB]$[DEL_CMD $[texattrib_file:%.txa=%.boo]]
 #else
-$[TAB]$[DEL_CMD] $[texattrib_file:%.txa=%.boo]
+$[TAB]$[DEL_CMD $[texattrib_file:%.txa=%.boo]]
 #endif
 #
 # pi : report the palettization information to standard output for the

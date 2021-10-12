@@ -84,6 +84,45 @@
 
 #endif
 
+#if $[WINDOWS_PLATFORM]
+
+#define C++FLAGS_GEN $[C++FLAGS_GEN] $[WARNING_LEVEL_FLAG]
+
+#if $[eq $[USE_COMPILER], Clang]
+  // Add some extra flags to shut Clang up a bit.
+  #define C++FLAGS_GEN $[C++FLAGS_GEN] \
+    -Wno-microsoft-template -Wno-inconsistent-missing-override \
+    -Wno-reorder-ctor -Wno-enum-compare-switch \
+    -Wno-microsoft -Wno-register
+
+  #define EMBED_OBJECT_DEBUG_INFO 1
+
+  #define COMPILER clang-cl
+  #define LINKER lld-link
+
+  // /MP is not supported on clang.
+  #define COMMONFLAGS $[filter-out /MP, $[COMMONFLAGS]]
+
+#else // MSVC compiler.
+  #define COMPILER cl
+  #define LINKER link
+#endif
+
+#if $[DO_CROSSOBJ_OPT]
+  #define OPT4FLAGS /GL
+  #define LDFLAGS_OPT4 /LTGC
+#endif
+
+#if $[HAVE_RTTI]
+  #define C++FLAGS_GEN $[C++FLAGS_GEN] /GR
+#endif
+
+#if $[WIN64_PLATFORM]
+  #define C++FLAGS_GEN $[C++FLAGS_GEN] /DWIN64_VC /DWIN64=1
+#endif
+
+#endif // WINDOWS_PLATFORM
+
 // Force disable RTTI on release builds.
 //#if $[>= $[OPTIMIZE],4]
 //  #define HAVE_RTTI

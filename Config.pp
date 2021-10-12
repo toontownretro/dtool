@@ -68,21 +68,16 @@
 // suitable template file from the ppremake system files.  The
 // allowable choices, at present, are:
 //
-//  unix      - Generate makefiles suitable for most Unix platforms.
+//  make      - Generate makefiles suitable for most Unix platforms.
+//              This can also be used on Windows with nmake or jom.
 //  msbuild   - Generate project files for Microsoft's MSBuild build
 //              system.  These can be built natively on Windows,
 //              eliminating the need for Cygwin.
-//  gmsvc     - Generate makefiles for Microsoft Visual C++ using the
-//              Cygwin-supplied GNU make.
 
 #if $[or $[eq $[PLATFORM], Win32],$[eq $[PLATFORM], Win64]]
   #define BUILD_TYPE msbuild
-#elif $[or $[eq $[PLATFORM], Cygwin],$[eq $[PLATFORM], Cygwin64]]
-  #define BUILD_TYPE gmsvc
-#elif $[OSX_PLATFORM]
-  #define BUILD_TYPE unix
 #else
-  #define BUILD_TYPE unix
+  #define BUILD_TYPE make
 #endif
 
 // Determine a sensible default location to search for third-party packages
@@ -1133,7 +1128,7 @@
 
 #if $[WINDOWS_PLATFORM]
   #if $[eq $[USE_COMPILER],]
-    #define USE_COMPILER MSVC14.2x64
+    #define USE_COMPILER MSVC
   #endif
 #elif $[eq $[PLATFORM], Irix]
   #define USE_COMPILER MIPS
