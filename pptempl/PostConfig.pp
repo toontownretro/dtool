@@ -2,6 +2,14 @@
 // the user's personal Config.pp file.  It makes decisions necessary
 // following the user's Config settings.
 
+// Force disable RTTI on release builds.
+#if $[>= $[OPTIMIZE],4]
+  #define HAVE_RTTI
+#endif
+
+// Force disable for now.
+#define HAVE_RTTI
+
 #if $[and $[OSX_PLATFORM],$[BUILD_IPHONE]]
   //#define IPH_PLATFORM iPhoneSimulator
   #define IPH_PLATFORM $[BUILD_IPHONE]
@@ -122,11 +130,3 @@
 #endif
 
 #endif // WINDOWS_PLATFORM
-
-// Force disable RTTI on release builds.
-//#if $[>= $[OPTIMIZE],4]
-//  #define HAVE_RTTI
-//#endif
-
-// Force disable for now.
-#define HAVE_RTTI

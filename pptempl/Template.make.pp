@@ -23,6 +23,10 @@
 // $DTOOL/pptempl/Depends.pp, once for each Sources.pp file
 // Template.make.pp (this file), once for each Sources.pp file
 
+#if $[< $[PPREMAKE_VERSION],1.25]
+  #error You need at least ppremake version 1.25 to generate Makefiles.
+#endif
+
 // Include portable aliases for OS-specific console commands.
 #include $[THISDIRPREFIX]SystemCommands.pp
 
@@ -1124,9 +1128,6 @@ $[TAB] ppremake
 #elif $[or $[eq $[DIR_TYPE], models],$[eq $[DIR_TYPE], models_toplevel],$[eq $[DIR_TYPE], models_group]]
 //////////////////////////////////////////////////////////////////////
 
-#if $[WINDOWS_PLATFORM]
-  #define BUILD_TYPE nmake
-#endif
 #include $[THISDIRPREFIX]Template.models.pp
 
 //////////////////////////////////////////////////////////////////////

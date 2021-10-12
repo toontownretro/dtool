@@ -11,8 +11,8 @@
 // environment.
 //
 
-#if $[< $[PPREMAKE_VERSION],1.24]
-  #error You need at least ppremake version 1.24 to build models.
+#if $[< $[PPREMAKE_VERSION],1.25]
+  #error You need at least ppremake version 1.25 to build models.
 #endif
 
 #if $[and $[CTPROJS],$[not $[findstring PANDATOOL,$[CTPROJS]]]]
@@ -367,7 +367,7 @@ $[TAB]$[DEL_CMD $[filter_dirs]]
     $[install_mat_dirs] \
     ]
 $[directory] :
-#if $[eq $[BUILD_TYPE], nmake]
+#if $[WINDOWS_PLATFORM]
 $[TAB]if not exist $[osfilename $[directory]] mkdir $[osfilename $[directory]]
 #else
 $[TAB]@test -d $[directory] || echo mkdir -p $[directory]
@@ -378,7 +378,7 @@ $[TAB]@test -d $[directory] || mkdir -p $[directory]
 // being fooled by the directory's modification times.  We use this
 // phony timestamp file to achieve that.
 $[directory]/stamp :
-#if $[eq $[BUILD_TYPE], nmake]
+#if $[WINDOWS_PLATFORM]
 $[TAB]if not exist $[osfilename $[directory]] mkdir $[osfilename $[directory]]
 $[TAB]$[TOUCH_CMD $[directory]/stamp]
 #else
@@ -1036,11 +1036,7 @@ $[TAB]egg-palettize $[PALETTIZE_OPTS] -af $[texattrib_file] -dm $[install_dir]/%
 # undo-pal : blow away all the palettization information and start fresh.
 #
 undo-pal : clean-pal
-#if $[eq $[BUILD_TYPE], nmake]
 $[TAB]$[DEL_CMD $[texattrib_file:%.txa=%.boo]]
-#else
-$[TAB]$[DEL_CMD $[texattrib_file:%.txa=%.boo]]
-#endif
 #
 # pi : report the palettization information to standard output for the
 # user's perusal.
