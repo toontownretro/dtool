@@ -89,6 +89,14 @@
     #define is_interface 1
   #end interface_target
 
+  // If we're building components, do not build the metalib libraries.
+  // All of the components will be linked into separate .dlls.
+  #if $[BUILD_COMPONENTS]
+    #forscopes metalib_target
+      #define BUILD_TARGET
+    #end metalib_target
+  #endif // BUILD_COMPONENTS
+
   #forscopes test_bin_target test_lib_target
     #define BUILD_TARGET $[BUILD_TESTS]
   #end test_bin_target test_lib_target
