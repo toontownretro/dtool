@@ -830,9 +830,9 @@ $[TAB] $[compile_c]
 #define source $[file]
 #define ipath $[target_ipath]
 #if $[WINDOWS_PLATFORM]
-#define flags $[cflags] $[building_var:%=/D%]
+#define flags $[c++flags] $[building_var:%=/D%]
 #else
-#define flags $[cflags] $[building_var:%=-D%]
+#define flags $[c++flags] $[building_var:%=-D%]
 #endif
 #if $[ne $[file], $[notdir $file]]
   // If the source file is not in the current directory, tack on "."
@@ -952,7 +952,7 @@ $[TAB] $[INSTALL]
 
 #if $[install_py]
 $[osgeneric $[install_py_package_dir]/__init__.py] :
-$[TAB] $[TOUCH_CMD] $[osfilename $[install_py_package_dir]/__init__.py]
+$[TAB] $[TOUCH_CMD $[install_py_package_dir]/__init__.py]
 #endif
 
 // Finally, all the special targets.  These are commands that just need

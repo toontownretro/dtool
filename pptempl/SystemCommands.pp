@@ -9,7 +9,7 @@
 // For Windows.
 
 #defun TOUCH_CMD file
-  #defile osfile $[osfilename $[file]]
+  #define osfile $[osfilename $[file]]
   if not exist $[osfile] echo.>> $[osfile] else copy /b $[osfile] +,,
 #end TOUCH_CMD
 
