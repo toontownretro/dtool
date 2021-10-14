@@ -9,7 +9,12 @@
 #begin metalib_target
   #define TARGET dtool
 
-  #define BUILDING_DLL BUILDING_DTOOL
+  #if $[BUILD_COMPONENTS]
+    #define BUILDING_DLL BUILDING_DTOOL_STUB
+  #else
+    #define BUILDING_DLL BUILDING_DTOOL
+  #endif
+
   #define COMPONENT_LIBS dtoolutil dtoolbase
 
   #define SOURCES dtool.cxx
