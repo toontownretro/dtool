@@ -480,6 +480,12 @@
 #defer lib_has_pdb $[and $[build_pdbs],$[HAVE_DEBUG_INFORMATION],$[not $[lib_is_static]]]
 #defer prog_has_pdb $[and $[build_pdbs],$[HAVE_DEBUG_INFORMATION]]
 
+// Returns true if the current scope defines an interface library target.
+// Interface targets are libraries that do not have any buildable code,
+// but contain header files and definitions that can be inherited by another
+// library.
+#defer is_interface $[eq $[SCOPE],interface_target]
+
 // This takes advantage of the above two variables to get the actual
 // list of local libraries we are to link with, eliminating those that
 // won't be built.

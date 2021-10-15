@@ -86,10 +86,6 @@
     #define dllext
   #end python_target python_module_target
 
-  #forscopes interface_target
-    #define is_interface 1
-  #end interface_target
-
   #forscopes test_bin_target test_lib_target
     #define BUILD_TARGET $[BUILD_TESTS]
   #end test_bin_target test_lib_target
