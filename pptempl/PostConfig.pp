@@ -105,15 +105,27 @@
 
   #define EMBED_OBJECT_DEBUG_INFO 1
 
-  #define COMPILER clang-cl
-  #define LINKER lld-link
+  #if $[eq $[COMPILER],]
+    #define COMPILER clang-cl.exe
+  #endif
+  #if $[eq $[LINKER],]
+    #define LINKER lld-link.exe
+  #endif
 
   // /MP is not supported on clang.
   #define COMMONFLAGS $[filter-out /MP, $[COMMONFLAGS]]
 
+  // Needed for MSBuild.
+  #if $[eq $[COMPILER_PATH],]
+    #define COMPILER_PATH $[unixshortname C:\Program Files\LLVM\bin]
+  #endif
+  #if $[eq $[LINKER_PATH],]
+    #define LINKER_PATH $[unixshortname C:\Program Files\LLVM\bin]
+  #endif
+
 #else // MSVC compiler.
-  #define COMPILER cl
-  #define LINKER link
+  #define COMPILER cl.exe
+  #define LINKER link.exe
 #endif
 
 #if $[DO_CROSSOBJ_OPT]

@@ -47,9 +47,6 @@
 #defer get_depended_targets \
   $[sort $[get_metalibs $[TARGET],$[active_local_libs] $[active_igate_libs]] $[active_component_libs]]
 
-#define platform_toolset
-#if $[filter MSVC14.2 MSVC14.2x64,$[USE_COMPILER]]
-  #set platform_toolset v142
-#endif
+#define platform_toolset $[MSBUILD_PLATFORM_TOOLSET]
 
 #define tool_architecture $[if $[WIN64_PLATFORM],x64,x86]

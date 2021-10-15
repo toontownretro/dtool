@@ -273,3 +273,5 @@
 #defer LINK_BIN_C++ $[LINK_BIN_C]
 
 #define build_pdbs 1
+
+#define MSBUILD_PLATFORM_TOOLSET v142

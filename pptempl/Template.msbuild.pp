@@ -250,16 +250,18 @@
 #end depend
 </ItemGroup>
 
-#if $[USE_CLANG]
 <PropertyGroup>
-  <CLToolExe>clang-cl.exe</CLToolExe>
-  <LinkToolExe>lld-link.exe</LinkToolExe>
-  <LinkToolPath>$[osfilename $[CLANG_BIN_PATH]]</LinkToolPath>
-  <CLToolPath>$[osfilename $[CLANG_BIN_PATH]]</CLToolPath>
+#if $[ne $[USE_COMPILER],MSVC]
+  // If using a compiler other than the default, specify the compiler/linker
+  // programs and the paths to them.
+  <CLToolExe>$[COMPILER]</CLToolExe>
+  <CLToolPath>$[osfilename $[COMPILER_PATH]]</CLToolPath>
+  <LinkToolExe>$[LINKER]</LinkToolExe>
+  <LinkToolPath>$[osfilename $[LINKER_PATH]]</LinkToolPath>
+#endif
   <UseMultiToolTask>$[if $[MSBUILD_MULTIPROC],true,false]</UseMultiToolTask>
   <MultiProcMaxCount>$[MSBUILD_MULTIPROC_COUNT]</MultiProcMaxCount>
 </PropertyGroup>
-#endif
 
 <ItemGroup>
   <ProjectConfiguration Include="Release|$[platform_config]">
