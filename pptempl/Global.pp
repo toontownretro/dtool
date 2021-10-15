@@ -613,8 +613,9 @@
 #defer get_igatemout $[if $[get_igatemscan],$[ODIR]/$[get_output_name]_module.cxx]
 
 // This variable returns the set of external packages used by this
-// target, and by all the components shared by this target.
-#defer use_packages $[unique $[USE_PACKAGES] $[all_libs $[USE_PACKAGES], $[complete_local_libs]]]
+// target, and by all the components shared by this target.  Use
+// complete_local_incs so we also pull in packages used by interface_targets.
+#defer use_packages $[unique $[USE_PACKAGES] $[all_libs $[USE_PACKAGES], $[complete_local_incs]]]
 
 #defer get_output_name $[lib_prefix]$[if $[OUTPUT],$[OUTPUT],$[TARGET]]
 #defer get_output_file_noext $[get_output_name]$[dllext]
