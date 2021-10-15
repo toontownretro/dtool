@@ -339,7 +339,7 @@ clean-optchar :
 $[TAB]$[DEL_CMD $[optchar_dirs]]
 #endif
 
-clean : clean-pal
+clean : clean-pal clean-tex clean-mat clean-optchar
 #if $[build_eggs]
   #foreach egg $[build_eggs]
 $[TAB]$[DEL_CMD $[egg]]
