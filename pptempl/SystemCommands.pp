@@ -10,7 +10,7 @@
 
 #defun TOUCH_CMD file
   #define osfile $[osfilename $[file]]
-  if not exist $[osfile] echo.>> $[osfile] else copy /b $[osfile] +,,
+  if not exist $[osfile] ( echo|set /p arg="" >> $[osfile] ) else ( copy /b $[osfile] +,, )
 #end TOUCH_CMD
 
 #defun COPY_CMD src,dest
