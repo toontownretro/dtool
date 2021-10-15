@@ -232,7 +232,7 @@
     $[filter_dirs] \
     $[optchar_dirs] \
     egg bam
-all : $[all_targets]
+all : $[osgeneric $[all_targets]]
 
 tex : $[build_texs]
 
@@ -259,18 +259,18 @@ unpack-soft : $[soft_scenes]
     $[install_mdl_dirs] \
     $[if $[INSTALL_EGG_FILES],$[installed_generic_eggs],$[installed_generic_bams] $[installed_language_bams]] \
     $[installed_mdl]
-install-bam : $[install_bam_targets]
+install-bam : $[osgeneric $[install_bam_targets]]
 
-install-tex : $[install_tex_dirs] $[installed_tex]
+install-tex : $[osgeneric $[install_tex_dirs] $[installed_tex]]
 
-install-mat : $[install_mat_dirs] $[installed_mat]
+install-mat : $[osgeneric $[install_mat_dirs] $[installed_mat]]
 
 #define install_other_targets \
     $[install_dna_dirs] \
     $[installed_generic_dna] $[installed_language_dna] \
     $[install_other_dirs] \
     $[installed_other]
-install-other : $[install_other_targets]
+install-other : $[osgeneric $[install_other_targets]]
 
 install : all install-other install-tex install-mat install-bam
 uninstall : uninstall-other uninstall-tex uninstall-mat uninstall-bam
@@ -366,7 +366,7 @@ $[TAB]$[DEL_CMD $[filter_dirs]]
     $[install_tex_dirs] \
     $[install_mat_dirs] \
     ]
-$[directory] :
+$[osgeneric $[directory]] :
 #if $[WINDOWS_PLATFORM]
 $[TAB]if not exist $[osfilename $[directory]] mkdir $[osfilename $[directory]]
 #else
@@ -377,7 +377,7 @@ $[TAB]@test -d $[directory] || mkdir -p $[directory]
 // Sometimes we need a target to depend on the directory existing, without
 // being fooled by the directory's modification times.  We use this
 // phony timestamp file to achieve that.
-$[directory]/stamp :
+$[osgeneric $[directory]/stamp] :
 #if $[WINDOWS_PLATFORM]
 $[TAB]if not exist $[osfilename $[directory]] mkdir $[osfilename $[directory]]
 $[TAB]$[TOUCH_CMD $[directory]/stamp]
@@ -757,7 +757,7 @@ $[TAB]egg2bam -i $[TOPDIR]/$[PACKAGE]_index.boo $[EGG2BAM_OPTS] -NC -o $[target]
 
     #adddict model_index $[ABSDIR]/$[source_prefix]$[egg],$[dest]/$[local]
 
-$[dest]/$[local] : $[sourcedir]/$[local]
+$[osgeneric $[dest]/$[local]] : $[sourcedir]/$[local]
 $[TAB]$[DEL_CMD $[dest]/$[local]]
 $[TAB]$[COPY_CMD $[sourcedir]/$[local], $[dest]]
 
@@ -777,7 +777,7 @@ $[TAB]$[COPY_CMD $[sourcedir]/$[local], $[dest]]
       #define sourcedir $[bam_dir]
       #define dest $[install_model_dir]
       #adddict model_index $[ABSDIR]/$[sourcedir]/$[local],$[dest]/$[remote]
-$[dest]/$[remote] : $[sourcedir]/$[local]
+$[osgeneric $[dest]/$[remote]] : $[sourcedir]/$[local]
 //      cd ./$[sourcedir] && $[INSTALL]
 $[TAB]$[DEL_CMD $[dest]/$[remote]]
 $[TAB]$[COPY_CMD $[sourcedir]/$[local], $[dest]/$[remote]]
@@ -795,7 +795,7 @@ $[TAB]$[COPY_CMD $[sourcedir]/$[local], $[dest]/$[remote]]
     #define dest $[install_model_dir]
 
     #adddict model_index $[ABSDIR]/$[source_prefix]$[file],$[dest]/$[remote]
-$[dest]/$[remote] : $[local]
+$[osgeneric $[dest]/$[remote]] : $[local]
 $[TAB]$[DEL_CMD $[dest]/$[remote]]
 $[TAB]$[COPY_CMD $[local], $[dest]]
   #end file
@@ -832,7 +832,7 @@ $[TAB]$[DEL_CMD $[f]]
     #define remote $[notdir $[file]]
     #define dest $[install_model_dir]
     #adddict dna_index $[ABSDIR]/$[local],$[dest]/$[remote]
-$[dest]/$[remote] : $[local]
+$[osgeneric $[dest]/$[remote]] : $[local]
 //      $[INSTALL]
 $[TAB]$[DEL_CMD $[dest]/$[remote]]
 $[TAB]$[COPY_CMD $[local], $[dest]]
@@ -852,7 +852,7 @@ $[TAB]$[COPY_CMD $[local], $[dest]]
       #define remote $[notdir $[file:%_$[DEFAULT_LANGUAGE].dna=%.dna]]
       #define dest $[install_model_dir]
       #adddict dna_index $[ABSDIR]/$[local],$[dest]/$[remote]
-$[dest]/$[remote] : $[local]
+$[osgeneric $[dest]/$[remote]] : $[local]
 $[TAB]$[DEL_CMD $[dest]/$[remote]]
 $[TAB]$[COPY_CMD $[local], $[dest]/$[remote]]
 
@@ -883,7 +883,7 @@ $[TAB]$[DEL_CMD $[f]]
     #define remote $[notdir $[local]]
     #define dest $[install_tex_dir]
     #adddict texture_index $[ABSDIR]/$[file],$[dest]/$[remote]
-$[dest]/$[remote] : $[local]
+$[osgeneric $[dest]/$[remote]] : $[local]
 $[TAB]$[DEL_CMD $[dest]/$[remote]]
 $[TAB]$[COPY_CMD $[local], $[dest]]
   #end file
@@ -909,7 +909,7 @@ $[TAB]$[DEL_CMD $[f]]
     #define remote $[notdir $[local]]
     #define dest $[install_mats_dir]
     #adddict material_index $[ABSDIR]/$[file],$[dest]/$[remote]
-$[dest]/$[remote] : $[local]
+$[osgeneric $[dest]/$[remote]] : $[local]
 $[TAB]$[DEL_CMD $[dest]/$[remote]]
 $[TAB]$[COPY_CMD $[local], $[dest]]
   #end file
@@ -935,7 +935,7 @@ $[TAB]$[DEL_CMD $[f]]
     #define local $[file]
     #define remote $[notdir $[file]]
     #adddict misc_index $[ABSDIR]/$[local],$[dest]/$[remote]
-$[dest]/$[remote] : $[local]
+$[osgeneric $[dest]/$[remote]] : $[local]
 //      $[INSTALL]
 $[TAB]$[DEL_CMD $[dest]/$[remote]]
 $[TAB]$[COPY_CMD $[local], $[dest]]
