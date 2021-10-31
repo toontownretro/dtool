@@ -32,11 +32,11 @@ def _fixup_dlls():
                 # search path.
                 lib_dir = os.path.join(proj_path, "built", "lib")
                 if os.path.isdir(lib_dir):
-                    print("Adding", lib_dir, "to DLL search path")
+                    print("Adding", lib_dir, "to DLL search path", file=sys.stderr)
                     os.add_dll_directory(lib_dir)
                 bin_dir = os.path.join(proj_path, "built", "bin")
                 if os.path.isdir(bin_dir):
-                    print("Adding", bin_dir, "to DLL search path")
+                    print("Adding", bin_dir, "to DLL search path", file=sys.stderr)
                     os.add_dll_directory(bin_dir)
     else:
         # If we're not attached to anything, assume our lib dir is one
