@@ -36,7 +36,7 @@ install_dir "$[$[upcase $[PACKAGE]]_INSTALL]"
 textures
 {
 #fordict key texture_index
-  $[basename $[notdir $[key]]]
+  "$[basename $[notdir $[key]]]"
   {
     src   "$[key]"
     built "$[texture_index $[key]]"
@@ -47,7 +47,7 @@ textures
 materials
 {
 #fordict key material_index
-  $[basename $[notdir $[key]]]
+  "$[basename $[notdir $[key]]]"
   {
     src   "$[key]"
     built "$[material_index $[key]]"
@@ -58,7 +58,7 @@ materials
 models
 {
 #fordict key model_index
-  $[basename $[notdir $[key]]]
+  "$[basename $[notdir $[key]]]"
   {
     src   "$[key]"
     built "$[model_index $[key]]"
@@ -69,7 +69,7 @@ models
 dna
 {
 #fordict key dna_index
-  $[basename $[notdir $[key]]]
+  "$[basename $[notdir $[key]]]"
   {
     src   "$[key]"
     built "$[dna_index $[key]]"
@@ -80,7 +80,7 @@ dna
 misc
 {
 #fordict key misc_index
-  $[basename $[notdir $[key]]]
+  "$[basename $[notdir $[key]]]"
   {
     src   "$[key]"
     built "$[misc_index $[key]]"
