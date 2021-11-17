@@ -470,8 +470,10 @@ $[osgeneric $[ODIR]/$[get_output_file_noext].pdb] : $[osgeneric $[ODIR]/$[get_ou
     $[if $[build_lib], \
       $[install_lib_dir]/$[get_output_file] \
       $[if $[link_extra_bundle],$[install_lib_dir]/$[get_output_bundle_file]] \
-      $[if $[not $[lib_is_static]],$[install_lib_dir]/$[get_output_file_noext].lib] \
-      $[if $[lib_has_pdb],$[install_lib_dir]/$[get_output_file_noext].pdb] \
+      $[if $[WINDOWS_PLATFORM], \
+        $[if $[not $[lib_is_static]],$[install_lib_dir]/$[get_output_file_noext].lib] \
+        $[if $[lib_has_pdb],$[install_lib_dir]/$[get_output_file_noext].pdb] \
+      ] \
     ] \
     $[INSTALL_SCRIPTS:%=$[install_scripts_dir]/%] \
     $[INSTALL_HEADERS:%=$[install_headers_dir]/%] \
