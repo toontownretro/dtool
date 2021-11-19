@@ -84,6 +84,7 @@
 #call report_package SPIRV_CROSS,SPIR-V Cross
 #call report_package EMBREE,Intel Embree
 #call report_package OIDN,Intel OpenImageDenoise
+#call report_package TBB,Intel Threading Building Blocks
 
 #print
 #if $[and $[HAVE_INTERROGATE],$[HAVE_PYTHON]]

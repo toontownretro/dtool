@@ -387,6 +387,12 @@
   #define oidn_libs $[OIDN_LIBS]
 #endif
 
+#if $[HAVE_TBB]
+  #define tbb_ipath $[wildcard $[TBB_IPATH]]
+  #define tbb_lpath $[wildcard $[TBB_LPATH]]
+  #define tbb_libs $[TBB_LIBS]
+#endif
+
 // We define these two variables true here in the global scope; a
 // particular Sources.pp file can redefine these to be false to
 // prevent a particular directory or target from being built in

@@ -347,6 +347,11 @@
 #set OIDN_LIBS $[OIDN_LIBS]
 #set HAVE_OIDN $[HAVE_OIDN]
 
+#set TBB_IPATH $[unixfilename $[TBB_IPATH]]
+#set TBB_LPATH $[unixfilename $[TBB_LPATH]]
+#set TBB_LIBS $[TBB_LIBS]
+#set HAVE_TBB $[HAVE_TBB]
+
 // Now infer a few more variables based on what was defined.
 #if $[and $[HAVE_GTK],$[PKG_CONFIG]]
   #define cflags $[shell $[PKG_CONFIG] gtk+-2.0 --cflags]

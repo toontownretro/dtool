@@ -1047,6 +1047,12 @@
 #define OIDN_LIBS $[if $[WINDOWS_PLATFORM], OpenImageDenoise.lib tbb.lib, OpenImageDenoise tbb]
 #defer HAVE_OIDN $[libtest $[OIDN_LPATH], $[OIDN_LIBS]]
 
+// Is Intel Threading Building Blocks installed, and where?
+#define TBB_IPATH $[DEFAULT_IPATH]
+#define TBB_LPATH $[DEFAULT_LPATH]
+#define TBB_LIBS $[if $[WINDOWS_PLATFORM], tbb12.lib, tbb12]
+#defer HAVE_TBB $[libtest $[TBB_LPATH], $[TBB_LIBS]]
+
 // Define this to explicitly indicate the given platform string within
 // the resulting Panda runtime.  Normally it is best to leave this
 // undefined, in which case Panda will determine the best value
