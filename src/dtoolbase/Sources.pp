@@ -10,7 +10,7 @@
   #define BUILDING_DLL BUILDING_DTOOL_DTOOLBASE
 
   #if $[HAVE_MIMALLOC]
-    #define WIN_SYS_LIBS $[WIN_SYS_LIBS] advapi32.lib
+    #define WIN_SYS_LIBS $[WIN_SYS_LIBS] advapi32.lib Kernel32.lib
   #endif
 
   #define SOURCES \

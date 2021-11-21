@@ -71,3 +71,30 @@ PyThreadState *(*global_thread_state_swap)(PyThreadState *tstate) = default_thre
 #endif  // HAVE_PYTHON
 
 #endif  // HAVE_THREADS && SIMPLE_THREADS
+
+#ifdef _WIN32
+#include <processthreadsapi.h>
+#endif
+
+/**
+ * Global low-level function to return the ID of the calling thread.
+ * For code that is too low level to use the Thread interface.
+ */
+uint32_t global_get_current_thread_id() {
+#ifdef HAVE_THREADS
+
+#if defined(_WIN32)
+  return (uint32_t)GetCurrentThreadId();
+
+#elif defined(__GNUC__) || defined(__clang__)
+  return (uint32_t)gettid();
+
+#else
+  return 0;
+
+#endif
+
+#else // HAVE_THREADS
+  return 0;
+#endif
+}
