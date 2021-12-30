@@ -842,6 +842,18 @@
 #endif
 #defer HAVE_FMOD $[and $[isdir $[FMOD_IPATH]],$[libtest $[FMOD_LPATH],$[FMOD_LIBS]]]
 
+// Do we have Steam Audio?  We utilize this in the FMOD implementation.
+#define STEAM_AUDIO_IPATH $[DEFAULT_IPATH]
+#define STEAM_AUDIO_LPATH $[DEFAULT_LPATH]
+// We need to link with both the phonon library and phonon_fmod.
+// phonon provides the core code for Steam Audio, while phonon_fmod
+// provides the FMOD integration code.  We have to call code in
+// both libraries.  It's annoying how the distribution is setup.
+// phonon_fmod is provided in a separate downloadable from the
+// core phonon.
+#define STEAM_AUDIO_LIBS $[if $[WINDOWS_PLATFORM], phonon.lib phonon_fmod.lib, phonon phonon_fmod]
+#defer HAVE_STEAM_AUDIO $[and $[isdir $[STEAM_AUDIO_IPATH]],$[libtest $[STEAM_AUDIO_LPATH],$[STEAM_AUDIO_LIBS]]]
+
 // Info for the OpenAL audio engine
 #define OPENAL_IPATH $[DEFAULT_IPATH]
 #define OPENAL_LPATH $[DEFAULT_LPATH]

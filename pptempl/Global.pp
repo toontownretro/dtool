@@ -277,6 +277,12 @@
   #define fmod_libs $[FMOD_LIBS]
 #endif
 
+#if $[HAVE_STEAM_AUDIO]
+  #define steam_audio_ipath $[wildcard $[STEAM_AUDIO_IPATH]]
+  #define steam_audio_lpath $[wildcard $[STEAM_AUDIO_LPATH]]
+  #define steam_audio_libs $[STEAM_AUDIO_LIBS]
+#endif
+
 #if $[HAVE_OPENAL]
   #define openal_ipath $[wildcard $[OPENAL_IPATH]]
   #define openal_lpath $[wildcard $[OPENAL_LPATH]]

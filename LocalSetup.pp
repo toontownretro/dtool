@@ -44,6 +44,7 @@
 #call report_package ZLIB,zlib
 #call report_package RAD_MSS,Miles Sound System
 #call report_package FMOD,FMOD sound library
+#call report_package STEAM_AUDIO,Steam Audio (FMOD integration)
 #call report_package OPENAL,OpenAL sound library
 #call report_package MIMALLOC,mimalloc allocator
 #call report_package GTK,gtk+-2
