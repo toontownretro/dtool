@@ -461,7 +461,7 @@ $[TAB]lwo2egg $[LWO2EGG_OPTS] -o $[target] $[source]
     #define target $[or $[TARGET],$[patsubst %$[MODEL].blend,$[EGG_PREFIX]%$[EGG_SUFFIX].egg,$[blend]]]
     #define source $[blend]
 $[target] : $[source]
-$[TAB]blend2egg.py $[BLEND2EGG_OPTS] $[source] $[target]
+$[TAB]$[PYTHON_COMMAND] $[osfilename $[PANDATOOL]/built/bin/blend2egg.py] $[BLEND2EGG_OPTS] $[source] $[target]
 
   #end blend
 #end blender_egg
@@ -472,12 +472,12 @@ $[TAB]blend2egg.py $[BLEND2EGG_OPTS] $[source] $[target]
     #define target $[EGG_PREFIX]$[POLY_MODEL].egg
     #define source $[BLENDER_PREFIX]$[or $[MODEL],$[POLY_MODEL]].blend
 $[target] : $[source]
-$[TAB]blend2egg.py $[BLEND2EGG_OPTS] --ac model --cn "$[CHAR_NAME]" $[source] $[target]
+$[TAB]$[PYTHON_COMMAND] $[osfilename $[PANDATOOL]/built/bin/blend2egg.py] $[BLEND2EGG_OPTS] --ac model --cn "$[CHAR_NAME]" $[source] $[target]
   #elif $[not $[or $[MODEL], $[POLY_MODEL], $[ANIMS]]]
     #define target $[EGG_PREFIX].egg
     #define source $[BLENDER_PREFIX].blend
 $[target] : $[source]
-$[TAB]blend2egg.py $[BLEND2EGG_OPTS] --ac model --cn "$[CHAR_NAME]" $[source] $[target]
+$[TAB]$[PYTHON_COMMAND] $[osfilename $[PANDATOOL]/built/bin/blend2egg.py] $[BLEND2EGG_OPTS] --ac model --cn "$[CHAR_NAME]" $[source] $[target]
   #endif
 
 #end blender_char_egg
