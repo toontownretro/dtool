@@ -501,7 +501,7 @@ $[TAB]$[PYTHON_COMMAND] $[osfilename $[PANDATOOL]/built/bin/blend2egg.py] $[BLEN
       #set fps $[word 3,$[$[anim]_frames]]
     #endif
 $[target] : $[source]
-$[TAB]blend2egg.py $[BLEND2EGG_OPTS] --ac chan --cn "$[CHAR_NAME]" $[if $[begin],--sf $[begin]] $[if $[end],--ef $[end]] $[if $[fps],--fps $[fps]] $[source] $[target]
+$[TAB]$[PYTHON_COMMAND] $[osfilename $[PANDATOOL]/built/bin/blend2egg.py] $[BLEND2EGG_OPTS] --ac chan --cn "$[CHAR_NAME]" $[if $[begin],--sf $[begin]] $[if $[end],--ef $[end]] $[if $[fps],--fps $[fps]] $[source] $[target]
   #end anim
 #end blender_char_egg
 
