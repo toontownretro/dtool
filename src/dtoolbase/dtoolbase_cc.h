@@ -200,7 +200,7 @@ INLINE void thread_consider_yield() {
  * Global low-level function to return the ID of the calling thread.
  * For code that is too low level to use the Thread interface.
  */
-extern EXPCL_DTOOL_DTOOLBASE uint32_t global_get_current_thread_id();
+extern EXPCL_DTOOL_DTOOLBASE unsigned int global_get_current_thread_id();
 
 #if defined(USE_TAU) && defined(_WIN32)
 // Hack around tau's lack of DLL export declarations for Profiler class.
