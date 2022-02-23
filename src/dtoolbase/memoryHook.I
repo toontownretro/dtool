@@ -72,7 +72,7 @@ get_ptr_size(void *ptr) {
   // If we are using dlmalloc, we know how it stores the size.
   size_t *root = (size_t *)ptr;
   return (root[-1] & ~0x7) - sizeof(size_t);
-#elif defined(HAVE_MIMALLOC)
+#elif defined(USE_MEMORY_MIMALLOC)
   // We can ask mimalloc directly.
   return get_mi_malloc_size(ptr);
 #elif defined(DO_MEMORY_USAGE)

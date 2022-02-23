@@ -316,6 +316,7 @@ $[cdefine SUPPORT_FIXED_FUNCTION]
 /* Define for either of the alternative malloc schemes. */
 $[cdefine USE_MEMORY_DLMALLOC]
 $[cdefine USE_MEMORY_PTMALLOC2]
+$[cdefine USE_MEMORY_MIMALLOC]
 
 /* Define if we want to compile in support for pipelining.  */
 $[cdefine DO_PIPELINING]

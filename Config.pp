@@ -384,6 +384,7 @@
 // at the time of this writing, it doesn't appear that they do.
 #define USE_MEMORY_DLMALLOC
 #define USE_MEMORY_PTMALLOC2
+#define USE_MEMORY_MIMALLOC
 
 // Set this true if you prefer to use the system malloc library even
 // if 16-byte alignment must be performed on top of it, wasting up to
