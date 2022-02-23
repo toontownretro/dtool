@@ -57,6 +57,7 @@
     typeRegistryNode.I typeRegistryNode.h \
     typedObject.I typedObject.h \
     pallocator.T pallocator.h \
+    patomic.h patomic.I \
     pdeque.h plist.h pmap.h pset.h \
     pvector.h epvector.h \
     lookup3.h lookup3.c \
@@ -130,6 +131,7 @@
     typeRegistryNode.I typeRegistryNode.h \
     typedObject.I typedObject.h \
     pallocator.T pallocator.h \
+    patomic.h patomic.I \
     pdeque.h plist.h pmap.h pset.h \
     pvector.h epvector.h \
     lookup3.h \

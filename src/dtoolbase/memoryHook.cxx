@@ -115,7 +115,7 @@ static_assert((MEMORY_HOOK_ALIGNMENT & (MEMORY_HOOK_ALIGNMENT - 1)) == 0,
 // This is a good choice on linux, but it's a terrible choice on windows.
 
 #define call_malloc(size, align) malloc(size)
-#define call_realloc(size, align) realloc(size)
+#define call_realloc(ptr, size, align) realloc(ptr, size)
 #define call_free free
 #undef MEMORY_HOOK_MALLOC_LOCK
 
