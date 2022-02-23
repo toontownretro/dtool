@@ -10,7 +10,7 @@
  * @author drose
  * @date 2007-06-28
  */
- 
+
 #include "memoryHook.h"
 #include "deletedBufferChain.h"
 #include <stdlib.h>
@@ -51,10 +51,10 @@ static_assert((MEMORY_HOOK_ALIGNMENT & (MEMORY_HOOK_ALIGNMENT - 1)) == 0,
 
 #if defined(CPPPARSER)
 
-#elif defined(HAVE_MIMALLOC)
+#elif defined(USE_MEMORY_MIMALLOC)
 
-// Memory manager: mimalloc.  This is a highly optimized allocator by
-// Microsoft.
+// mimalloc is a modern memory manager by Microsoft that is very fast as well
+// as thread-safe.
 
 #include "mimalloc.h"
 
@@ -131,7 +131,7 @@ inflate_size(size_t size) {
   // If we're aligning, we need to request the header size, plus extra bytes
   // to give us wiggle room to adjust the pointer.
   return size + sizeof(uintptr_t) * 2 + MEMORY_HOOK_ALIGNMENT - 1;
-#elif defined(USE_MEMORY_DLMALLOC) || defined(USE_MEMORY_PTMALLOC2) || defined(HAVE_MIMALLOC)
+#elif defined(USE_MEMORY_DLMALLOC) || defined(USE_MEMORY_PTMALLOC2)
   // If we are can access the allocator's bookkeeping to figure out how many
   // bytes were allocated, we don't need to add our own information.
   return size;
@@ -162,7 +162,7 @@ alloc_to_ptr(void *alloc, size_t size) {
   root[-2] = size;
   root[-1] = (uintptr_t)alloc;  // Save the pointer we originally allocated.
   return (void *)root;
-#elif defined(USE_MEMORY_DLMALLOC) || defined(USE_MEMORY_PTMALLOC2) || defined(HAVE_MIMALLOC)
+#elif defined(USE_MEMORY_DLMALLOC) || defined(USE_MEMORY_PTMALLOC2)
   return alloc;
 #elif defined(DO_MEMORY_USAGE)
   size_t *root = (size_t *)alloc;
@@ -184,7 +184,7 @@ ptr_to_alloc(void *ptr, size_t &size) {
   uintptr_t *root = (uintptr_t *)ptr;
   size = root[-2];
   return (void *)root[-1]; // Get the pointer we originally allocated.
-#elif defined(USE_MEMORY_DLMALLOC) || defined(USE_MEMORY_PTMALLOC2) || defined(HAVE_MIMALLOC)
+#elif defined(USE_MEMORY_DLMALLOC) || defined(USE_MEMORY_PTMALLOC2) || defined(USE_MEMORY_MIMALLOC)
 #ifdef DO_MEMORY_USAGE
   size = MemoryHook::get_ptr_size(ptr);
 #endif
@@ -284,7 +284,7 @@ heap_alloc_single(size_t size) {
 #ifdef DO_MEMORY_USAGE
   // In the DO_MEMORY_USAGE case, we want to track the total size of allocated
   // bytes on the heap.
-#if defined(USE_MEMORY_DLMALLOC) || defined(USE_MEMORY_PTMALLOC2) || defined(HAVE_MIMALLOC)
+#if defined(USE_MEMORY_DLMALLOC) || defined(USE_MEMORY_PTMALLOC2) || defined(USE_MEMORY_MIMALLOC)
   // dlmalloc may slightly overallocate, however.
   size = get_ptr_size(alloc);
   inflated_size = size;
@@ -361,7 +361,7 @@ heap_alloc_array(size_t size) {
 #ifdef DO_MEMORY_USAGE
   // In the DO_MEMORY_USAGE case, we want to track the total size of allocated
   // bytes on the heap.
-#if defined(USE_MEMORY_DLMALLOC) || defined(USE_MEMORY_PTMALLOC2) || defined(HAVE_MIMALLOC)
+#if defined(USE_MEMORY_DLMALLOC) || defined(USE_MEMORY_PTMALLOC2) || defined(USE_MEMORY_MIMALLOC)
   // dlmalloc may slightly overallocate, however.
   size = get_ptr_size(alloc);
   inflated_size = size;
@@ -417,7 +417,7 @@ heap_realloc_array(void *ptr, size_t size) {
   }
 
 #ifdef DO_MEMORY_USAGE
-#if defined(USE_MEMORY_DLMALLOC) || defined(USE_MEMORY_PTMALLOC2) || defined(HAVE_MIMALLOC)
+#if defined(USE_MEMORY_DLMALLOC) || defined(USE_MEMORY_PTMALLOC2) || defined(USE_MEMORY_MIMALLOC)
   // dlmalloc may slightly overallocate, however.
   size = get_ptr_size(alloc1);
   inflated_size = size;
