@@ -131,7 +131,7 @@ inflate_size(size_t size) {
   // If we're aligning, we need to request the header size, plus extra bytes
   // to give us wiggle room to adjust the pointer.
   return size + sizeof(uintptr_t) * 2 + MEMORY_HOOK_ALIGNMENT - 1;
-#elif defined(USE_MEMORY_DLMALLOC) || defined(USE_MEMORY_PTMALLOC2)
+#elif defined(USE_MEMORY_DLMALLOC) || defined(USE_MEMORY_PTMALLOC2) || defined(USE_MEMORY_MIMALLOC)
   // If we are can access the allocator's bookkeeping to figure out how many
   // bytes were allocated, we don't need to add our own information.
   return size;
@@ -162,7 +162,7 @@ alloc_to_ptr(void *alloc, size_t size) {
   root[-2] = size;
   root[-1] = (uintptr_t)alloc;  // Save the pointer we originally allocated.
   return (void *)root;
-#elif defined(USE_MEMORY_DLMALLOC) || defined(USE_MEMORY_PTMALLOC2)
+#elif defined(USE_MEMORY_DLMALLOC) || defined(USE_MEMORY_PTMALLOC2) || defined(USE_MEMORY_MIMALLOC)
   return alloc;
 #elif defined(DO_MEMORY_USAGE)
   size_t *root = (size_t *)alloc;
