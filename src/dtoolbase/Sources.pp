@@ -85,7 +85,8 @@
     register_type.cxx \
     typeHandle.cxx \
     typeRegistry.cxx typeRegistryNode.cxx \
-    typedObject.cxx
+    typedObject.cxx \
+    patomic.cxx
 
   #define INSTALL_HEADERS \
     checkPandaVersion.h \
