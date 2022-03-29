@@ -44,6 +44,7 @@
 #defer install_model_dir $[install_dir]/$[phase_prefix]$[INSTALL_TO]
 #defer install_tex_dir $[install_dir]/$[phase_prefix]maps
 #defer install_mats_dir $[install_dir]/$[phase_prefix]materials
+#defer install_sho_dir $[install_dir]/$[phase_prefix]shaders
 
 #defer install_egg_sources $[SOURCES] $[SOURCES_NC] $[UNPAL_SOURCES] $[UNPAL_SOURCES_NC]
 
@@ -217,6 +218,12 @@
 #define install_mdl_dirs $[sort $[forscopes install_mdl, $[install_model_dir]]]
 #define installed_mdl $[sort $[foreach mdl,$[build_mdls],$[patsubst %,$[install_model_dir]/%,$[notdir $[mdl]]]]]
 
+#define build_shos \
+  $[forscopes install_sho, \
+    $[foreach source,$[SOURCES],$[basename $[source]].sho.pz]]
+#define install_sho_dirs $[sort $[forscopes install_sho, $[install_sho_dir]]]
+#define installed_sho $[sort $[foreach sho,$[build_shos],$[patsubst %,$[install_sho_dir]/%,$[notdir $[sho]]]]]
+
 #define pal_egg_targets $[sort $[patsubst %,$[pal_egg_dir]/%,$[notdir $[install_pal_eggs]]]]
 #define bam_targets $[install_eggs:%.egg=$[bam_dir]/%.bam] $[build_mdls]
 
@@ -227,12 +234,15 @@
 
 #define all_targets \
     Makefile \
+    sho \
     tex mat \
     $[texattrib_dir] \
     $[filter_dirs] \
     $[optchar_dirs] \
     egg bam
 all : $[osgeneric $[all_targets]]
+
+sho : $[build_shos]
 
 tex : $[build_texs]
 
@@ -265,6 +275,8 @@ install-tex : $[osgeneric $[install_tex_dirs] $[installed_tex]]
 
 install-mat : $[osgeneric $[install_mat_dirs] $[installed_mat]]
 
+install-sho : $[osgeneric $[install_sho_dirs] $[installed_sho]]
+
 #define install_other_targets \
     $[install_dna_dirs] \
     $[installed_generic_dna] $[installed_language_dna] \
@@ -272,8 +284,15 @@ install-mat : $[osgeneric $[install_mat_dirs] $[installed_mat]]
     $[installed_other]
 install-other : $[osgeneric $[install_other_targets]]
 
-install : all install-other install-tex install-mat install-bam
-uninstall : uninstall-other uninstall-tex uninstall-mat uninstall-bam
+install : all install-other install-sho install-tex install-mat install-bam
+uninstall : uninstall-other uninstall-sho uninstall-tex uninstall-mat uninstall-bam
+
+clean-sho :
+#if $[build_shos]
+  #foreach s $[build_shos]
+$[TAB]$[DEL_CMD $[s]]
+  #end s
+#endif
 
 clean-tex :
 #if $[build_texs]
@@ -339,7 +358,7 @@ clean-optchar :
 $[TAB]$[DEL_CMD $[optchar_dirs]]
 #endif
 
-clean : clean-pal clean-tex clean-mat clean-optchar
+clean : clean-pal clean-tex clean-mat clean-optchar clean-sho
 #if $[build_eggs]
   #foreach egg $[build_eggs]
 $[TAB]$[DEL_CMD $[egg]]
@@ -365,6 +384,7 @@ $[TAB]$[DEL_CMD $[filter_dirs]]
     $[install_other_dirs] \
     $[install_tex_dirs] \
     $[install_mat_dirs] \
+    $[install_sho_dirs] \
     ]
 $[osgeneric $[directory]] :
 #if $[WINDOWS_PLATFORM]
@@ -400,6 +420,25 @@ $[TAB]gunzip $[GUNZIP_OPTS] < $[source] > $[target]
 
   #end gz
 #end gz
+
+// SHO file generation from shader source files (GLSL, HLSL, etc).
+#forscopes install_sho
+  #foreach shader $[SOURCES]
+    #define source $[shader]
+    #define target $[basename $[source]].sho.pz
+$[target] : $[source]
+#define stage_name
+#if $[findstring .vert.,$[source]]
+  #set stage_name vert
+#elif $[findstring .frag.,$[source]]
+  #set stage_name frag
+#elif $[findstring .geom.,$[source]]
+  #set stage_name geom
+#endif
+$[TAB]shadercompile $[SHADERCOMPILE_OPTS] -s $[stage_name] -o $[target] $[source]
+  #end shader
+
+#end install_sho
 
 // TXO file generation from ptex files.
 #forscopes install_tex
@@ -876,6 +915,35 @@ $[TAB]$[DEL_CMD $[f]]
   #endif
 #end install_dna
 
+// SHO file installation.
+#forscopes install_sho
+  #foreach file $[SOURCES]
+    // Pathname relative to current directly of built .sho file.
+    #define local $[basename $[file]].sho.pz
+    // Built .sho file without a directory, just the filename.
+    #define remote $[notdir $[local]]
+    // Installation directory.
+    #define dest $[install_sho_dir]
+    #adddict shader_index $[ABSDIR]/$[file],$[dest]/$[remote]
+$[osgeneric $[dest]/$[remote]] : $[local]
+$[TAB]$[DEL_CMD $[dest]/$[remote]]
+$[TAB]$[COPY_CMD $[local], $[dest]]
+  #end file
+#end install_sho
+
+// SHO file uninstallation.
+uninstall-sho :
+#forscopes install_sho
+  #define files \
+    $[foreach file,$[SOURCES],$[install_tex_dir/$[notdir $[basename $[file]].sho.pz]]]
+  #if $[files]
+    #foreach f $[files]
+$[TAB]$[DEL_CMD $[f]]
+    #end f
+  #endif
+
+#end install_sho
+
 // TXO file installation.
 #forscopes install_tex
   #foreach file $[SOURCES]
@@ -997,13 +1065,13 @@ $[TAB] ppremake
 
 index : $[PACKAGE]_index.boo
 
-all : Makefile index tex mat egg pal repal $[subdirs]
+all : Makefile index sho tex mat egg pal repal $[subdirs]
 install : all $[subdirs:%=install-%]
 #define sub_targets \
-  tex mat egg flt lwo maya soft blender bam pal clean-tex clean-mat clean-bam \
+  sho tex mat egg flt lwo maya soft blender bam pal clean-sho clean-tex clean-mat clean-bam \
   clean-pal clean-flt clean-lwo clean-maya clean-soft clean-blender clean-optchar clean \
-  cleanall unpack-soft install-tex install-mat install-bam install-other uninstall-tex \
-  uninstall-mat uninstall-bam uninstall-other uninstall
+  cleanall unpack-soft install-sho install-tex install-mat install-bam install-other uninstall-tex \
+  uninstall-mat uninstall-bam uninstall-other uninstall-sho uninstall
 
 // Define the rules to propogate these targets to the Makefile within
 // each directory.

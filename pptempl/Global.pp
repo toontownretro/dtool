@@ -1024,6 +1024,7 @@ Warning: Variable $[upcase $[tree]]_INSTALL is not set!
 #dict model_index
 #dict dna_index
 #dict misc_index
+#dict shader_index
 #endif
 
 // Include the global definitions for this particular build_type, if
