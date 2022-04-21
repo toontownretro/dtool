@@ -357,6 +357,11 @@
 #set TBB_LIBS $[TBB_LIBS]
 #set HAVE_TBB $[HAVE_TBB]
 
+#set SLEEF_IPATH $[unixfilename $[SLEEF_IPATH]]
+#set SLEEF_LPATH $[unixfilename $[SLEEF_LPATH]]
+#set SLEEF_LIBS $[SLEEF_LIBS]
+#set HAVE_SLEEF $[HAVE_SLEEF]
+
 // Now infer a few more variables based on what was defined.
 #if $[and $[HAVE_GTK],$[PKG_CONFIG]]
   #define cflags $[shell $[PKG_CONFIG] gtk+-2.0 --cflags]

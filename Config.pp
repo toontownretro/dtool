@@ -1066,6 +1066,13 @@
 #define TBB_LIBS $[if $[WINDOWS_PLATFORM], tbb12.lib, tbb12]
 #defer HAVE_TBB $[libtest $[TBB_LPATH], $[TBB_LIBS]]
 
+// Is SLEEF installed, and where?  SLEEF is an open-source library that
+// implements SIMD versions of C standard math functions.
+#define SLEEF_IPATH $[DEFAULT_IPATH]
+#define SLEEF_LPATH $[DEFAULT_LPATH]
+#define SLEEF_LIBS $[if $[WINDOWS_PLATFORM], sleef.lib, sleef]
+#defer HAVE_SLEEF $[isfile $[SLEEF_IPATH]/sleef.h]
+
 // Define this to explicitly indicate the given platform string within
 // the resulting Panda runtime.  Normally it is best to leave this
 // undefined, in which case Panda will determine the best value

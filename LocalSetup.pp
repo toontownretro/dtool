@@ -86,6 +86,7 @@
 #call report_package EMBREE,Intel Embree
 #call report_package OIDN,Intel OpenImageDenoise
 #call report_package TBB,Intel Threading Building Blocks
+#call report_package SLEEF,SLEEF (SIMD C math functions)
 
 #print
 #if $[and $[HAVE_INTERROGATE],$[HAVE_PYTHON]]
@@ -544,6 +545,9 @@ $[cdefine HAVE_MIMALLOC]
 
 /* Do we have NVIDIA PhysX? */
 $[cdefine HAVE_PHYSX]
+
+/* Do we have SLEEF? */
+$[cdefine HAVE_SLEEF]
 
 #if $[DTOOL_PLATFORM]
 # define DTOOL_PLATFORM "$[DTOOL_PLATFORM]"

@@ -399,6 +399,12 @@
   #define tbb_libs $[TBB_LIBS]
 #endif
 
+#if $[HAVE_SLEEF]
+  #define sleef_ipath $[wildcard $[SLEEF_IPATH]]
+  #define sleef_lpath $[wildcard $[SLEEF_LPATH]]
+  #define sleef_libs $[SLEEF_LIBS]
+#endif
+
 // We define these two variables true here in the global scope; a
 // particular Sources.pp file can redefine these to be false to
 // prevent a particular directory or target from being built in
