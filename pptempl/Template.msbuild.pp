@@ -310,13 +310,6 @@
 #if $[compile_sources]
 
 #define compiler_flags $[c++flags] $[extra_cflags]
-#if $[USE_CLANG]
-  // Add some extra flags to shut Clang up a bit.
-  #define compiler_flags $[compiler_flags] \
-    -Wno-microsoft-template -Wno-inconsistent-missing-override \
-    -Wno-reorder-ctor -Wno-enum-compare-switch \
-    -Wno-microsoft -Wno-register
-#endif
 
 // This is the list of compiler flags that are set using built-in ClCompile
 // properties.  Anything not in this list is passed into AdditionalOptions.
@@ -505,8 +498,8 @@
 
     // These aren't supported on Clang.  If they are set they cause the project
     // to always rebuild from scratch.
-    <MinimalRebuild>$[if $[not $[USE_CLANG]],$[minimal_rebuild]]</MinimalRebuild>
-    <MultiProcessorCompilation>$[if $[not $[USE_CLANG]],$[multiprocessor_compilation]]</MultiProcessorCompilation>
+    <MinimalRebuild>$[if $[ne $[USE_COMPILER], Clang],$[minimal_rebuild]]</MinimalRebuild>
+    <MultiProcessorCompilation>$[if $[ne $[USE_COMPILER], Clang],$[multiprocessor_compilation]]</MultiProcessorCompilation>
 
     <OmitFramePointers>$[omit_frame_pointers]</OmitFramePointers>
     <Optimization>$[optimization]</Optimization>
