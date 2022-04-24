@@ -123,14 +123,19 @@
     #define LINKER_PATH $[unixshortname C:\Program Files\LLVM\bin]
   #endif
 
+  #if $[DO_CROSSOBJ_OPT]
+    #define FAST_OPTFLAGS $[FAST_OPTFLAGS] -flto=thin
+  #endif
+
 #else // MSVC compiler.
   #define COMPILER cl.exe
   #define LINKER link.exe
-#endif
 
-#if $[DO_CROSSOBJ_OPT]
-  #define OPT4FLAGS /GL
-  #define LDFLAGS_OPT4 /LTGC
+  #if $[DO_CROSSOBJ_OPT]
+    #define FAST_OPTFLAGS $[FAST_OPTFLAGS] /GL
+    #define LINKER_FLAGS $[LINKER_FLAGS] /LTGC
+  #endif
+
 #endif
 
 #if $[HAVE_RTTI]

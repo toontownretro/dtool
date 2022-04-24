@@ -212,10 +212,10 @@
 #defer CFLAGS_OPT4 $[CDEFINES_OPT4:%=/D%] $[COMMONFLAGS] $[RELEASEFLAGS] $[if $[no_opt],$[OPT1FLAGS],$[OPTFLAGS] $[OPT4FLAGS]]
 
 // What flags should be passed to the linker for each value of optimize?
-#defer LDFLAGS_OPT1 $[LINKER_FLAGS] $[LDFLAGS_OPT1]
-#defer LDFLAGS_OPT2 $[LINKER_FLAGS] $[LDFLAGS_OPT2]
-#defer LDFLAGS_OPT3 $[LINKER_FLAGS] $[LDFLAGS_OPT3]
-#defer LDFLAGS_OPT4 $[LINKER_FLAGS] $[LDFLAGS_OPT4]
+#defer LFLAGS_OPT1 $[LINKER_FLAGS] $[LFLAGS_OPT1]
+#defer LFLAGS_OPT2 $[LINKER_FLAGS] $[LFLAGS_OPT2]
+#defer LFLAGS_OPT3 $[LINKER_FLAGS] $[LFLAGS_OPT3]
+#defer LFLAGS_OPT4 $[LINKER_FLAGS] $[LFLAGS_OPT4]
 
 #define COMMONFLAGS /Zc:forScope /bigobj /Gd /fp:fast /MP
 
@@ -254,14 +254,14 @@
 // How to generate a static C or C++ library.  $[target] is the
 // name of the library to generate, and $[sources] is the list of .obj
 // files that will go into the library.
-#defer STATIC_LIB_C $[LINKER] /LIB /OUT:"$[osfilename $[target]]" $[osfilename $[sources]]
+#defer STATIC_LIB_C $[LINKER] /LIB $[flags] /OUT:"$[osfilename $[target]]" $[osfilename $[sources]]
 #defer STATIC_LIB_C++ $[STATIC_LIB_C]
 
 // How to generate a shared C or C++ library.  $[source] and $[target]
 // as above, and $[libs] is a space-separated list of dependent
 // libraries, and $[lpath] is a space-separated list of directories in
 // which those libraries can be found.
-#defer SHARED_LIB_C $[LINKER] /DLL $[LDFLAGS_OPT$[OPTIMIZE]] /OUT:"$[osfilename $[target]]" $[osfilename $[sources]] $[patsubst %,/LIBPATH:"$[osfilename %]",$[lpath] $[EXTRA_LIBPATH] $[tau_lpath]] $[patsubst %.lib,%.lib,%,lib%.lib,$[libs]] $[tau_libs]
+#defer SHARED_LIB_C $[LINKER] /DLL $[flags] /OUT:"$[osfilename $[target]]" $[osfilename $[sources]] $[patsubst %,/LIBPATH:"$[osfilename %]",$[lpath] $[EXTRA_LIBPATH] $[tau_lpath]] $[patsubst %.lib,%.lib,%,lib%.lib,$[libs]] $[tau_libs]
 #defer SHARED_LIB_C++ $[SHARED_LIB_C]
 
 // How to generate a C or C++ executable from a collection of .obj
@@ -269,7 +269,7 @@
 // $[sources] is the list of .obj files.  $[libs] is a space-separated
 // list of dependent libraries, and $[lpath] is a space-separated list
 // of directories in which those libraries can be found.
-#defer LINK_BIN_C $[LINKER] $[LDFLAGS_OPT$[OPTIMIZE]] $[osfilename $[sources]] $[patsubst %,/LIBPATH:"$[osfilename %]",$[lpath] $[EXTRA_LIBPATH] $[tau_lpath]] $[patsubst %.lib,%.lib,%,lib%.lib,$[libs]] $[tau_libs] /OUT:"$[osfilename $[target]]"
+#defer LINK_BIN_C $[LINKER] $[flags] $[osfilename $[sources]] $[patsubst %,/LIBPATH:"$[osfilename %]",$[lpath] $[EXTRA_LIBPATH] $[tau_lpath]] $[patsubst %.lib,%.lib,%,lib%.lib,$[libs]] $[tau_libs] /OUT:"$[osfilename $[target]]"
 #defer LINK_BIN_C++ $[LINK_BIN_C]
 
 #define build_pdbs 1

@@ -422,6 +422,7 @@ igate : $[get_igatedb(python_module_target lib_target ss_lib_target)]
 
   #define cc_ld $[or $[get_ld],$[CC]]
   #define cxx_ld $[or $[get_ld],$[CXX]]
+  #define flags $[lflags]
 
   // Link up the non-interrogate .obj files.
 #if $[not $[WINDOWS_PLATFORM]]
@@ -583,6 +584,7 @@ $[TAB] $[INTERROGATE_MODULE] -oc $[target] -module "$[igatemod]" -library "$[iga
 $[varname] = $[osgeneric $[patsubst %,$[%_obj],$[compile_sources]]]
 #define target $[ODIR]/$[get_output_file]
 #define sources $($[varname])
+#define flags $[lflags]
 $[target] : $[sources] $[static_lib_dependencies]
 #if $[filter %.mm %.cxx %.yxx %.lxx,$[get_sources]]
 $[TAB] $[link_lib_c++]

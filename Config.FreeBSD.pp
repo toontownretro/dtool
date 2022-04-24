@@ -121,8 +121,8 @@
 // as above, and $[libs] is a space-separated list of dependent
 // libraries, and $[lpath] is a space-separated list of directories in
 // which those libraries can be found.
-#defer SHARED_LIB_C $[cc_ld] -shared $[LFLAGS] -o $[target] $[sources] $[lpath:%=-L%] $[libs:%=-l%]
-#defer SHARED_LIB_C++ $[cxx_ld] -shared $[LFLAGS] -o $[target] $[sources] $[lpath:%=-L%] $[libs:%=-l%]
+#defer SHARED_LIB_C $[cc_ld] -shared $[flags] -o $[target] $[sources] $[lpath:%=-L%] $[libs:%=-l%]
+#defer SHARED_LIB_C++ $[cxx_ld] -shared $[flags] -o $[target] $[sources] $[lpath:%=-L%] $[libs:%=-l%]
 #define BUNDLE_LIB_C++
 
 // How to install a data file or executable file.  $[local] is the
