@@ -235,7 +235,10 @@
 
 #defer DEBUGPDBFLAGS $[if $[HAVE_DEBUG_INFORMATION], $[if $[EMBED_OBJECT_DEBUG_INFO], /Z7, /Zi /Fd"$[osfilename $[patsubst %.obj,%.pdb, $[target]]]"]]
 
-#define LINKER_FLAGS /DEBUG $[if $[WIN64_PLATFORM], /MACHINE:X64, /MACHINE:X86] /fixed:no /incremental:no /stack:4194304
+// Linker flags shared between lib.exe and link.exe
+#define LINKER_FLAGS $[if $[WIN64_PLATFORM], /MACHINE:X64, /MACHINE:X86]
+#defer LINKER_FLAGS_DYNAMIC $[if $[HAVE_DEBUG_INFORMATION], /DEBUG] /fixed:no /incremental:no /stack:4194304
+#define LINKER_FLAGS_STATIC
 
 #define C++FLAGS_GEN /DWIN32_VC /DWIN32=1 /D_HAS_STD_BYTE=0 \
                      /std:c++17 /D_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS \
@@ -254,14 +257,14 @@
 // How to generate a static C or C++ library.  $[target] is the
 // name of the library to generate, and $[sources] is the list of .obj
 // files that will go into the library.
-#defer STATIC_LIB_C $[LINKER] /LIB $[flags] /OUT:"$[osfilename $[target]]" $[osfilename $[sources]]
+#defer STATIC_LIB_C $[LINKER] /LIB $[LINKER_FLAGS_STATIC] $[flags] /OUT:"$[osfilename $[target]]" $[osfilename $[sources]]
 #defer STATIC_LIB_C++ $[STATIC_LIB_C]
 
 // How to generate a shared C or C++ library.  $[source] and $[target]
 // as above, and $[libs] is a space-separated list of dependent
 // libraries, and $[lpath] is a space-separated list of directories in
 // which those libraries can be found.
-#defer SHARED_LIB_C $[LINKER] /DLL $[flags] /OUT:"$[osfilename $[target]]" $[osfilename $[sources]] $[patsubst %,/LIBPATH:"$[osfilename %]",$[lpath] $[EXTRA_LIBPATH] $[tau_lpath]] $[patsubst %.lib,%.lib,%,lib%.lib,$[libs]] $[tau_libs]
+#defer SHARED_LIB_C $[LINKER] /DLL $[LINKER_FLAGS_DYNAMIC] $[flags] /OUT:"$[osfilename $[target]]" $[osfilename $[sources]] $[patsubst %,/LIBPATH:"$[osfilename %]",$[lpath] $[EXTRA_LIBPATH] $[tau_lpath]] $[patsubst %.lib,%.lib,%,lib%.lib,$[libs]] $[tau_libs]
 #defer SHARED_LIB_C++ $[SHARED_LIB_C]
 
 // How to generate a C or C++ executable from a collection of .obj
@@ -269,7 +272,7 @@
 // $[sources] is the list of .obj files.  $[libs] is a space-separated
 // list of dependent libraries, and $[lpath] is a space-separated list
 // of directories in which those libraries can be found.
-#defer LINK_BIN_C $[LINKER] $[flags] $[osfilename $[sources]] $[patsubst %,/LIBPATH:"$[osfilename %]",$[lpath] $[EXTRA_LIBPATH] $[tau_lpath]] $[patsubst %.lib,%.lib,%,lib%.lib,$[libs]] $[tau_libs] /OUT:"$[osfilename $[target]]"
+#defer LINK_BIN_C $[LINKER] $[LINKER_FLAGS_DYNAMIC] $[flags] $[osfilename $[sources]] $[patsubst %,/LIBPATH:"$[osfilename %]",$[lpath] $[EXTRA_LIBPATH] $[tau_lpath]] $[patsubst %.lib,%.lib,%,lib%.lib,$[libs]] $[tau_libs] /OUT:"$[osfilename $[target]]"
 #defer LINK_BIN_C++ $[LINK_BIN_C]
 
 #define build_pdbs 1
