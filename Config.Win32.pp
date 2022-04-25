@@ -257,7 +257,7 @@
 // How to generate a static C or C++ library.  $[target] is the
 // name of the library to generate, and $[sources] is the list of .obj
 // files that will go into the library.
-#defer STATIC_LIB_C $[LINKER] /LIB $[LINKER_FLAGS_STATIC] $[flags] /OUT:"$[osfilename $[target]]" $[osfilename $[sources]]
+#defer STATIC_LIB_C $[LIBBER] $[LINKER_FLAGS_STATIC] $[flags] /OUT:"$[osfilename $[target]]" $[osfilename $[sources]]
 #defer STATIC_LIB_C++ $[STATIC_LIB_C]
 
 // How to generate a shared C or C++ library.  $[source] and $[target]

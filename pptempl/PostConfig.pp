@@ -111,6 +111,9 @@
   #if $[eq $[LINKER],]
     #define LINKER lld-link.exe
   #endif
+  #if $[eq $[LIBBER],]
+    #define LIBBER llvm-lib.exe
+  #endif
 
   // /MP is not supported on clang.
   #define COMMONFLAGS $[filter-out /MP, $[COMMONFLAGS]]
@@ -122,6 +125,9 @@
   #if $[eq $[LINKER_PATH],]
     #define LINKER_PATH $[unixshortname C:\Program Files\LLVM\bin]
   #endif
+  #if $[eq $[LIBBER_PATH],]
+    #define LIBBER_PATH $[unixshortname C:\Program Files\LLVM\bin]
+  #endif
 
   #if $[DO_CROSSOBJ_OPT]
     #define FAST_OPTFLAGS $[FAST_OPTFLAGS] -flto=thin
@@ -130,6 +136,7 @@
 #else // MSVC compiler.
   #define COMPILER cl.exe
   #define LINKER link.exe
+  #define LIBBER lib.exe
 
   #if $[DO_CROSSOBJ_OPT]
     #define FAST_OPTFLAGS $[FAST_OPTFLAGS] /GL

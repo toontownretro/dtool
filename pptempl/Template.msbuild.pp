@@ -97,6 +97,7 @@
 // These are the complete set of extra flags the compiler requires.
 #defer cflags $[patsubst -D%,/D%,$[get_cflags] $[CFLAGS] $[CFLAGS_OPT$[OPTIMIZE]]] $[CFLAGS_SHARED]
 #defer c++flags $[patsubst -D%,/D%,$[get_cflags] $[C++FLAGS] $[CFLAGS_OPT$[OPTIMIZE]]] $[CFLAGS_SHARED]
+#defer lflags $[patsubst -D%,/D%,$[get_lflags] $[LFLAGS] $[LFLAGS_OPT$[OPTIMIZE]]]
 
 // $[complete_lpath] is rather like $[complete_ipath]: the list of
 // directories (from within this tree) we should add to our -L list.
@@ -258,6 +259,8 @@
   <CLToolPath>$[osfilename $[COMPILER_PATH]]</CLToolPath>
   <LinkToolExe>$[LINKER]</LinkToolExe>
   <LinkToolPath>$[osfilename $[LINKER_PATH]]</LinkToolPath>
+  <LibToolExe>$[LIBBER]</LibToolExe>
+  <LibToolPath>$[osfilename $[LIBBER_PATH]]</LibToolPath>
 #endif
   <UseMultiToolTask>$[if $[MSBUILD_MULTIPROC],true,false]</UseMultiToolTask>
   <MultiProcMaxCount>$[MSBUILD_MULTIPROC_COUNT]</MultiProcMaxCount>
@@ -523,11 +526,19 @@
 #define extra_objs $[if $[and $[is_metalib],$[not $[BUILD_COMPONENTS]]], \
   $[components $[patsubst %,$[RELDIR]/$[%_obj],$[compile_sources]],$[active_component_libs]]]
 <ItemDefinitionGroup>
+#if $[lib_is_static]
+  <Lib>
+#else
   <Link>
+#endif
     <AdditionalLibraryDirectories>$[msjoin $[osfilename $[lpath]]]</AdditionalLibraryDirectories>
     <AdditionalDependencies>$[msjoin $[osfilename $[patsubst %.lib,%.lib,%,lib%.lib,$[libs]] $[extra_objs]]]</AdditionalDependencies>
     <OutputFile>$[osfilename $[ODIR]/$[vs_target_name]$[vs_target_ext]]</OutputFile>
+#if $[lib_is_static]
+  </Lib>
+#else
   </Link>
+#endif
 </ItemDefinitionGroup>
 #endif
 
