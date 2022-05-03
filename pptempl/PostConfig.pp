@@ -139,6 +139,7 @@
   #define LIBBER lib.exe
 
   #if $[DO_CROSSOBJ_OPT]
+    #define EMBED_OBJECT_DEBUG_INFO 1
     #define FAST_OPTFLAGS $[FAST_OPTFLAGS] /GL
     #define LINKER_FLAGS $[LINKER_FLAGS] /LTGC
   #endif

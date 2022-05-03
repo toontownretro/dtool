@@ -229,7 +229,7 @@
 #define WARNING_LEVEL_FLAG /W3
 
 // Note: Clang does not support /Zi, so /Z7 must be used instead.  /Zi causes
-// a full rebuild every time on Clang.
+// a full rebuild every time on Clang.  Furthermore, we can't use /Zi with /GL.
 
 #defer HAVE_DEBUG_INFORMATION $[< $[OPTIMIZE], 4]
 
@@ -249,9 +249,9 @@
 // $[ipath] is a space-separated list of directories to search for
 // include files, and $[flags] is a list of additional flags to pass
 // to the compiler.
-#defer COMPILE_C $[COMPILER] $[patsubst -D%,/D%,$[CFLAGS_GEN] $[ARCH_FLAGS]] $[DEBUGPDBFLAGS] /c /Fo"$[osfilename $[target]]" \
+#defer COMPILE_C $[COMPILER] $[patsubst -D%,/D%,$[CFLAGS_GEN] $[ARCH_FLAGS]] /c /Fo"$[osfilename $[target]]" \
                  $[patsubst %,-I$[osfilename %],$[ipath]] $[patsubst -D%,/D%,$[flags]] "$[osfilename $[source]]"
-#defer COMPILE_C++ $[COMPILER] $[patsubst -D%,/D%,$[C++FLAGS_GEN] $[ARCH_FLAGS]] $[DEBUGPDBFLAGS] /c /Fo"$[osfilename $[target]]" \
+#defer COMPILE_C++ $[COMPILER] $[patsubst -D%,/D%,$[C++FLAGS_GEN] $[ARCH_FLAGS]] /c /Fo"$[osfilename $[target]]" \
                    $[patsubst %,-I$[osfilename %],$[ipath]] $[patsubst -D%,/D%,$[flags]] "$[osfilename $[source]]"
 
 // How to generate a static C or C++ library.  $[target] is the
