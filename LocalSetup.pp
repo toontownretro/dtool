@@ -62,6 +62,7 @@
 #call report_package FCOLLADA,FCollada
 #call report_package ASSIMP,Assimp
 #call report_package ARTOOLKIT,ARToolKit
+#call report_package SOFTIMAGE,SoftImage
 
 #if $[HAVE_ROCKET]
 #if $[HAVE_ROCKET_PYTHON]
@@ -171,6 +172,9 @@ $[cdefine HAVE_ROCKET_DEBUGGER]
 
 /* Define if we have built libRocket available and built with Python support. */
 $[cdefine HAVE_ROCKET_PYTHON]
+
+/* Define if we have SoftImage available. */
+$[cdefine HAVE_SOFTIMAGE]
 
 /* Define if we have FCollada available. */
 $[cdefine HAVE_FCOLLADA]

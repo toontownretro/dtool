@@ -58,6 +58,16 @@
 // And this lets us look up source directories by dirname.
 #map dirnames DIRNAME(*/)
 
+// This is used by Template.models.pp.
+#if $[HAVE_SOFTIMAGE]
+  #define SOFT2EGG soft -D libsoftegg soft2egg
+#else
+  // We used to use the old converter from pre-Panda days.  Now this
+  // is no longer supported.
+  //  #define SOFT2EGG soft2egg
+  #define SOFT2EGG soft -D libsoftegg soft2egg
+#endif
+
 // Define some various compile flags, derived from the variables set
 // in Config.pp.
 #set INTERROGATE_PYTHON_INTERFACE $[and $[HAVE_PYTHON],$[INTERROGATE_PYTHON_INTERFACE]]

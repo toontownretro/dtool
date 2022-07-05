@@ -938,6 +938,12 @@
 
 #define MAYA2EGG maya2egg
 
+
+// In the same fashion as mayaegg converter above, set softimage to egg converter as well
+#define SOFTIMAGE_LOCATION /c/Softimage/sdk_18sp2/SDK_1.8SP2/SAAPHIRE
+#defer SOFTIMAGE_LIBS SAA.lib
+#defer HAVE_SOFTIMAGE $[isdir $[SOFTIMAGE_LOCATION]/h]
+
 // Is FCollada installed? This is for the daeegg converter.
 #define FCOLLADA_IPATH $[DEFAULT_IPATH]
 #define FCOLLADA_LPATH $[DEFAULT_LPATH]
