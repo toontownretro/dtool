@@ -62,7 +62,8 @@
     pvector.h epvector.h \
     lookup3.h lookup3.c \
     btree.h \
-    dlmalloc_src.cxx ptmalloc2_smp_src.cxx
+    dlmalloc_src.cxx ptmalloc2_smp_src.cxx \
+    workStealingQueue.h
 
  #define COMPOSITE_SOURCES  \
     checkPandaVersion.cxx \
@@ -136,7 +137,8 @@
     pdeque.h plist.h pmap.h pset.h \
     pvector.h epvector.h \
     lookup3.h \
-    btree.h
+    btree.h \
+    workStealingQueue.h
 
 #end lib_target
 
