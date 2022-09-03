@@ -552,6 +552,7 @@ $[cdefine HAVE_PHYSX]
 
 /* Do we have SLEEF? */
 $[cdefine HAVE_SLEEF]
+$[cdefine PSLEEF_INLINE]
 
 #if $[DTOOL_PLATFORM]
 # define DTOOL_PLATFORM "$[DTOOL_PLATFORM]"

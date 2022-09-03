@@ -1076,7 +1076,12 @@
 // implements SIMD versions of C standard math functions.
 #define SLEEF_IPATH $[DEFAULT_IPATH]
 #define SLEEF_LPATH $[DEFAULT_LPATH]
-#define SLEEF_LIBS $[if $[WINDOWS_PLATFORM], sleef.lib, sleef]
+// Define 1 if you had Sleef generate inline headers for all the functions.
+// In this case, we will include the inline headers and not link with libsleef.
+// Assume this to be the case on non-Windows.  Sleef can't generate inline
+// headers on Windows.
+#define PSLEEF_INLINE $[not $[WINDOWS_PLATFORM]]
+#defer SLEEF_LIBS $[if $[not $[PSLEEF_INLINE]], $[if $[WINDOWS_PLATFORM], sleef.lib, sleef]]
 #defer HAVE_SLEEF $[isfile $[SLEEF_IPATH]/sleef.h]
 
 // Define this to explicitly indicate the given platform string within
