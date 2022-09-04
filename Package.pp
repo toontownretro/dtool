@@ -367,8 +367,8 @@
 
 // Now infer a few more variables based on what was defined.
 #if $[and $[HAVE_GTK],$[PKG_CONFIG]]
-  #define cflags $[shell $[PKG_CONFIG] gtk+-2.0 --cflags]
-  #define libs $[shell $[PKG_CONFIG] gtk+-2.0 --libs]
+  #define cflags $[shell $[PKG_CONFIG] gtk+-3.0 --cflags]
+  #define libs $[shell $[PKG_CONFIG] gtk+-3.0 --libs]
 
   #define GTK_CFLAGS $[filter-out -I%,$[cflags]]
   #define GTK_IPATH $[unique $[patsubst -I%,%,$[filter -I%,$[cflags]]]]

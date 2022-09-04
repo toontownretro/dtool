@@ -881,7 +881,7 @@
 #endif
 #defer HAVE_MIMALLOC $[and $[isdir $[MIMALLOC_IPATH]],$[libtest $[MIMALLOC_LPATH],$[MIMALLOC_LIBS]]]
 
-// Is gtk+-2 installed?  This is needed to build the pstats program on
+// Is gtk+-3 installed?  This is needed to build the pstats program on
 // Unix (or non-Windows) platforms.  It is also used to provide
 // support for XEmbed for the web plugin system, which is necessary to
 // support Chromium on Linux.
@@ -1036,7 +1036,7 @@
 #define GLSLANG_LIBS \
   $[if $[WINDOWS_PLATFORM], \
     GenericCodeGen.lib glslang.lib HLSL.lib MachineIndependent.lib OGLCompiler.lib OSDependent.lib SPIRV.lib, \
-    glslang HLSL OGLCompiler OSDependent SPIRV]
+    GenericCodeGen glslang HLSL MachineIndependent OGLCompiler OSDependent SPIRV]
 #defer HAVE_GLSLANG $[libtest $[GLSLANG_LPATH], $[GLSLANG_LIBS]]
 
 // Is spirv-tools installed, and where?
