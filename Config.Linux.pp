@@ -83,6 +83,8 @@
 #defer CFLAGS_OPT3 $[CDEFINES_OPT3:%=-D%] $[DEBUGFLAGS] $[if $[no_opt],,$[OPTFLAGS]]
 #defer CFLAGS_OPT4 $[CDEFINES_OPT4:%=-D%] $[if $[no_opt],,$[OPTFLAGS]]
 
+#define DO_CROSSOBJ_OPT 1
+
 // What additional flags should be passed to both compilers when
 // building shared (relocatable) sources?  Some architectures require
 // special support for this.

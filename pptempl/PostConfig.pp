@@ -155,3 +155,17 @@
 #endif
 
 #endif // WINDOWS_PLATFORM
+
+#if $[UNIX_PLATFORM]
+
+#if $[not $[HAVE_RTTI]]
+  #define C++FLAGS_GEN $[C++FLAGS_GEN] -fno-rtti
+#else
+  #define C++FLAGS_GEN $[C++FLAGS_GEN] -frtti
+#endif
+
+#if $[DO_CROSSOBJ_OPT]
+  #define C++FLAGS_GEN $[C++FLAGS_GEN] -flto -fwhole-program
+#endif
+
+#endif // UNIX_PLATFORM
