@@ -659,7 +659,9 @@
   #define alt_cflags
 
   #foreach package $[use_packages]
-    #set alt_cflags $[alt_cflags] $[$[package]_cflags]
+    #if $[HAVE_$[upcase $[package]]]
+      #set alt_cflags $[alt_cflags] $[$[package]_cflags]
+    #endif
   #end package
 
   $[unique $[alt_cflags]]
@@ -674,7 +676,9 @@
   #define alt_lflags
 
   #foreach package $[use_packages]
-    #set alt_lflags $[alt_lflags] $[$[package]_lflags]
+    #if $[HAVE_$[upcase $[package]]]
+      #set alt_lflags $[alt_lflags] $[$[package]_lflags]
+    #endif
   #end package
 
   $[unique $[alt_lflags]]
