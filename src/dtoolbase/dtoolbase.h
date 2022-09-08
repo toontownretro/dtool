@@ -131,10 +131,10 @@
 // PyObject.
 typedef struct _object PyObject;
 
-#ifndef HAVE_EIGEN
+//#ifndef HAVE_EIGEN
 // If we don't have the Eigen library, don't define LINMATH_ALIGN.
-#undef LINMATH_ALIGN
-#endif
+//#undef LINMATH_ALIGN
+//#endif
 
 #include "dtoolsymbols.h"
 
@@ -418,7 +418,7 @@ typedef struct _object PyObject;
 /* We require 16-byte alignment of certain structures, to support SSE2.  We
    don't strictly have to align everything, but it's just easier to do so. */
 
-#if defined(HAVE_EIGEN)
+//#if defined(HAVE_EIGEN)
 /* If using Eigen, adjust alignment based on architecture. */
 
 #if defined(__AVX512F__)
@@ -429,7 +429,7 @@ typedef struct _object PyObject;
 #define MEMORY_HOOK_ALIGNMENT 16
 #endif
 
-#endif // HAVE_EIGEN
+//#endif // HAVE_EIGEN
 
 /* Otherwise, align to two words.  This seems to be pretty standard to the
    point where some code may rely on this being the case. */
