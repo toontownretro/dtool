@@ -14,7 +14,8 @@
 #end TOUCH_CMD
 
 #defun COPY_CMD src,dest
-  echo F|xcopy /I/Y $[osfilename $[src]] $[osfilename $[dest]]
+  #define ossrc $[osfilename $[src]]
+  if exist $[ossrc] ( echo F|xcopy /I/Y $[ossrc] $[osfilename $[dest]] )
 #end COPY_CMD
 
 #defun COPY_DIR_CMD src,dest
