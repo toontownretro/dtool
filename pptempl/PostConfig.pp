@@ -168,4 +168,9 @@
   #define C++FLAGS_GEN $[C++FLAGS_GEN] -flto -fwhole-program
 #endif
 
+#if $[and $[HAVE_EIGEN],$[eq $[USE_COMPILER],GCC]]
+  // Works around double-matrix invert bug.
+  #define C++FLAGS_GEN $[C++FLAGS_GEN] -fno-unsafe-math-optimizations
+#endif
+
 #endif // UNIX_PLATFORM
