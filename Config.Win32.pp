@@ -219,8 +219,8 @@
 
 #define COMMONFLAGS /Zc:forScope /bigobj /Gd /fp:fast /MP
 
-#define SMALL_OPTFLAGS /O1 /Os /Oy /Ob2 /GF /Gy
-#define FAST_OPTFLAGS /O2 /Oi /Ot /Oy /Ob2 /GF /Gy
+#define SMALL_OPTFLAGS /O1
+#define FAST_OPTFLAGS /Ox
 
 #defer OPTFLAGS $[if $[OPT_MINSIZE],$[SMALL_OPTFLAGS],$[FAST_OPTFLAGS]]
 
