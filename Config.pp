@@ -852,7 +852,7 @@
 // both libraries.  It's annoying how the distribution is setup.
 // phonon_fmod is provided in a separate downloadable from the
 // core phonon.
-#define STEAM_AUDIO_LIBS $[if $[WINDOWS_PLATFORM], phonon.lib phonon_fmod.lib, phonon phonon_fmod]
+#define STEAM_AUDIO_LIBS $[if $[WINDOWS_PLATFORM], phonon.lib, phonon]
 #defer HAVE_STEAM_AUDIO $[and $[isdir $[STEAM_AUDIO_IPATH]],$[libtest $[STEAM_AUDIO_LPATH],$[STEAM_AUDIO_LIBS]]]
 
 // Info for the OpenAL audio engine
