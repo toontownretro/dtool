@@ -27,11 +27,19 @@
 #end MOVE_CMD
 
 #defun DEL_CMD file
-  del /f/s/q $[osfilename $[file]]
+  #define osfile $[osfilename $[file]]
+  #if $[findstring *, $[file]]
+    // Wildcard deletes are fine if they don't exist.
+    del /f/s/q $[osfile]
+  #else
+    // Windows will error if the specific file doesn't exist.
+    if exist $[osfile] ( del /f/s/q $[osfile] )
+  #endif
 #end DEL_CMD
 
 #defun DEL_DIR_CMD dir
-  rmdir /s/q $[osfilename $[dir]]
+  #define osdir $[osfilename $[dir]]
+  if exist $[osdir] ( rmdir /s/q $[osdir] )
 #end DEL_DIR_CMD
 
 #defun MKDIR_CMD directory
