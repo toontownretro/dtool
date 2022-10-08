@@ -195,7 +195,8 @@
   #define installed_language_dna $[sort $[forscopes install_dna,$[patsubst %,$[install_model_dir]/%,$[patsubst %_$[DEFAULT_LANGUAGE].dna,%.dna,%,,$[notdir $[SOURCES]]]]]]
 #endif
 
-#define install_other_dirs $[sort $[forscopes install_audio install_icons install_shader install_misc,$[install_model_dir]]]
+#defer other_source_dirs $[foreach src,$[SOURCES],$[standardize $[install_model_dir]/$[dir $[src]]]]
+#define install_other_dirs $[sort $[forscopes install_audio install_icons install_shader install_misc,$[install_model_dir] $[other_source_dirs]]]
 #define installed_other $[sort $[forscopes install_audio install_icons install_shader install_misc,$[SOURCES:%=$[install_model_dir]/%]]]
 
 #define build_texs \
@@ -1001,12 +1002,12 @@ $[TAB]$[DEL_CMD $[f]]
   #define dest $[install_model_dir]
   #foreach file $[SOURCES]
     #define local $[file]
-    #define remote $[notdir $[file]]
+    #define remote $[file]
     #adddict misc_index $[ABSDIR]/$[local],$[dest]/$[remote]
 $[osgeneric $[dest]/$[remote]] : $[local]
 //      $[INSTALL]
 $[TAB]$[DEL_CMD $[dest]/$[remote]]
-$[TAB]$[COPY_CMD $[local], $[dest]]
+$[TAB]$[COPY_CMD $[local], $[standardize $[dest]/$[dir $[remote]]]]
 
   #end file
 #end install_audio install_icons install_shader install_misc
