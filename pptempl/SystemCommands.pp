@@ -9,8 +9,10 @@
 // For Windows.
 
 #defun TOUCH_CMD file
-  #define osfile $[osfilename $[file]]
-  if not exist $[osfile] ( echo|set /p arg="" >> $[osfile] ) else ( copy /b $[osfile] +,, $[osfile] )
+  #foreach fname $[file]
+    #define osfile $[osfilename $[fname]]
+    if not exist $[osfile] ( echo|set /p arg="" >> $[osfile] ) else ( copy /b $[osfile] +,, $[osfile] )
+  #end fname
 #end TOUCH_CMD
 
 #defun COPY_CMD src,dest
@@ -27,24 +29,30 @@
 #end MOVE_CMD
 
 #defun DEL_CMD file
-  #define osfile $[osfilename $[file]]
-  #if $[findstring *, $[file]]
-    // Wildcard deletes are fine if they don't exist.
-    del /f/s/q $[osfile]
-  #else
-    // Windows will error if the specific file doesn't exist.
-    if exist $[osfile] ( del /f/s/q $[osfile] )
-  #endif
+  #foreach fname $[file]
+    #define osfile $[osfilename $[fname]]
+    #if $[findstring *, $[fname]]
+      // Wildcard deletes are fine if they don't exist.
+      del /f/s/q $[osfile]
+    #else
+      // Windows will error if the specific file doesn't exist.
+      if exist $[osfile] ( del /f/s/q $[osfile] )
+    #endif
+  #end fname
 #end DEL_CMD
 
 #defun DEL_DIR_CMD dir
-  #define osdir $[osfilename $[dir]]
-  if exist $[osdir] ( rmdir /s/q $[osdir] )
+  #foreach dirname $[dir]
+    #define osdir $[osfilename $[dir]]
+    if exist $[osdir] ( rmdir /s/q $[osdir] )
+  #end dirname
 #end DEL_DIR_CMD
 
 #defun MKDIR_CMD directory
-  #define directory $[osfilename $[directory]]
-  if not exist $[directory] mkdir $[directory]
+  #foreach dirname $[directory]
+    #define dirname $[osfilename $[dirname]]
+    if not exist $[dirname] mkdir $[dirname]
+  #end dirname
 #end MKDIR_CMD
 
 // Writes a CMD line to echo the given string to the given filename.
