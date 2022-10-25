@@ -7,6 +7,7 @@
   #define TARGET cppParser
 
   #define SOURCES \
+     cppAttributeList.h \
      cppArrayType.h cppBison.yxx cppBisonDefs.h  \
      cppClassTemplateParameter.h cppCommentBlock.h \
      cppClosureType.h cppConstType.h  \
@@ -24,6 +25,7 @@
      cppTypeProxy.h cppTypedefType.h cppUsing.h cppVisibility.h
 
   #define COMPOSITE_SOURCES  \
+     cppAttributeList.cxx \
      cppArrayType.cxx \
      cppClassTemplateParameter.cxx  \
      cppCommentBlock.cxx cppClosureType.cxx cppConstType.cxx cppDeclaration.cxx  \
