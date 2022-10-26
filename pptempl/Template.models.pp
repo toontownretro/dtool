@@ -355,9 +355,9 @@ $[TAB]$[DEL_CMD $[f]]
 #endif
 
 clean-optchar :
-#if $[optchar_dirs]
-$[TAB]$[DEL_CMD $[optchar_dirs]]
-#endif
+#foreach optchar_dir $[optchar_dirs]
+$[TAB]$[DEL_DIR_CMD $[optchar_dir]]
+#end optchar_dir
 
 clean : clean-pal clean-tex clean-mat clean-optchar clean-sho
 #if $[build_eggs]
@@ -366,9 +366,9 @@ $[TAB]$[DEL_CMD $[egg]]
   #end egg
 $[TAB]$[DEL_CMD *.pt]
 #endif
-#if $[filter_dirs]
-$[TAB]$[DEL_CMD $[filter_dirs]]
-#endif
+#foreach filter_dir $[filter_dirs]
+$[TAB]$[DEL_DIR_CMD $[filter_dir]]
+#end filter_dir
 
 // We need a rule for each directory we might need to make.  This
 // loops through the full set of directories and creates a rule to

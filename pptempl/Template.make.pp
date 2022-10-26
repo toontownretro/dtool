@@ -267,17 +267,21 @@ $[TAB] $[DEL_CMD $[file]]
 #endif
 #if $[yxx_st_sources] $[lxx_st_sources]
 #foreach file $[yxx_st_sources]
-$[TAB] $[DEL_CMD $[patsubst %.yxx,%.cxx %.h,$[file]]]
+$[TAB] $[DEL_CMD $[patsubst %.yxx,%.cxx,$[file]]]
+$[TAB] $[DEL_CMD $[patsubst %.yxx,%.h,$[file]]]
 #end file
 #foreach file $[lxx_st_sources]
 $[TAB] $[DEL_CMD $[patsubst %.lxx,%.cxx,$[file]]]
 #end file
 #endif
 #if $[py_sources]
-$[TAB] $[DEL_CMD *.pyc *.pyo] // Also scrub out old generated Python code.
+$[TAB] $[DEL_CMD *.pyc] // Also scrub out old generated Python code.
+$[TAB] $[DEL_CMD *.pyo]
 #endif
 #if $[USE_TAU]
-$[TAB] $[DEL_CMD *.pdb *.inst.* *.il]  // scrub out tau-generated files.
+$[TAB] $[DEL_CMD *.pdb]  // scrub out tau-generated files.
+$[TAB] $[DEL_CMD *.inst.*]
+$[TAB] $[DEL_CMD *.il]
 #endif
 
 // 'cleanall' is intended to undo all the effects of running ppremake
@@ -305,10 +309,12 @@ clean-igate :
 $[TAB] $[DEL_CMD $[igatedb]]
   #endif
   #if $[igateoutput]
-$[TAB] $[DEL_CMD $[igateoutput] $[$[igateoutput]_obj]]
+$[TAB] $[DEL_CMD $[igateoutput]]
+$[TAB] $[DEL_CMD $[$[igateoutput]_obj]]
   #endif
   #if $[igatemout]
-$[TAB] $[DEL_CMD $[igatemout] $[$[igatemout]_obj]]
+$[TAB] $[DEL_CMD $[igatemout]]
+$[TAB] $[DEL_CMD $[$[igatemout]_obj]]
   #endif
 #end python_module_target lib_target ss_lib_target dynamic_lib_target
 
@@ -352,9 +358,9 @@ $[TAB] $[DEL_CMD $[file]]
 #if $[HAVE_BISON]
 prebuild-bison : $[patsubst %,%.prebuilt,$[bison_prebuilt]]
 clean-prebuild-bison :
-#if $[bison_prebuilt]
-$[TAB] $[DEL_CMD $[sort $[patsubst %,%.prebuilt,$[bison_prebuilt]]]]
-#endif
+#foreach bison_prebuilt_file $[sort $[patsubst %,%.prebuilt,$[bison_prebuilt]]]
+$[TAB] $[DEL_CMD $[bison_prebuilt_file]]
+#end bison_prebuilt_file
 #endif
 
 // Now it's time to start generating the rules to make our actual

@@ -9,10 +9,11 @@
 // For Windows.
 
 #defun TOUCH_CMD file
-  #foreach fname $[file]
-    #define osfile $[osfilename $[fname]]
-    if not exist $[osfile] ( echo|set /p arg="" >> $[osfile] ) else ( copy /b $[osfile] +,, $[osfile] )
-  #end fname
+  #if $[!= $[words $[file]], 1]
+    #error TOUCH_CMD can only touch one file at a time, specified files: $[file].
+  #endif
+  #define osfile $[osfilename $[file]]
+  if not exist $[osfile] ( echo|set /p arg="" >> $[osfile] ) else ( copy /b $[osfile] +,, $[osfile] )
 #end TOUCH_CMD
 
 #defun COPY_CMD src,dest
@@ -29,30 +30,33 @@
 #end MOVE_CMD
 
 #defun DEL_CMD file
-  #foreach fname $[file]
-    #define osfile $[osfilename $[fname]]
-    #if $[findstring *, $[fname]]
-      // Wildcard deletes are fine if they don't exist.
-      del /f/s/q $[osfile]
-    #else
-      // Windows will error if the specific file doesn't exist.
-      if exist $[osfile] ( del /f/s/q $[osfile] )
-    #endif
-  #end fname
+  #if $[!= $[words $[file]], 1]
+    #error DEL_CMD can only delete one filename/pattern at a time, specified files: $[file].
+  #endif
+  #define osfile $[osfilename $[file]]
+  #if $[findstring *, $[file]]
+    // Wildcard deletes are fine if they don't exist.
+    del /f/s/q $[osfile]
+  #else
+    // Windows will error if the specific file doesn't exist.
+    if exist $[osfile] ( del /f/s/q $[osfile] )
+  #endif
 #end DEL_CMD
 
 #defun DEL_DIR_CMD dir
-  #foreach dirname $[dir]
-    #define osdir $[osfilename $[dir]]
-    if exist $[osdir] ( rmdir /s/q $[osdir] )
-  #end dirname
+  #if $[!= $[words $[dir]], 1]
+    #error DEL_DIR_CMD can only delete one dir at a time, specified dirs: $[dir].
+  #endif
+  #define osdir $[osfilename $[dir]]
+  if exist $[osdir] ( rmdir /s/q $[osdir] )
 #end DEL_DIR_CMD
 
 #defun MKDIR_CMD directory
-  #foreach dirname $[directory]
-    #define dirname $[osfilename $[dirname]]
-    if not exist $[dirname] mkdir $[dirname]
-  #end dirname
+  #if $[!= $[words $[directory]], 1]
+    #error MKDIR_CMD can only make one directory at a time, specified directories: $[directory].
+  #endif
+  #define dirname $[osfilename $[directory]]
+  if not exist $[dirname] mkdir $[dirname]
 #end MKDIR_CMD
 
 // Writes a CMD line to echo the given string to the given filename.
