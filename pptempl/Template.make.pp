@@ -310,11 +310,15 @@ $[TAB] $[DEL_CMD $[igatedb]]
   #endif
   #if $[igateoutput]
 $[TAB] $[DEL_CMD $[igateoutput]]
+  #if $[$[igateoutput]_obj]
 $[TAB] $[DEL_CMD $[$[igateoutput]_obj]]
+  #endif
   #endif
   #if $[igatemout]
 $[TAB] $[DEL_CMD $[igatemout]]
+  #if $[$[igatemout]_obj]
 $[TAB] $[DEL_CMD $[$[igatemout]_obj]]
+  #endif
   #endif
 #end python_module_target lib_target ss_lib_target dynamic_lib_target
 
