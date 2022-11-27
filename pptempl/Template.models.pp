@@ -42,8 +42,6 @@
 
 #defer phase_prefix $[if $[PHASE],phase_$[PHASE]/]
 #defer install_model_dir $[install_dir]/$[phase_prefix]$[INSTALL_TO]
-#defer install_tex_dir $[install_dir]/$[phase_prefix]maps
-#defer install_mats_dir $[install_dir]/$[phase_prefix]materials
 #defer install_sho_dir $[install_dir]/$[phase_prefix]shaders
 
 #defer install_egg_sources $[SOURCES] $[SOURCES_NC] $[UNPAL_SOURCES] $[UNPAL_SOURCES_NC]
@@ -199,19 +197,22 @@
 #define install_other_dirs $[sort $[forscopes install_audio install_icons install_shader install_misc,$[install_model_dir] $[other_source_dirs]]]
 #define installed_other $[sort $[forscopes install_audio install_icons install_shader install_misc,$[SOURCES:%=$[install_model_dir]/%]]]
 
-#define build_texs \
-  $[forscopes install_tex, \
-    $[foreach source,$[SOURCES],$[basename $[source]].txo.pz]]
+#defun get_built_sources ext
+  $[foreach source,$[SOURCES],$[basename $[source]]$[ext]]
+#end get_built_sources
+#defer get_install_dirs $[install_model_dir] $[if $[not $[FLAT_INSTALL]],$[other_source_dirs]]
+#defun get_installed_sources ext
+  #defer built_file $[basename $[src]]$[ext]
+  $[foreach src,$[SOURCES],$[patsubst %,$[install_model_dir]/%,$[if $[FLAT_INSTALL],$[notdir $[built_file]],$[built_file]]]]
+#end get_installed_sources
 
-#define install_tex_dirs $[sort $[forscopes install_tex, $[install_model_dir] $[other_source_dirs]]]
-#define installed_tex $[sort $[foreach tex,$[build_texs],$[patsubst %,$[install_model_dir]/%,$[tex]]]]
+#define build_texs $[forscopes install_tex, $[get_built_sources .txo.pz]]
+#define install_tex_dirs $[sort $[forscopes install_tex, $[get_install_dirs]]]
+#define installed_tex $[sort $[forscopes install_tex, $[get_installed_sources .txo.pz]]]
 
-#define build_mats \
-  $[forscopes install_mat, \
-    $[foreach source,$[SOURCES],$[basename $[source]].mto]]
-
-#define install_mat_dirs $[sort $[forscopes install_mat, $[install_model_dir] $[other_source_dirs]]]
-#define installed_mat $[sort $[foreach mat,$[build_mats],$[patsubst %,$[install_model_dir]/%,$[mat]]]]
+#define build_mats $[forscopes install_mat, $[get_built_sources .mto]]
+#define install_mat_dirs $[sort $[forscopes install_mat, $[get_install_dirs]]]
+#define installed_mat $[sort $[forscopes install_mat, $[get_installed_sources .mto]]]
 
 #define build_mdls \
   $[forscopes install_mdl, \
@@ -950,19 +951,18 @@ $[TAB]$[DEL_CMD $[f]]
   #define dest $[install_model_dir]
   #foreach file $[SOURCES]
     #define local $[basename $[file]].txo.pz
-    #define remote $[local]
+    #define remote $[if $[FLAT_INSTALL],$[notdir $[local]],$[local]]
     #adddict texture_index $[ABSDIR]/$[file],$[dest]/$[remote]
 $[osgeneric $[dest]/$[remote]] : $[local]
 $[TAB]$[DEL_CMD $[dest]/$[remote]]
-$[TAB]$[COPY_CMD $[local], $[standardize $[dest]/$[dir $[remote]]]]
+$[TAB]$[COPY_CMD $[local], $[if $[FLAT_INSTALL],$[dest],$[standardize $[dest]/$[dir $[remote]]]]]
   #end file
 #end install_tex
 
 // TXO file uninstallation.
 uninstall-tex :
 #forscopes install_tex
-  #define files \
-    $[foreach img,$[SOURCES],$[install_model_dir]/$[basename $[img]].txo.pz]
+  #define files $[get_installed_sources .txo.pz]
   #if $[files]
     #foreach f $[files]
 $[TAB]$[DEL_CMD $[f]]
@@ -976,25 +976,23 @@ $[TAB]$[DEL_CMD $[f]]
   #define dest $[install_model_dir]
   #foreach file $[SOURCES]
     #define local $[basename $[file]].mto
-    #define remote $[local]
+    #define remote $[if $[FLAT_INSTALL],$[notdir $[local]],$[local]]
     #adddict material_index $[ABSDIR]/$[file],$[dest]/$[remote]
 $[osgeneric $[dest]/$[remote]] : $[local]
 $[TAB]$[DEL_CMD $[dest]/$[remote]]
-$[TAB]$[COPY_CMD $[local], $[standardize $[dest]/$[dir $[remote]]]]
+$[TAB]$[COPY_CMD $[local], $[if $[FLAT_INSTALL],$[dest],$[standardize $[dest]/$[dir $[remote]]]]]
   #end file
 #end install_mat
 
 // MTO file uninstallation.
 uninstall-mat :
 #forscopes install_mat
-  #define files \
-    $[foreach mat,$[SOURCES],$[install_model_dir]/$[basename $[mat]].mto]
+  #define files $[get_installed_sources .mto]
   #if $[files]
     #foreach f $[files]
 $[TAB]$[DEL_CMD $[f]]
     #end f
   #endif
-
 #end install_mat
 
 // Miscellaneous file installation.
