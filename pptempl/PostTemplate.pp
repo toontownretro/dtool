@@ -36,7 +36,7 @@ install_dir "$[$[upcase $[PACKAGE]]_INSTALL]"
 textures
 {
 #fordict key texture_index
-  "$[basename $[notdir $[key]]]"
+  "$[key]"
   {
     src   "$[key]"
     built "$[texture_index $[key]]"
@@ -47,7 +47,7 @@ textures
 materials
 {
 #fordict key material_index
-  "$[basename $[notdir $[key]]]"
+  "$[key]"
   {
     src   "$[key]"
     built "$[material_index $[key]]"

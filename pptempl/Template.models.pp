@@ -203,15 +203,15 @@
   $[forscopes install_tex, \
     $[foreach source,$[SOURCES],$[basename $[source]].txo.pz]]
 
-#define install_tex_dirs $[sort $[forscopes install_tex, $[install_tex_dir]]]
-#define installed_tex $[sort $[foreach tex,$[build_texs],$[patsubst %,$[install_tex_dir]/%,$[notdir $[tex]]]]]
+#define install_tex_dirs $[sort $[forscopes install_tex, $[install_model_dir] $[other_source_dirs]]]
+#define installed_tex $[sort $[foreach tex,$[build_texs],$[patsubst %,$[install_model_dir]/%,$[tex]]]]
 
 #define build_mats \
   $[forscopes install_mat, \
     $[foreach source,$[SOURCES],$[basename $[source]].mto]]
 
-#define install_mat_dirs $[sort $[forscopes install_mat, $[install_mats_dir]]]
-#define installed_mat $[sort $[foreach mat,$[build_mats],$[patsubst %,$[install_mats_dir]/%,$[notdir $[mat]]]]]
+#define install_mat_dirs $[sort $[forscopes install_mat, $[install_model_dir] $[other_source_dirs]]]
+#define installed_mat $[sort $[foreach mat,$[build_mats],$[patsubst %,$[install_model_dir]/%,$[mat]]]]
 
 #define build_mdls \
   $[forscopes install_mdl, \
@@ -936,7 +936,7 @@ $[TAB]$[COPY_CMD $[local], $[dest]]
 uninstall-sho :
 #forscopes install_sho
   #define files \
-    $[foreach file,$[SOURCES],$[install_tex_dir/$[notdir $[basename $[file]].sho.pz]]]
+    $[foreach file,$[SOURCES],$[install_sho_dir/$[notdir $[basename $[file]].sho.pz]]]
   #if $[files]
     #foreach f $[files]
 $[TAB]$[DEL_CMD $[f]]
@@ -947,14 +947,14 @@ $[TAB]$[DEL_CMD $[f]]
 
 // TXO file installation.
 #forscopes install_tex
+  #define dest $[install_model_dir]
   #foreach file $[SOURCES]
     #define local $[basename $[file]].txo.pz
-    #define remote $[notdir $[local]]
-    #define dest $[install_tex_dir]
+    #define remote $[local]
     #adddict texture_index $[ABSDIR]/$[file],$[dest]/$[remote]
 $[osgeneric $[dest]/$[remote]] : $[local]
 $[TAB]$[DEL_CMD $[dest]/$[remote]]
-$[TAB]$[COPY_CMD $[local], $[dest]]
+$[TAB]$[COPY_CMD $[local], $[standardize $[dest]/$[dir $[remote]]]]
   #end file
 #end install_tex
 
@@ -962,7 +962,7 @@ $[TAB]$[COPY_CMD $[local], $[dest]]
 uninstall-tex :
 #forscopes install_tex
   #define files \
-    $[foreach img,$[SOURCES],$[install_tex_dir]/$[notdir $[basename $[img]].txo.pz]]
+    $[foreach img,$[SOURCES],$[install_model_dir]/$[basename $[img]].txo.pz]
   #if $[files]
     #foreach f $[files]
 $[TAB]$[DEL_CMD $[f]]
@@ -973,14 +973,14 @@ $[TAB]$[DEL_CMD $[f]]
 
 // MTO file installation.
 #forscopes install_mat
+  #define dest $[install_model_dir]
   #foreach file $[SOURCES]
     #define local $[basename $[file]].mto
-    #define remote $[notdir $[local]]
-    #define dest $[install_mats_dir]
+    #define remote $[local]
     #adddict material_index $[ABSDIR]/$[file],$[dest]/$[remote]
 $[osgeneric $[dest]/$[remote]] : $[local]
 $[TAB]$[DEL_CMD $[dest]/$[remote]]
-$[TAB]$[COPY_CMD $[local], $[dest]]
+$[TAB]$[COPY_CMD $[local], $[standardize $[dest]/$[dir $[remote]]]]
   #end file
 #end install_mat
 
@@ -988,7 +988,7 @@ $[TAB]$[COPY_CMD $[local], $[dest]]
 uninstall-mat :
 #forscopes install_mat
   #define files \
-    $[foreach mat,$[SOURCES],$[install_mats_dir]/$[notdir $[basename $[mat]].mto]]
+    $[foreach mat,$[SOURCES],$[install_model_dir]/$[basename $[mat]].mto]
   #if $[files]
     #foreach f $[files]
 $[TAB]$[DEL_CMD $[f]]
