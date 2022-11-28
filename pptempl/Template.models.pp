@@ -11,8 +11,8 @@
 // environment.
 //
 
-#if $[< $[PPREMAKE_VERSION],1.25]
-  #error You need at least ppremake version 1.25 to build models.
+#if $[< $[PPREMAKE_VERSION],1.26]
+  #error You need at least ppremake version 1.26 to build models.
 #endif
 
 #if $[and $[CTPROJS],$[not $[findstring PANDATOOL,$[CTPROJS]]]]
@@ -447,7 +447,7 @@ $[TAB]shadercompile $[SHADERCOMPILE_OPTS] -s $[stage_name] -o $[target] $[source
   #foreach img $[SOURCES]
     #define source $[img]
     #define target $[basename $[source]].txo.pz
-$[target] : $[source] $[shell asset-list-depends $[source]]
+$[target] : $[source] $[model-depends $[source]]
 $[TAB]ptex2txo -o $[target] $[source]
   #end img
 
@@ -469,7 +469,7 @@ $[TAB]pmat2mto -o $[target] $[source] -i $[TOPDIR]/$[PACKAGE]_index.boo
   #foreach file $[SOURCES]
     #define source $[file]
     #define target $[bam_dir]/$[notdir $[file:%.pmdl=%.bam]]
-$[target] : $[source] $[shell asset-list-depends $[source]]
+$[target] : $[source] $[model-depends $[source]]
 $[TAB]pmdl2bam -o $[target] $[source] -i $[TOPDIR]/$[PACKAGE]_index.boo
   #end file
 #end install_mdl

@@ -39,3 +39,7 @@
 #if $[eq $[DEPENDENCY_CACHE_FILENAME],]
   #define DEPENDENCY_CACHE_FILENAME pp.dep
 #endif
+
+#if $[eq $[MODEL_DEPENDENCY_CACHE_FILENAME],]
+  #define MODEL_DEPENDENCY_CACHE_FILENAME pp-models.dep
+#endif
