@@ -194,15 +194,15 @@
 #endif
 
 #defer other_source_dirs $[foreach src,$[SOURCES],$[standardize $[install_model_dir]/$[dir $[src]]]]
-#define install_other_dirs $[sort $[forscopes install_audio install_icons install_shader install_misc,$[install_model_dir] $[other_source_dirs]]]
-#define installed_other $[sort $[forscopes install_audio install_icons install_shader install_misc,$[SOURCES:%=$[install_model_dir]/%]]]
+#define install_other_dirs $[sort $[forscopes install_icons install_shader install_misc,$[install_model_dir] $[other_source_dirs]]]
+#define installed_other $[sort $[forscopes install_icons install_shader install_misc,$[SOURCES:%=$[install_model_dir]/%]]]
 
 #defun get_built_sources ext
-  $[foreach source,$[SOURCES],$[basename $[source]]$[ext]]
+  $[if $[ext],$[foreach source,$[SOURCES],$[if $[ne $[suffix $[source]],$[ext]],$[basename $[source]]$[ext]]]]
 #end get_built_sources
 #defer get_install_dirs $[install_model_dir] $[if $[not $[FLAT_INSTALL]],$[other_source_dirs]]
 #defun get_installed_sources ext
-  #defer built_file $[basename $[src]]$[ext]
+  #defer built_file $[if $[ext],$[basename $[src]]$[ext],$[src]]
   $[foreach src,$[SOURCES],$[patsubst %,$[install_model_dir]/%,$[if $[FLAT_INSTALL],$[notdir $[built_file]],$[built_file]]]]
 #end get_installed_sources
 
@@ -226,6 +226,10 @@
 #define install_sho_dirs $[sort $[forscopes install_sho, $[install_sho_dir]]]
 #define installed_sho $[sort $[foreach sho,$[build_shos],$[patsubst %,$[install_sho_dir]/%,$[notdir $[sho]]]]]
 
+#define build_audio $[forscopes install_audio, $[get_built_sources $[TARGET_EXT]]]
+#define install_audio_dirs $[sort $[forscopes install_audio, $[get_install_dirs]]]
+#define installed_audio $[sort $[forscopes install_audio, $[get_installed_sources $[TARGET_EXT]]]]
+
 #define pal_egg_targets $[sort $[patsubst %,$[pal_egg_dir]/%,$[notdir $[install_pal_eggs]]]]
 #define bam_targets $[install_eggs:%.egg=$[bam_dir]/%.bam] $[build_mdls]
 
@@ -236,6 +240,7 @@
 
 #define all_targets \
     Makefile \
+    audio \
     sho \
     tex mat \
     $[texattrib_dir] \
@@ -243,6 +248,8 @@
     $[optchar_dirs] \
     egg bam
 all : $[osgeneric $[all_targets]]
+
+audio : $[build_audio]
 
 sho : $[build_shos]
 
@@ -279,6 +286,8 @@ install-mat : $[osgeneric $[install_mat_dirs] $[installed_mat]]
 
 install-sho : $[osgeneric $[install_sho_dirs] $[installed_sho]]
 
+install-audio : $[osgeneric $[install_audio_dirs] $[installed_audio]]
+
 #define install_other_targets \
     $[install_dna_dirs] \
     $[installed_generic_dna] $[installed_language_dna] \
@@ -286,8 +295,8 @@ install-sho : $[osgeneric $[install_sho_dirs] $[installed_sho]]
     $[installed_other]
 install-other : $[osgeneric $[install_other_targets]]
 
-install : all install-other install-sho install-tex install-mat install-bam
-uninstall : uninstall-other uninstall-sho uninstall-tex uninstall-mat uninstall-bam
+install : all install-other install-audio install-sho install-tex install-mat install-bam
+uninstall : uninstall-other uninstall-audio uninstall-sho uninstall-tex uninstall-mat uninstall-bam
 
 clean-sho :
 #if $[build_shos]
@@ -360,7 +369,14 @@ clean-optchar :
 $[TAB]$[DEL_DIR_CMD $[optchar_dir]]
 #end optchar_dir
 
-clean : clean-pal clean-tex clean-mat clean-optchar clean-sho
+clean-audio :
+#if $[build_audio]
+  #foreach f $[build_audio]
+$[TAB]$[DEL_CMD $[f]]
+  #end f
+#endif
+
+clean : clean-pal clean-tex clean-mat clean-optchar clean-sho clean-audio
 #if $[build_eggs]
   #foreach egg $[build_eggs]
 $[TAB]$[DEL_CMD $[egg]]
@@ -387,6 +403,7 @@ $[TAB]$[DEL_DIR_CMD $[filter_dir]]
     $[install_tex_dirs] \
     $[install_mat_dirs] \
     $[install_sho_dirs] \
+    $[install_audio_dirs] \
     ]
 $[osgeneric $[directory]] :
 #if $[WINDOWS_PLATFORM]
@@ -463,6 +480,22 @@ $[TAB]pmat2mto -o $[target] $[source] -i $[TOPDIR]/$[PACKAGE]_index.boo
   #end mat
 
 #end install_mat
+
+// Audio file generation.  If the target ext is different we run
+// the specified converter program.
+#forscopes install_audio
+  #if $[TARGET_EXT]
+    #foreach source $[SOURCES]
+      #if $[ne $[suffix $[source]], $[TARGET_EXT]]
+        // We need to convert this file to the target extension.
+        // Run the user-specified conversion.
+        #define target $[basename $[source]]$[TARGET_EXT]
+$[target] : $[source]
+$[TAB]$[DO_CONVERT]
+      #endif
+    #end source
+  #endif
+#end install_audio
 
 // BAM file generation from pmdl files.
 #forscopes install_mdl
@@ -995,8 +1028,36 @@ $[TAB]$[DEL_CMD $[f]]
   #endif
 #end install_mat
 
+// Audio file installation.
+#forscopes install_audio
+  #define dest $[install_model_dir]
+  #foreach file $[SOURCES]
+    #if $[and $[TARGET_EXT], $[ne $[suffix $[file]], $[TARGET_EXT]]]
+      #define local $[basename $[file]]$[TARGET_EXT]
+    #else
+      #define local $[file]
+    #endif
+    #define remote $[if $[FLAT_INSTALL],$[notdir $[local]],$[local]]
+    #adddict misc_index $[ABSDIR]/$[file],$[dest]/$[remote]
+$[osgeneric $[dest]/$[remote]] : $[local]
+$[TAB]$[DEL_CMD $[dest]/$[remote]]
+$[TAB]$[COPY_CMD $[local], $[if $[FLAT_INSTALL],$[dest],$[standardize $[dest]/$[dir $[remote]]]]]
+  #end file
+#end install_audio
+
+// Audio file uninstallation.
+uninstall-audio :
+#forscopes install_audio
+  #define files $[get_installed_sources $[TARGET_EXT]]
+  #if $[files]
+    #foreach f $[files]
+$[TAB]$[DEL_CMD $[f]]
+    #end f
+  #endif
+#end install_audio
+
 // Miscellaneous file installation.
-#forscopes install_audio install_icons install_shader install_misc
+#forscopes install_icons install_shader install_misc
   #define dest $[install_model_dir]
   #foreach file $[SOURCES]
     #define local $[file]
@@ -1008,11 +1069,11 @@ $[TAB]$[DEL_CMD $[dest]/$[remote]]
 $[TAB]$[COPY_CMD $[local], $[standardize $[dest]/$[dir $[remote]]]]
 
   #end file
-#end install_audio install_icons install_shader install_misc
+#end install_icons install_shader install_misc
 
 // Miscellaneous file uninstallation.
 uninstall-other :
-#forscopes install_audio install_icons install_shader install_misc
+#forscopes install_icons install_shader install_misc
   #define dest $[install_model_dir]
   #define files $[patsubst %,$[dest]/%,$[SOURCES]]
   #if $[files]
@@ -1020,7 +1081,7 @@ uninstall-other :
 $[TAB]$[DEL_CMD $[f]]
     #end f
   #endif
-#end install_audio install_icons install_shader install_misc
+#end install_icons install_shader install_misc
 
 // Finally, the rules to freshen the Makefile itself.
 Makefile : $[SOURCE_FILENAME] $[EXTRA_PPREMAKE_SOURCE]
@@ -1064,13 +1125,13 @@ $[TAB] ppremake
 
 index : $[PACKAGE]_index.boo
 
-all : Makefile index sho tex mat egg pal repal $[subdirs]
+all : Makefile index audio sho tex mat egg pal repal $[subdirs]
 install : all $[subdirs:%=install-%]
 #define sub_targets \
-  sho tex mat egg flt lwo maya soft blender bam pal clean-sho clean-tex clean-mat clean-bam \
-  clean-pal clean-flt clean-lwo clean-maya clean-soft clean-blender clean-optchar clean \
-  cleanall unpack-soft install-sho install-tex install-mat install-bam install-other uninstall-tex \
-  uninstall-mat uninstall-bam uninstall-other uninstall-sho uninstall
+  audio sho tex mat egg flt lwo maya soft blender bam pal clean-sho clean-tex clean-mat clean-bam \
+  clean-pal clean-flt clean-lwo clean-maya clean-soft clean-blender clean-optchar clean-audio clean \
+  cleanall unpack-soft install-audio install-sho install-tex install-mat install-bam install-other uninstall-tex \
+  uninstall-mat uninstall-bam uninstall-other uninstall-sho uninstall-audio uninstall
 
 // Define the rules to propogate these targets to the Makefile within
 // each directory.
