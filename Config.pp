@@ -698,6 +698,14 @@
 // cause libdirect.dll to fail to load on Win98 clients.
 #define HAVE_DIRECTD
 
+// Do you want to build the distributed module in direct?
+// If so enable this.
+#define HAVE_DISTRIBUTED 1
+
+// Do you want to build the distributed2 module in direct?
+// If so enable this.
+#define HAVE_DISTRIBUTED2 1
+
 // If your system supports the Posix threads interface
 // (pthread_create(), etc.), define this true.
 #define HAVE_POSIX_THREADS $[and $[isfile /usr/include/pthread.h],$[not $[WINDOWS_PLATFORM]]]
