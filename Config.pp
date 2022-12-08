@@ -763,12 +763,7 @@
 // whenever threads are enabled, assuming that if you have threads,
 // you also want to use pipelining.  We also enable it at OPTIMIZE
 // level 1, since that enables additional runtime checks.
-//
-// Actually, don't turn this on even if we have threads.  It adds significant
-// overhead and complexity to Panda for not much performance benefit.  We
-// would be better off using data-parallelism instead of task-parallelism.
-//#defer DO_PIPELINING $[or $[<= $[OPTIMIZE], 1],$[HAVE_THREADS]]
-#define DO_PIPELINING
+#defer DO_PIPELINING $[or $[<= $[OPTIMIZE], 1],$[HAVE_THREADS]]
 
 // Define this true to implement mutexes and condition variables via
 // user-space spinlocks, instead of via OS-provided constructs.  This
