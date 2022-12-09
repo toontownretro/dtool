@@ -666,7 +666,7 @@
   <Exec Command="$[FLEX] $[FLEXFLAGS] $[if $[YACC_PREFIX],-P$[YACC_PREFIX]] -olex.yy.c $[osfilename $[file]]"/>
   #define source lex.yy.c
   #define script /#include <unistd.h>/d
-  <Exec Command="$[SED]"/>
+  <Exec Command='$[SED]'/>
   <Exec Command="if exist lex.yy.c del lex.yy.c"/>
   <Exec Command="copy /Y $[osfilename $[target]] $[osfilename $[target_prebuilt]]"/>
 #end file
