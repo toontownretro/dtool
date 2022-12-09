@@ -157,7 +157,7 @@
       // into a single C++ file that gets compiled.
       #define composite_file $[ODIR]/$[get_output_name]_composite.cxx
       #set composite_list $[composite_list] $[composite_file]
-      #define $[composite_file]_sources $[composite_sources]
+      #define $[composite_file]_sources $[filter-out %_src.cxx %_ext.cxx, $[composite_sources]]
       #define $[composite_file]_obj $[ODIR]/$[get_output_name]_composite$[OBJ]
       #push 2 $[composite_file]_sources
       #push 2 $[composite_file]_obj
