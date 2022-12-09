@@ -226,10 +226,14 @@
 
 #define is_bin $[filter bin_target noinst_bin_target test_bin_target,$[SCOPE]]
 
-#define config_type \
-  $[if $[filter bin_target noinst_bin_target test_bin_target,$[SCOPE]],Application, \
-    $[if $[is_metalib_component],MetalibComponent, \
-      $[if $[lib_is_static],StaticLibrary,DynamicLibrary]]]
+#if $[not $[compile_sources]]
+  #define config_type Interface
+#else
+  #define config_type \
+    $[if $[filter bin_target noinst_bin_target test_bin_target,$[SCOPE]],Application, \
+      $[if $[is_metalib_component],MetalibComponent, \
+        $[if $[lib_is_static],StaticLibrary,DynamicLibrary]]]
+#endif
 
 // Miscellaneous files that are added to the project just so they are visible
 // from within Visual Studio.
