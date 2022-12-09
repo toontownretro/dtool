@@ -96,7 +96,7 @@
 
 // These are the complete set of extra flags the compiler requires.
 #defer cflags $[patsubst -D%,/D%,$[get_cflags] $[CFLAGS] $[CFLAGS_OPT$[OPTIMIZE]]] $[CFLAGS_SHARED]
-#defer c++flags $[patsubst -D%,/D%,$[get_cflags] $[C++FLAGS] $[CFLAGS_OPT$[OPTIMIZE]]] $[CFLAGS_SHARED]
+#defer c++flags $[patsubst -D%,/D%,$[get_cflags] $[C++FLAGS] $[CFLAGS_OPT$[OPTIMIZE]]] $[CFLAGS_SHARED] $[C++FLAGS_GEN]
 #defer lflags $[patsubst -D%,/D%,$[get_lflags] $[LFLAGS] $[LFLAGS_OPT$[OPTIMIZE]]]
 
 // $[complete_lpath] is rather like $[complete_ipath]: the list of
