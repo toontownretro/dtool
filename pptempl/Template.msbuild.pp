@@ -522,7 +522,10 @@
 // Set up the stuff to perform linking.
 // Don't do this if we're a component on a metalib, though.  Those just get
 // compiled into a bunch of .objs and are eventually linked into the metalib.
-#if $[not $[is_metalib_component]]
+//
+// Furthermore, don't try to link anything if we didn't compile any code...
+// (interface_target).
+#if $[and $[not $[is_metalib_component]],$[compile_sources]]
 #define extra_objs $[if $[and $[is_metalib],$[not $[BUILD_COMPONENTS]]], \
   $[components $[patsubst %,$[RELDIR]/$[%_obj],$[compile_sources]],$[active_component_libs]]]
 <ItemDefinitionGroup>
