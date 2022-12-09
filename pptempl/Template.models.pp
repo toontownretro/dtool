@@ -19,6 +19,9 @@
   #error You must be attached to PANDATOOL to build models.
 #endif
 
+// Include portable aliases for OS-specific console commands.
+#include $[THISDIRPREFIX]SystemCommands.pp
+
 // Search for the texattrib dir definition.  This will be in the
 // models_topdir directory.
 #define texattrib_dir $[dir_type $[TEXATTRIB_DIR],models_toplevel]
