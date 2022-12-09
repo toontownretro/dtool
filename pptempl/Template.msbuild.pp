@@ -539,7 +539,7 @@
   <Link>
 #endif
     <AdditionalLibraryDirectories>$[msjoin $[osfilename $[lpath]]]</AdditionalLibraryDirectories>
-    <AdditionalDependencies>$[msjoin $[osfilename $[patsubst %.lib,%.lib,%,lib%.lib,$[libs]] $[extra_objs]]]</AdditionalDependencies>
+    <AdditionalDependencies>$[msjoin $[osfilename $[if $[not $[lib_is_static]],$[patsubst %.lib,%.lib,%,lib%.lib,$[libs]]] $[extra_objs]]]</AdditionalDependencies>
     <OutputFile>$[osfilename $[ODIR]/$[vs_target_name]$[vs_target_ext]]</OutputFile>
 #if $[lib_is_static]
   </Lib>
