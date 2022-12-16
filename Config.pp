@@ -378,13 +378,19 @@
 // rendering pipeline.
 #define SUPPORT_FIXED_FUNCTION
 
-// These are two optional alternative memory-allocation schemes
+// These are three optional alternative memory-allocation schemes
 // available within Panda.  You can experiment with either of them to
 // see if they give better performance than the system malloc(), but
 // at the time of this writing, it doesn't appear that they do.
 #define USE_MEMORY_DLMALLOC
 #define USE_MEMORY_PTMALLOC2
-#define USE_MEMORY_MIMALLOC
+// On Windows, we'll use mimalloc by default if it's available on the
+// user's system.  Mainly because the default Windows allocator is
+// terrible in comparison to other platforms.  On other platforms,
+// mimalloc may or may not provide a substantial improvement in
+// allocator performance, so we'll make the user decide explicitly
+// there.
+#defer USE_MEMORY_MIMALLOC $[and $[WINDOWS_PLATFORM],$[HAVE_MIMALLOC]]
 
 // Set this true if you prefer to use the system malloc library even
 // if 16-byte alignment must be performed on top of it, wasting up to
@@ -879,7 +885,6 @@
 #define MIMALLOC_LPATH $[DEFAULT_LPATH]
 #if $[WINDOWS_PLATFORM]
   #define MIMALLOC_LIBS mimalloc-static.lib
-  #define USE_MEMORY_MIMALLOC 1
 #else
   #define MIMALLOC_LIBS mimalloc
 #endif
