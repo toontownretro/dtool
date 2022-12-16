@@ -420,22 +420,6 @@
 #define ANDROID_ARCH arm
 #defer ANDROID_TOOLCHAIN $[if $[eq $[ANDROID_ARCH],arm],arm-linux-androideabi]
 
-// Do you want to use one of the alternative malloc implementations?
-// This is almost always a good idea on Windows, where the standard
-// malloc implementation appears to be pretty poor, but probably
-// doesn't matter much on Linux (which is likely to implement
-// ptmalloc2 anyway).  We always define this by default on Windows; on
-// Linux, we define it by default only when DO_MEMORY_USAGE is enabled
-// (since in that case, we'll be paying the overhead for the extra
-// call anyway) or when HAVE_THREADS is not defined (since the
-// non-thread-safe dlmalloc is a tiny bit faster than the system
-// library).
-
-// In hindsight, let's not enable this at all.  It just causes
-// problems.
-//#defer ALTERNATIVE_MALLOC $[or $[WINDOWS_PLATFORM],$[DO_MEMORY_USAGE],$[not $[HAVE_THREADS]]]
-#define ALTERNATIVE_MALLOC
-
 // Define this true to use the DELETED_CHAIN macros, which support
 // fast re-use of existing allocated blocks, minimizing the low-level
 // calls to malloc() and free() for frequently-created and -deleted
