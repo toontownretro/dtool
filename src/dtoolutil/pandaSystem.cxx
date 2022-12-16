@@ -155,7 +155,12 @@ get_distributor() {
  */
 string PandaSystem::
 get_compiler() {
-#if defined(_MSC_VER)
+#if defined(__clang__)
+  // Clang has this macro.  This case has to go before __GNUC__ and _MSC_VER
+  // because they are both defined by Clang, depending on the platform.
+  return "Clang " __clang_version__;
+
+#elif defined(_MSC_VER)
   // MSVC defines this macro.  It's an integer; we need to format it.
   std::ostringstream strm;
   strm << "MSC v." << _MSC_VER;
@@ -175,11 +180,6 @@ get_compiler() {
 #endif
 
   return strm.str();
-
-#elif defined(__clang__)
-  // Clang has this macro.  This case has to go before __GNUC__ because that
-  // is also defined by clang.
-  return "Clang " __clang_version__;
 
 #elif defined(__GNUC__)
   // GCC defines this simple macro.
