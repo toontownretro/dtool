@@ -879,6 +879,7 @@
 #define MIMALLOC_LPATH $[DEFAULT_LPATH]
 #if $[WINDOWS_PLATFORM]
   #define MIMALLOC_LIBS mimalloc-static.lib
+  #define USE_MEMORY_MIMALLOC 1
 #else
   #define MIMALLOC_LIBS mimalloc
 #endif
