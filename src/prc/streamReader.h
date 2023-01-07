@@ -68,13 +68,12 @@ PUBLISHED:
 
   BLOCKING void skip_bytes(size_t size);
   BLOCKING size_t extract_bytes(unsigned char *into, size_t size);
-  EXTENSION(PyObject *extract_bytes(size_t size));
+  PY_EXTENSION(PyObject *extract_bytes(size_t size));
 
-  EXTENSION(PyObject *readline());
-  EXTENSION(PyObject *readlines());
-  EXTENSION(PyObject *readline_str());
-  EXTENSION(PyObject *readlines_str());
-
+  PY_EXTENSION(PyObject *readline());
+  PY_EXTENSION(PyObject *readlines());
+  PY_EXTENSION(PyObject *readline_str());
+  PY_EXTENSION(PyObject *readlines_str());
 public:
   BLOCKING vector_uchar extract_bytes(size_t size);
   BLOCKING std::string readline();
@@ -86,4 +85,4 @@ private:
 
 #include "streamReader.I"
 
-#endif
+#endif // !STREAMREADER_H
