@@ -165,7 +165,6 @@
     swscale.h \
     synchapi.h \
     time.h \
-    tinyxml.h \
     typeinfo \
     type_traits \
     ucontext.h \
