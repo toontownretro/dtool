@@ -823,7 +823,7 @@
 
 // This target cleans compiled source files, libraries, and Bison/Flex
 // generated files.
-<Target Name="clean" DependsOnTargets="clean-igate" BeforeTargets="Clean">
+<Target Name="clean" DependsOnTargets="clean-igate">
 // Delete compiled source files.
 #if $[compile_sources]
   <Delete Files="$[msjoin $[osfilename $[patsubst %,$[%_obj],$[compile_sources]]]]" />
@@ -990,7 +990,7 @@
 
 <Target Name="install"
         Inputs="$[msjoin $[osfilename $[install_files]]]"
-        Outputs="$[msjoin $[osfilename $[installed_files]]]">
+        Outputs="$[msjoin $[osfilename $[installed_files]]]" AfterTargets="Build">
 #if $[INSTALL_SCRIPTS]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_SCRIPTS]]]"
         DestinationFiles="$[msjoin $[osfilename $[INSTALL_SCRIPTS:%=$[install_scripts_dir]/%]]]"
@@ -1035,7 +1035,7 @@
 #endif
 </Target>
 
-<Target Name="uninstall">
+<Target Name="uninstall" AfterTargets="Clean">
 #if $[installed_files]
   <Delete Files="$[msjoin $[osfilename $[installed_files]]]" />
 #endif
@@ -1055,7 +1055,7 @@
 
 // This target is intended to undo all the effects of running ppremake and
 // building.  It removes everything except the projects.
-<Target Name="cleanall" DependsOnTargets="clean">
+<Target Name="cleanall" DependsOnTargets="clean" AfterTargets="Clean">
   <RemoveDir Directories="$[osfilename $[ODIR]]" />
 #if $[DEPENDENCY_CACHE_FILENAME]
   <Delete Files="$[osfilename $[DEPENDENCY_CACHE_FILENAME]]" />
@@ -1138,7 +1138,7 @@
 
 <Target Name="install"
         Inputs="$[msjoin $[osfilename $[install_files]]]"
-        Outputs="$[msjoin $[osfilename $[installed_files]]]">
+        Outputs="$[msjoin $[osfilename $[installed_files]]]" AfterTargets="Build">
 #if $[install_files]
   <Copy SourceFiles="$[msjoin $[osfilename $[install_files]]]"
         DestinationFiles="$[msjoin $[osfilename $[installed_files]]]"
@@ -1146,7 +1146,7 @@
 #endif
 </Target>
 
-<Target Name="uninstall">
+<Target Name="uninstall" BeforeTargets="Clean">
 #if $[installed_files]
   <Delete Files="$[msjoin $[osfilename $[installed_files]]]" />
 #endif
@@ -1209,15 +1209,15 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dir_$[dirname]", "$[osfilen
 	EndProjectSection
 EndProject
 // Also add a solution folder that will group the targets in a directory.
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "$[dirname]", "$[dirname]", "{$[makeguid folder_$[dirname]]}"
-EndProject
+//Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "$[dirname]", "$[dirname]", "{$[makeguid folder_$[dirname]]}"
+//EndProject
 #end dirname
 // And the top-level project.
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dir_$[DIRNAME]", "$[osfilename $[PATH]/dir_$[DIRNAME].vcxproj]", "{$[makeguid dir_$[DIRNAME]]}"
 EndProject
 // Top-level solution folder.
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "$[DIRNAME]", "$[DIRNAME]", "{$[makeguid folder_$[DIRNAME]]}"
-EndProject
+//Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "$[DIRNAME]", "$[DIRNAME]", "{$[makeguid folder_$[DIRNAME]]}"
+//EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Release|$[platform_config] = Release|$[platform_config]
@@ -1244,15 +1244,15 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-#forscopes $[project_scopes]
-#if $[and $[build_directory],$[build_target]]
-		{$[makeguid $[TARGET]]} = {$[makeguid folder_$[DIRNAME]]}
-#endif
-#end $[project_scopes]
-#formap dirname subdirs
-		{$[makeguid dir_$[dirname]]} = {$[makeguid folder_$[dirname]]}
-#end dirname
-		{$[makeguid dir_$[DIRNAME]]} = {$[makeguid folder_$[DIRNAME]]}
+//#forscopes $[project_scopes]
+//#if $[and $[build_directory],$[build_target]]
+//		{$[makeguid $[TARGET]]} = {$[makeguid folder_$[DIRNAME]]}
+//#endif
+//#end $[project_scopes]
+//#formap dirname subdirs
+//		{$[makeguid dir_$[dirname]]} = {$[makeguid folder_$[dirname]]}
+//#end dirname
+//		{$[makeguid dir_$[DIRNAME]]} = {$[makeguid folder_$[DIRNAME]]}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
     SolutionGuid = {$[makeguid $[PACKAGE].sln]}
