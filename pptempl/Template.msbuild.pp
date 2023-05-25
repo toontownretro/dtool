@@ -227,11 +227,11 @@
 #define is_bin $[filter bin_target noinst_bin_target test_bin_target,$[SCOPE]]
 
 #if $[not $[compile_sources]]
-  #define config_type Interface
+  #define config_type Utility
 #else
   #define config_type \
     $[if $[filter bin_target noinst_bin_target test_bin_target,$[SCOPE]],Application, \
-      $[if $[is_metalib_component],MetalibComponent, \
+      $[if $[is_metalib_component],Utility, \
         $[if $[lib_is_static],StaticLibrary,DynamicLibrary]]]
 #endif
 
@@ -733,7 +733,7 @@
 <Target Name="install"
         Outputs="$[msjoin $[osfilename $[installed_files]]]"
         Inputs="$[msjoin $[osfilename $[install_files]]]"
-        DependsOnTargets="Build">
+        DependsOnTargets="Build" AfterTargets="Build">
 #if $[and $[build_lib],$[is_lib]]
   <Copy SourceFiles="$[osfilename $[ODIR]/$[get_output_file]]"
         DestinationFiles="$[osfilename $[install_lib_dir]/$[get_output_file]]"
@@ -799,7 +799,7 @@
 #endif
 </Target>
 
-<Target Name="uninstall">
+<Target Name="uninstall" BeforeTargets="Clean">
 #if $[installed_files]
   <Delete Files="$[msjoin $[osfilename $[installed_files]]]" />
 #endif
@@ -823,7 +823,7 @@
 
 // This target cleans compiled source files, libraries, and Bison/Flex
 // generated files.
-<Target Name="clean" DependsOnTargets="clean-igate">
+<Target Name="clean" DependsOnTargets="clean-igate" BeforeTargets="Clean">
 // Delete compiled source files.
 #if $[compile_sources]
   <Delete Files="$[msjoin $[osfilename $[patsubst %,$[%_obj],$[compile_sources]]]]" />
@@ -947,6 +947,7 @@
 <Import Project="$(VCTargetsPath)\Microsoft.Cpp.default.props" />
 
 <PropertyGroup>
+  <ConfigurationType>Utility</ConfigurationType>
   <PlatformToolset>$[platform_toolset]</PlatformToolset>
 </PropertyGroup>
 
