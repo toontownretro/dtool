@@ -26,6 +26,8 @@
 #define dtool_ver_dir $[osfilename $[dtool_ver_dir_cyg]]
 #endif
 
+#define optname Opt$[OPTIMIZE]
+
 //
 // Correct LDFLAGS_OPT 3,4 here to get around early evaluation of, even
 // if deferred
@@ -137,7 +139,8 @@
 // Similarly, we need to ensure that $[ODIR] exists.  Trying to make
 // the makefiles do this automatically just causes problems with
 // multiprocess builds.
-#mkdir $[ODIR] $[TEST_ODIR]
+#define all_odirs $[forscopes $[vcx_scopes], $[ODIR] $[TEST_ODIR]]
+#mkdir $[sort $[all_odirs]]
 
 // Pre-compiled headers are one way to speed the compilation of many
 // C++ source files that include similar headers, but it turns out a
@@ -271,8 +274,8 @@
 </PropertyGroup>
 
 <ItemGroup>
-  <ProjectConfiguration Include="Release|$[platform_config]">
-    <Configuration>Release</Configuration>
+  <ProjectConfiguration Include="$[optname]|$[platform_config]">
+    <Configuration>$[optname]</Configuration>
     <Platform>$[platform_config]</Platform>
   </ProjectConfiguration>
 </ItemGroup>
@@ -285,6 +288,7 @@
     $[if $[eq $[config_type],StaticLibrary],.lib,$[lib_ext]]]
 
 <PropertyGroup>
+  <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
   <ConfigurationType>$[config_type]</ConfigurationType>
   <PlatformToolset>$[platform_toolset]</PlatformToolset>
   <PreferredToolArchitecture>$[tool_architecture]</PreferredToolArchitecture>
@@ -316,139 +320,233 @@
 
 #if $[compile_sources]
 
-#define compiler_flags $[c++flags] $[extra_cflags]
-
-// This is the list of compiler flags that are set using built-in ClCompile
-// properties.  Anything not in this list is passed into AdditionalOptions.
-#define builtin_compiler_flags \
-  /RTCs /RTCu /RTC1 /GS /Gd /Gr /Gz /Gv /Z7 /Zi /ZI /arch:SSE2 /arch:SSE /GT /EHa /EHsc /EHs \
-  /Os /Ot /fp:precise /fp:strict /fp:fast /Ob0 /Ob1 /Ob2 /Oi /Gm /MP /Oy /Od /O1 /O2 \
-  /MTd /MDd /MT /MD /GR /RTCc /Zp16 /Zp8 /Zp4 /Zp2 /Zp1 /nologo /W0 /W1 /W2 /W3 /W4 \
-  /Wall /GL /Fr"%" /D% /Fd"%" /Zc:forScope
-
-// The additional options are any flags not part of the built-in list.
-#define additional_compiler_flags $[filter-out $[builtin_compiler_flags],$[compiler_flags]]
+#define compiler_flags $[sort $[c++flags] $[extra_cflags] $[ARCH_FLAGS]]
 
 // Determine a bunch of <ClCompile> properties based on the given compiler
 // flags.
-#define preprocessor_defs $[patsubst /D%,%,$[filter /D%,$[c++flags] $[extra_cflags]]] $[building_var]
-#define runtime_checks Default
-#if $[filter /RTCs,$[compiler_flags]]
-  #set runtime_checks StackFrameRuntimeCheck
-#elif $[filter /RTCu,$[compiler_flags]]
-  #set runtime_checks UninitializedLocalUsageCheck
-#elif $[filter /RTC1,$[compiler_flags]]
-  #set runtime_checks EnableFastChecks
-#endif
-#define buffer_security_check $[if $[filter /GS,$[compiler_flags]],true,false]
+#define runtime_checks
+#define buffer_security_check
 #define calling_convention
-#if $[filter /Gd,$[compiler_flags]]
-  #set calling_convention Cdecl
-#elif $[filter /Gr,$[compiler_flags]]
-  #set calling_convention FastCall
-#elif $[filter /Gz,$[compiler_flags]]
-  #set calling_convention StdCall
-#elif $[filter /Gv,$[compiler_flags]]
-  #set calling_convention VectorCall
-#endif
 #define debug_information_format
-#if $[filter /Z7,$[compiler_flags]]
-  #set debug_information_format OldStyle
-#elif $[filter /Zi,$[compiler_flags]]
-  #set debug_information_format ProgramDatabase
-#elif $[filter /ZI,$[compiler_flags]]
-  #set debug_information_format EditAndContinue
-#endif
 #define enhanced_instruction_set
-#if $[filter /arch:SSE2,$[compiler_flags]]
-  #set enhanced_instruction_set StreamingSIMDExtensions2
-#elif $[filter /arch:SSE,$[compiler_flags]]
-  #set enhanced_instruction_set StreamingSIMDExtensions
-#endif
-#define fiber_safe_optimizations $[if $[filter /GT,$[compiler_flags]],true,false]
-#define exception_handling false
-#if $[filter /EHa,$[compiler_flags]]
-  #set exception_handling Async
-#elif $[filter /EHsc,$[compiler_flags]]
-  #set exception_handling Sync
-#elif $[filter /EHs,$[compiler_flags]]
-  #set exception_handling SyncCThrow
-#endif
-#define size_or_speed Neither
-#if $[filter /Os,$[compiler_flags]]
-  #set size_or_speed Size
-#elif $[filter /Ot,$[compiler_flags]]
-  #set size_or_speed Speed
-#endif
-#define fp_exceptions $[if $[filter /fp:except,$[compiler_flags]],true,false]
+#define fiber_safe_optimizations
+#define exception_handling
+#define size_or_speed
+#define fp_exceptions
 #define fp_model
-#if $[filter /fp:precise,$[compiler_flags]]
-  #set fp_model Precise
-#elif $[filter /fp:strict,$[compiler_flags]]
-  #set fp_model Strict
-#elif $[filter /fp:fast,$[compiler_flags]]
-  #set fp_model Fast
-#endif
-#define for_scope_conformance $[if $[filter /Zc:forScope,$[compiler_flags]],true,false]
-#define function_level_linking $[if $[filter /Gy,$[compiler_flags]],true,false]
-#define inline_function_expansion Default
-#if $[filter /Ob0,$[compiler_flags]]
-  #set inline_function_expansion Disabled
-#elif $[filter /Ob1,$[compiler_flags]]
-  #set inline_function_expansion OnlyExplicitInline
-#elif $[filter /Ob2,$[compiler_flags]]
-  #set inline_function_expansion AnySuitable
-#endif
-#define intrinsic_functions $[if $[filter /Oi,$[compiler_flags]],true,false]
-#define minimal_rebuild $[if $[filter /Gm,$[compiler_flags]],true,false]
-#define multiprocessor_compilation $[if $[filter /MP,$[compiler_flags]],true,false]
-#define omit_frame_pointers $[if $[filter /Oy,$[compiler_flags]],true,false]
-#define optimization Full
-#if $[filter /Od,$[compiler_flags]]
-  #set optimization Disabled
-#elif $[filter /O1,$[compiler_flags]]
-  #set optimization MinSpace
-#elif $[filter /O2,$[compiler_flags]]
-  #set optimization MaxSpeed
-#endif
-#define runtime_library MultiThreaded
-#if $[filter /MTd,$[compiler_flags]]
-  #set runtime_library MultiThreadedDebug
-#elif $[filter /MDd,$[compiler_flags]]
-  #set runtime_library MultiThreadedDebugDLL
-#elif $[filter /MD,$[compiler_flags]]
-  #set runtime_library MultiThreadedDLL
-#endif
-#define rtti $[if $[filter /GR,$[compiler_flags]],true,false]
-#define smaller_type_check $[if $[filter /RTCc,$[compiler_flags]],true,false]
-#define struct_member_alignment Default
-#if $[filter /Zp16,$[compiler_flags]]
-  #set struct_member_alignment 16Bytes
-#elif $[filter /Zp8,$[compiler_flags]]
-  #set struct_member_alignment 8Bytes
-#elif $[filter /Zp4,$[compiler_flags]]
-  #set struct_member_alignment 4Bytes
-#elif $[filter /Zp2,$[compiler_flags]]
-  #set struct_member_alignment 2Bytes
-#elif $[filter /Zp1,$[compiler_flags]]
-  #set struct_member_alignment 1Byte
-#endif
-#define suppress_startup_banner $[if $[filter /nologo,$[compiler_flags]],true,false]
+#define for_scope_conformance
+#define function_level_linking
+#define inline_function_expansion
+#define intrinsic_functions
+#define minimal_rebuild
+#define multiprocessor_compilation
+#define omit_frame_pointers
+#define optimization
+#define runtime_library
+#define rtti
+#define smaller_type_check
+#define struct_member_alignment
+#define suppress_startup_banner
 #define warning_level
-#if $[filter /W0,$[compiler_flags]]
-  #set warning_level TurnOffAllWarnings
-#elif $[filter /W1,$[compiler_flags]]
-  #set warning_level Level1
-#elif $[filter /W2,$[compiler_flags]]
-  #set warning_level Level2
-#elif $[filter /W3,$[compiler_flags]]
-  #set warning_level Level3
-#elif $[filter /W4,$[compiler_flags]]
-  #set warning_level Level4
-#elif $[filter /Wall,$[compiler_flags]]
-  #set warning_level EnableAllWarnings
-#endif
-#define whole_program_optimization $[if $[filter /GL,$[compiler_flags]],true,false]
+#define whole_program_optimization
+#define treat_warning_as_error
+#define treatwchar_t_asbuiltintype
+
+#define consumed_flags
+
+#for i 1,$[words $[compiler_flags]]
+  #define word $[word $[i],$[compiler_flags]]
+
+  #define consumed 1
+
+  #if $[eq $[word], /RTCs]
+    #set runtime_checks StackFrameRuntimeCheck
+  #elif $[eq $[word], /RTCu]
+    #set runtime_checks UninitializedLocalUsageCheck
+  #elif $[eq $[word], /RTC1]
+    #set runtime_checks EnableFastChecks
+
+  #elif $[eq $[word], /GS-]
+    #set buffer_security_check false
+  #elif $[eq $[word], /GS]
+    #set buffer_security_check true
+
+  #elif $[eq $[word], /Gd]
+    #set calling_convention Cdecl
+  #elif $[eq $[word], /Gr]
+    #set calling_convention FastCall
+  #elif $[eq $[word], /Gz]
+    #set calling_convention StdCall
+  #elif $[eq $[word], /Gv]
+    #set calling_convention VectorCall
+
+  #elif $[eq $[word], /Z7]
+    #set debug_information_format OldStyle
+  #elif $[eq $[word], /Zi]
+    #set debug_information_format ProgramDatabase
+  #elif $[eq $[word], /ZI]
+    #set debug_information_format EditAndContinue
+
+  #elif $[eq $[word], /arch:SSE]
+    #set enhanced_instruction_set StreamingSIMDExtensions
+  #elif $[eq $[word], /arch:SSE2]
+    #set enhanced_instruction_set StreamingSIMDExtensions2
+  #elif $[eq $[word], /arch:AVX]
+    #set enhanced_instruction_set AdvancedVectorExtensions
+  #elif $[eq $[word], /arch:AVX2]
+    #set enhanced_instruction_set AdvancedVectorExtensions2
+
+  #elif $[eq $[word], /GT]
+    #set fiber_safe_optimizations true
+  #elif $[eq $[word], /GT-]
+    #set fiber_safe_optimizations false
+
+  #elif $[eq $[word], /EHa]
+    #set exception_handling Async
+  #elif $[eq $[word], /EHsc]
+    #set exception_handling Sync
+  #elif $[eq $[word], /EHs]
+    #set exception_handling SyncCThrow
+
+  #elif $[eq $[word], /Os]
+    #set size_or_speed Size
+  #elif $[eq $[word], /Ot]
+    #set size_or_speed Speed
+
+  #elif $[eq $[word], /fp:except]
+    #set fp_exceptions true
+  #elif $[eq $[word], /fp:except-]
+    #set fp_exceptions false
+
+  #elif $[eq $[word], /fp:precise]
+    #set fp_model Precise
+  #elif $[eq $[word], /fp:strict]
+    #set fp_model Strict
+  #elif $[eq $[word], /fp:fast]
+    #set fp_model Fast
+
+  #elif $[eq $[word], /Zc:forScope]
+    #set for_scope_conformance true
+  #elif $[eq $[word], /Zc:forScope-]
+    #set for_scope_conformance false
+
+  #elif $[eq $[word], /Gy]
+    #set function_level_linking true
+  #elif $[eq $[word], /Gy-]
+    #set function_level_linking false
+
+  #elif $[eq $[word], /Ob0]
+    #set inline_function_expansion Disabled
+  #elif $[eq $[word], /Ob1]
+    #set inline_function_expansion OnlyExplicitInline
+  #elif $[eq $[word], /Ob2]
+    #set inline_function_expansion AnySuitable
+
+  #elif $[eq $[word], /Oi]
+    #set intrinsic_functions true
+  #elif $[eq $[word], /Oi-]
+    #set intrinsic_functions false
+
+  #elif $[eq $[word], /Gm]
+    #set minimal_rebuild true
+  #elif $[eq $[word], /Gm-]
+    #set minimal_rebuild false
+
+  #elif $[eq $[word], /MP]
+    #set multiprocessor_compilation true
+
+  #elif $[eq $[word], /Oy]
+    #set omit_frame_pointers true
+  #elif $[eq $[word], /Oy-]
+    #set omit_frame_pointers false
+
+  #elif $[eq $[word], /Od]
+    #set optimization Disabled
+  #elif $[eq $[word], /O1]
+    #set optimization MinSpace
+  #elif $[eq $[word], /O2]
+    #set optimization MaxSpeed
+  #elif $[eq $[word], /Ox]
+    #set optimization Full
+
+  #elif $[eq $[word], /MT]
+    #set runtime_library MultiThreaded
+  #elif $[eq $[word], /MTd]
+    #set runtime_library MultiThreadedDebug
+  #elif $[eq $[word], /MD]
+    #set runtime_library MultiThreadedDLL
+  #elif $[eq $[word], /MDd]
+    #set runtime_library MultiThreadedDebugDLL
+
+  #elif $[eq $[word], /GR]
+    #set rtti true
+  #elif $[eq $[word], /GR-]
+    #set rtti false
+
+  #elif $[eq $[word], /RTCc]
+    #set smaller_type_check true
+
+  #elif $[eq $[word], /Zp1]
+    #set struct_member_alignment 1Byte
+  #elif $[eq $[word], /Zp2]
+    #set struct_member_alignment 2Bytes
+  #elif $[eq $[word], /Zp4]
+    #set struct_member_alignment 4Bytes
+  #elif $[eq $[word], /Zp8]
+    #set struct_member_alignment 8Bytes
+  #elif $[eq $[word], /Zp16]
+    #set struct_member_alignment 16Bytes
+
+  #elif $[eq $[word], /nologo]
+    #set suppress_startup_banner true
+
+  #elif $[eq $[word], /W0]
+    #set warning_level TurnOffAllWarnings
+  #elif $[eq $[word], /W1]
+    #set warning_level Level1
+  #elif $[eq $[word], /W2]
+    #set warning_level Level2
+  #elif $[eq $[word], /W3]
+    #set warning_level Level3
+  #elif $[eq $[word], /W4]
+    #set warning_level Level4
+  #elif $[eq $[word], /Wall]
+    #set warning_level EnableAllWarnings
+
+  #elif $[eq $[word], /GL]
+    #set whole_program_optimization true
+  #elif $[eq $[word], /GL-]
+    #set whole_program_optimization false
+
+  #elif $[eq $[word], /WX]
+    #set treat_warning_as_error true
+  #elif $[eq $[word], /WX-]
+    #set treat_warning_as_error false
+
+  #elif $[eq $[word], /Zc:wchar_t]
+    #set treatwchar_t_asbuiltintype true
+  #elif $[eq $[word], /Zc:wchar_t-]
+    #set treatwchar_t_asbuiltintype false
+
+  #else
+    #set consumed
+  #endif
+
+  #if $[consumed]
+    #set consumed_flags $[consumed_flags] $[word]
+  #endif
+#end i
+
+// Any flags we didn't consume into XML properties should be specified in
+// <AdditionalOptions>.
+#define additional_compiler_flags $[sort $[filter-out $[consumed_flags],$[compiler_flags]]]
+// This one shouldn't be here.
+#define additional_compiler_flags $[filter-out /Fd"%" /Fr"%", $[additional_compiler_flags]]
+
+// Now extract preprocess definitions.  There is also an XML property for those.
+#define preprocessor_defs $[filter /D%,$[c++flags] $[extra_cflags]]
+#define additional_compiler_flags $[filter-out $[preprocessor_defs], $[additional_compiler_flags]]
+#define preprocessor_defs $[patsubst /D%,%,$[preprocessor_defs]] $[building_var]
 
 // Add all of the source files for the target onto the list.
 <ItemGroup>
@@ -488,36 +586,39 @@
     <AdditionalIncludeDirectories>$[msjoin $[osfilename . $[target_ipath]]]</AdditionalIncludeDirectories>
     <AdditionalOptions>$[additional_compiler_flags]</AdditionalOptions>
     <PreprocessorDefinitions>$[msjoin $[preprocessor_defs]]</PreprocessorDefinitions>
-    <BasicRuntimeChecks>$[runtime_checks]</BasicRuntimeChecks>
-    <BufferSecurityCheck>$[buffer_security_check]</BufferSecurityCheck>
-    <CallingConvention>$[calling_convention]</CallingConvention>
-    <DebugInformationFormat>$[debug_information_format]</DebugInformationFormat>
-    <EnableEnhancedInstructionSet>$[enhanced_instruction_set]</EnableEnhancedInstructionSet>
-    <EnableFiberSafeOptimizations>$[fiber_safe_optimizations]</EnableFiberSafeOptimizations>
-    <ExceptionHandling>$[exception_handling]</ExceptionHandling>
-    <FavorSizeOrSpeed>$[size_or_speed]</FavorSizeOrSpeed>
-    <FloatingPointExceptions>$[fp_exceptions]</FloatingPointExceptions>
-    <FloatingPointModel>$[fp_model]</FloatingPointModel>
-    <ForceConformanceInForLoopScope>$[for_scope_conformance]</ForceConformanceInForLoopScope>
-    <FunctionLevelLinking>$[function_level_linking]</FunctionLevelLinking>
-    <InlineFunctionExpansion>$[inline_function_expansion]</InlineFunctionExpansion>
-    <IntrinsicFunctions>$[intrinsic_functions]</IntrinsicFunctions>
-
+    $[if $[runtime_checks], <BasicRuntimeChecks>$[runtime_checks]</BasicRuntimeChecks>]
+    $[if $[buffer_security_check], <BufferSecurityCheck>$[buffer_security_check]</BufferSecurityCheck>]
+    $[if $[calling_convention], <CallingConvention>$[calling_convention]</CallingConvention>]
+    $[if $[debug_information_format], <DebugInformationFormat>$[debug_information_format]</DebugInformationFormat>]
+    $[if $[enhanced_instruction_set], <EnableEnhancedInstructionSet>$[enhanced_instruction_set]</EnableEnhancedInstructionSet>]
+    $[if $[fiber_safe_optimizations], <EnableFiberSafeOptimizations>$[fiber_safe_optimizations]</EnableFiberSafeOptimizations>]
+    $[if $[exception_handling], <ExceptionHandling>$[exception_handling]</ExceptionHandling>]
+    $[if $[size_or_speed], <FavorSizeOrSpeed>$[size_or_speed]</FavorSizeOrSpeed>]
+    $[if $[fp_exceptions], <FloatingPointExceptions>$[fp_exceptions]</FloatingPointExceptions>]
+    $[if $[fp_model], <FloatingPointModel>$[fp_model]</FloatingPointModel>]
+    $[if $[for_scope_conformance], <ForceConformanceInForLoopScope>$[for_scope_conformance]</ForceConformanceInForLoopScope>]
+    $[if $[function_level_linking], <FunctionLevelLinking>$[function_level_linking]</FunctionLevelLinking>]
+    $[if $[inline_function_expansion], <InlineFunctionExpansion>$[inline_function_expansion]</InlineFunctionExpansion>]
+    $[if $[intrinsic_functions], <IntrinsicFunctions>$[intrinsic_functions]</IntrinsicFunctions>]
     // These aren't supported on Clang.  If they are set they cause the project
     // to always rebuild from scratch.
-    <MinimalRebuild>$[if $[ne $[USE_COMPILER], Clang],$[minimal_rebuild]]</MinimalRebuild>
-    <MultiProcessorCompilation>$[if $[ne $[USE_COMPILER], Clang],$[multiprocessor_compilation]]</MultiProcessorCompilation>
-
-    <OmitFramePointers>$[omit_frame_pointers]</OmitFramePointers>
-    <Optimization>$[optimization]</Optimization>
-    <RuntimeLibrary>$[runtime_library]</RuntimeLibrary>
-    <RuntimeTypeInfo>$[rtti]</RuntimeTypeInfo>
-    <SmallerTypeCheck>$[smaller_type_check]</SmallerTypeCheck>
-    <StructMemberAlignment>$[struct_member_alignment]</StructMemberAlignment>
-    <SuppressStartupBanner>$[suppress_startup_banner]</SuppressStartupBanner>
-    <WarningLevel>$[warning_level]</WarningLevel>
+#if $[ne $[USE_COMPILER], Clang]
+    $[if $[minimal_rebuild], <MinimalRebuild>$[minimal_rebuild]</MinimalRebuild>]
+    $[if $[multiprocessor_compilation], <MultiProcessorCompilation>$[multiprocessor_compilation]</MultiProcessorCompilation>]
+#endif
+    $[if $[omit_frame_pointers], <OmitFramePointers>$[omit_frame_pointers]</OmitFramePointers>]
+    $[if $[optimization], <Optimization>$[optimization]</Optimization>]
+    $[if $[runtime_library], <RuntimeLibrary>$[runtime_library]</RuntimeLibrary>]
+    $[if $[rtti], <RuntimeTypeInfo>$[rtti]</RuntimeTypeInfo>]
+    $[if $[smaller_type_check], <SmallerTypeCheck>$[smaller_type_check]</SmallerTypeCheck>]
+    $[if $[struct_member_alignment], <StructMemberAlignment>$[struct_member_alignment]</StructMemberAlignment>]
+    $[if $[suppress_startup_banner], <SuppressStartupBanner>$[suppress_startup_banner]</SuppressStartupBanner>]
+    $[if $[warning_level], <WarningLevel>$[warning_level]</WarningLevel>]
+    $[if $[whole_program_optimization], <WholeProgramOptimization>$[whole_program_optimization]</WholeProgramOptimization>]
+    $[if $[treat_warning_as_error], <TreatWarningAsError>$[whole_program_optimization]</TreatWarningAsError>]
+    $[if $[treatwchar_t_asbuiltintype], <TreatWChar_tAsBuiltInType>$[treatwchar_t_asbuiltintype]</TreatWChar_tAsBuiltInType]
     <ExternalWarningLevel></ExternalWarningLevel>
-    <WholeProgramOptimization>$[whole_program_optimization]</WholeProgramOptimization>
+
   </ClCompile>
 </ItemDefinitionGroup>
 
@@ -938,8 +1039,8 @@
 </ItemGroup>
 
 <ItemGroup>
-  <ProjectConfiguration Include="Release|$[platform_config]">
-    <Configuration>Release</Configuration>
+  <ProjectConfiguration Include="$[optname]|$[platform_config]">
+    <Configuration>$[optname]</Configuration>
     <Platform>$[platform_config]</Platform>
   </ProjectConfiguration>
 </ItemGroup>
@@ -947,6 +1048,7 @@
 <Import Project="$(VCTargetsPath)\Microsoft.Cpp.default.props" />
 
 <PropertyGroup>
+  <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
   <ConfigurationType>Utility</ConfigurationType>
   <PlatformToolset>$[platform_toolset]</PlatformToolset>
 </PropertyGroup>
@@ -990,7 +1092,7 @@
 
 <Target Name="install"
         Inputs="$[msjoin $[osfilename $[install_files]]]"
-        Outputs="$[msjoin $[osfilename $[installed_files]]]" AfterTargets="Build">
+        Outputs="$[msjoin $[osfilename $[installed_files]]]" AfterTargets="Build" DependsOnTargets="Build">
 #if $[INSTALL_SCRIPTS]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_SCRIPTS]]]"
         DestinationFiles="$[msjoin $[osfilename $[INSTALL_SCRIPTS:%=$[install_scripts_dir]/%]]]"
@@ -1099,8 +1201,8 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
 <ItemGroup>
-  <ProjectConfiguration Include="Release|$[platform_config]">
-    <Configuration>Release</Configuration>
+  <ProjectConfiguration Include="$[optname]|$[platform_config]">
+    <Configuration>$[optname]</Configuration>
     <Platform>$[platform_config]</Platform>
   </ProjectConfiguration>
 </ItemGroup>
@@ -1108,6 +1210,7 @@
 <Import Project="$(VCTargetsPath)\Microsoft.Cpp.default.props" />
 
 <PropertyGroup>
+  <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
   <PlatformToolset>$[platform_toolset]</PlatformToolset>
 </PropertyGroup>
 
@@ -1138,7 +1241,7 @@
 
 <Target Name="install"
         Inputs="$[msjoin $[osfilename $[install_files]]]"
-        Outputs="$[msjoin $[osfilename $[installed_files]]]" AfterTargets="Build">
+        Outputs="$[msjoin $[osfilename $[installed_files]]]" AfterTargets="Build" DependsOnTargets="Build">
 #if $[install_files]
   <Copy SourceFiles="$[msjoin $[osfilename $[install_files]]]"
         DestinationFiles="$[msjoin $[osfilename $[installed_files]]]"
@@ -1220,26 +1323,26 @@ EndProject
 //EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Release|$[platform_config] = Release|$[platform_config]
+		Opt$[OPTIMIZE]|$[platform_config] = Opt$[OPTIMIZE]|$[platform_config]
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 #forscopes $[project_scopes]
 #if $[and $[build_directory],$[build_target]]
 #define guid $[makeguid $[TARGET]]
-		{$[guid]}.Release|$[platform_config].ActiveCfg = Release|$[platform_config]
-		{$[guid]}.Release|$[platform_config].Build.0 = Release|$[platform_config]
+		{$[guid]}.Opt$[OPTIMIZE]|$[platform_config].ActiveCfg = Opt$[OPTIMIZE]|$[platform_config]
+		{$[guid]}.Opt$[OPTIMIZE]|$[platform_config].Build.0 = Opt$[OPTIMIZE]|$[platform_config]
 #endif
 #end $[project_scopes]
 // Also add in the directory-level projects.
 #formap dirname subdirs
 #define guid $[makeguid dir_$[dirname]]
-		{$[guid]}.Release|$[platform_config].ActiveCfg = Release|$[platform_config]
-		{$[guid]}.Release|$[platform_config].Build.0 = Release|$[platform_config]
+		{$[guid]}.Opt$[OPTIMIZE]|$[platform_config].ActiveCfg = Opt$[OPTIMIZE]|$[platform_config]
+		{$[guid]}.Opt$[OPTIMIZE]|$[platform_config].Build.0 = Opt$[OPTIMIZE]|$[platform_config]
 #end dirname
 // And the top-level project.
 #define guid $[makeguid dir_$[DIRNAME]]
-		{$[guid]}.Release|$[platform_config].ActiveCfg = Release|$[platform_config]
-		{$[guid]}.Release|$[platform_config].Build.0 = Release|$[platform_config]
+		{$[guid]}.Opt$[OPTIMIZE]|$[platform_config].ActiveCfg = Opt$[OPTIMIZE]|$[platform_config]
+		{$[guid]}.Opt$[OPTIMIZE]|$[platform_config].Build.0 = Opt$[OPTIMIZE]|$[platform_config]
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 	EndGlobalSection

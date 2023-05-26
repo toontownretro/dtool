@@ -182,10 +182,8 @@
     $[if $[install_py_module],$[install_py_module_dir]] \
     ]
 
-// Similarly, we need to ensure that $[ODIR] exists.  Trying to make
-// the makefiles do this automatically just causes problems with
-// multiprocess builds.
-#mkdir $[ODIR] $[TEST_ODIR]
+#define all_odirs $[forscopes static_lib_target bin_target noinst_bin_target test_bin_target python_target python_module_target metalib_target lib_target noinst_lib_target ss_lib_target, $[ODIR] $[TEST_ODIR]]
+#mkdir $[sort $[all_odirs]]
 
 // Pre-compiled headers are one way to speed the compilation of many
 // C++ source files that include similar headers, but it turns out a
