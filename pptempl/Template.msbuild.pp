@@ -273,6 +273,10 @@
   <MultiProcMaxCount>$[MSBUILD_MULTIPROC_COUNT]</MultiProcMaxCount>
 </PropertyGroup>
 
+<PropertyGroup Label="Globals">
+  <ProjectGuid>$[makeguid $[TARGET]]</ProjectGuid>
+</PropertyGroup>
+
 <ItemGroup>
   <ProjectConfiguration Include="$[optname]|$[platform_config]">
     <Configuration>$[optname]</Configuration>
@@ -1023,6 +1027,10 @@
 <!--                              DO NOT EDIT                                       -->
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+<PropertyGroup Label="Globals">
+  <ProjectGuid>$[makeguid dir_$[DIRNAME]]</ProjectGuid>
+</PropertyGroup>
+
 // Miscellaneous files that are added to the project just so they are visible
 // from within Visual Studio.
 #define misc_files $[lxx_sources] $[yxx_sources] $[INSTALL_DATA] $[INSTALL_CONFIG] \
@@ -1199,6 +1207,10 @@
 <!-- Generated automatically by $[PPREMAKE] $[PPREMAKE_VERSION] from $[SOURCEFILE]. -->
 <!--                              DO NOT EDIT                                       -->
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+<PropertyGroup Label="Globals">
+  <ProjectGuid>$[makeguid dir_$[DIRNAME]]</ProjectGuid>
+</PropertyGroup>
 
 <ItemGroup>
   <ProjectConfiguration Include="$[optname]|$[platform_config]">
