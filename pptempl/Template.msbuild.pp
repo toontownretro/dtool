@@ -328,14 +328,14 @@
 
 // Determine a bunch of <ClCompile> properties based on the given compiler
 // flags.
-#define runtime_checks
-#define buffer_security_check
+#define runtime_checks Default
+#define buffer_security_check false
 #define calling_convention
 #define debug_information_format
 #define enhanced_instruction_set
 #define fiber_safe_optimizations
-#define exception_handling
-#define size_or_speed
+#define exception_handling false
+#define size_or_speed Neither
 #define fp_exceptions
 #define fp_model
 #define for_scope_conformance
@@ -620,7 +620,7 @@
     $[if $[warning_level], <WarningLevel>$[warning_level]</WarningLevel>]
     $[if $[whole_program_optimization], <WholeProgramOptimization>$[whole_program_optimization]</WholeProgramOptimization>]
     $[if $[treat_warning_as_error], <TreatWarningAsError>$[whole_program_optimization]</TreatWarningAsError>]
-    $[if $[treatwchar_t_asbuiltintype], <TreatWChar_tAsBuiltInType>$[treatwchar_t_asbuiltintype]</TreatWChar_tAsBuiltInType]
+    $[if $[treatwchar_t_asbuiltintype], <TreatWChar_tAsBuiltInType>$[treatwchar_t_asbuiltintype]</TreatWChar_tAsBuiltInType>]
     <ExternalWarningLevel></ExternalWarningLevel>
 
   </ClCompile>
