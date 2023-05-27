@@ -21,11 +21,6 @@
 // $DTOOL/pptempl/Depends.pp, once for each Sources.pp file
 // Template.msbuild.pp (this file), once for each Sources.pp file
 
-#if $[ne $[DTOOL],]
-#define dtool_ver_dir_cyg $[DTOOL]/src/dtoolbase
-#define dtool_ver_dir $[osfilename $[dtool_ver_dir_cyg]]
-#endif
-
 #define optname Opt$[OPTIMIZE]
 
 //
@@ -50,28 +45,15 @@
   // This is the real set of lib_targets we'll be building.  On Windows,
   // we don't build the shared libraries which are included on metalibs.
   #define real_lib_targets
-  #define real_lib_target_libs
-  #define deferred_objs
   #forscopes lib_target
     #if $[build_target]
       #if $[or $[BUILD_COMPONENTS],$[eq $[module $[TARGET],$[TARGET]],]]
         // This library is not on a metalib or we're building components, so we
         // can build it.
         #set real_lib_targets $[real_lib_targets] $[TARGET]
-        #set real_lib_target_libs $[real_lib_target_libs] $[ODIR]/$[get_output_file]
-      #else
-        // This library is on a metalib, so we can't build it, but we
-        // should build all the obj's that go into it.
-        #set deferred_objs $[deferred_objs] \
-          $[patsubst %,$[%_obj],$[compile_sources]]
       #endif
     #endif
   #end lib_target
-
-  // These are the source files that our dependency cache file will
-  // depend on.  If it's an empty list, we won't bother writing rules to
-  // freshen the cache file.
-  #define dep_sources $[sort $[filter %.c %.cxx %.cpp %.yxx %.lxx %.h %.hpp %.I %.T,$[dep_sources_1]]]
 
   // If there is an __init__.py in the directory, then all Python
   // files in the directory just get installed without having to be
