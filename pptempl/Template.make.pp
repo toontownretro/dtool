@@ -86,7 +86,7 @@
   #define bin_targets \
     $[forscopes bin_target noinst_bin_target sed_bin_target, \
       $[if [build_target],$[ODIR]/$[TARGET]$[prog_ext]]]
-  #define test_bin_targets
+  #define test_bin_targets \
     $[forscopes test_bin_target, \
       $[if [build_target],$[ODIR]/$[TARGET]$[prog_ext]]]
 
