@@ -338,7 +338,7 @@ $[TAB] $[DEL_CMD $[$[igatemout]_obj]]
      $[if $[install_py],$[install_py:%=$[install_py_dir]/%] $[install_py_package_dir]/__init__.py]
 
 #define installed_igate_files \
-     $[forscopes python_module_target lib_target ss_lib_target,
+     $[forscopes python_module_target lib_target ss_lib_target, \
        $[get_igatedb:$[ODIR]/%=$[install_igatedb_dir]/%]]
 
 #define install_targets \
