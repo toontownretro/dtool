@@ -6,7 +6,9 @@
 // to rebuild the whole world just because you changed some low-level
 // prc parameters.
 
-#output prc_parameters.h notouch
+#mkdir $[ODIR_GEN]
+
+#output $[ODIR_GEN]/prc_parameters.h notouch
 /* prc_parameters.h.  Generated automatically by $[PPREMAKE] $[PPREMAKE_VERSION] from $[notdir $[THISFILENAME]]. */
 /********************************** DO NOT EDIT ****************************/
 
@@ -64,5 +66,5 @@ $[cdefine PRC_DCONFIG_TRUST_LEVEL]
 /* The amount by which we globally increment the trust level. */
 $[cdefine PRC_INC_TRUST_LEVEL]
 
-#end prc_parameters.h
+#end $[ODIR_GEN]/prc_parameters.h
 

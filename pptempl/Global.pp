@@ -565,7 +565,9 @@
 // $[LOCAL_INCS].  LOCAL_INCS MUST be a ppremake src dir! (RELDIR only
 // checks those) To add an arbitrary extra include dir, define
 // EXTRA_IPATH in the Sources.pp
-#defer complete_ipath $[all_libs $[RELDIR],$[complete_local_incs]] $[RELDIR($[LOCAL_INCS:%=%/])] $[EXTRA_IPATH]
+#defer complete_ipath \
+  $[all_libs $[RELDIR] $[foreach path,$[PUBLIC_EXTRA_IPATH],$[RELDIR]/$[path]],$[complete_local_incs]] \
+  $[RELDIR($[LOCAL_INCS:%=%/])] $[EXTRA_IPATH] $[PUBLIC_EXTRA_IPATH] $[PRIVATE_EXTRA_IPATH]
 
 // This variable, when evaluated within a target, will either be empty
 // string if the target is not to be built, or the target name if it

@@ -836,9 +836,9 @@
     ] \
     $[INSTALL_SCRIPTS:%=$[install_scripts_dir]/%] \
     $[INSTALL_MODULES:%=$[install_lib_dir]/%] \
-    $[INSTALL_HEADERS:%=$[install_headers_dir]/%] \
+    $[patsubst %,$[install_headers_dir]/$[notdir %],$[INSTALL_HEADERS]] \
     $[INSTALL_DATA:%=$[install_data_dir]/%] \
-    $[INSTALL_CONFIG:%=$[install_config_dir]/%] \
+    $[patsubst %,$[install_config_dir]/$[notdir %],$[INSTALL_CONFIG]] \
     $[igatedb:$[ODIR]/%=$[install_igatedb_dir]/%]
 
 // Now create the rules to install the stuff.
@@ -888,7 +888,7 @@
 
 #if $[INSTALL_HEADERS]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_HEADERS]]]"
-        DestinationFiles="$[msjoin $[osfilename $[INSTALL_HEADERS:%=$[install_headers_dir]/%]]]"
+        DestinationFiles="$[msjoin $[osfilename $[patsubst %,$[install_headers_dir]/$[notdir %],$[INSTALL_HEADERS]]]]"
         SkipUnchangedFiles="true" />
 #endif
 
@@ -900,7 +900,7 @@
 
 #if $[INSTALL_CONFIG]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_CONFIG]]]"
-        DestinationFiles="$[msjoin $[osfilename $[INSTALL_CONFIG:%=$[install_config_dir]/%]]]"
+        DestinationFiles="$[msjoin $[osfilename $[patsubst %,$[install_config_dir]/$[notdir %],$[INSTALL_CONFIG]]]]"
         SkipUnchangedFiles="true" />
 #endif
 
@@ -1099,10 +1099,10 @@
 #define installed_files \
     $[INSTALL_SCRIPTS:%=$[install_scripts_dir]/%] \
     $[INSTALL_MODULES:%=$[install_lib_dir]/%] \
-    $[INSTALL_HEADERS:%=$[install_headers_dir]/%] \
+    $[patsubst %,$[install_headers_dir]/$[notdir %],$[INSTALL_HEADERS]] \
     $[INSTALL_PARSER_INC:%=$[install_parser_inc_dir]/%] \
     $[INSTALL_DATA:%=$[install_data_dir]/%] \
-    $[INSTALL_CONFIG:%=$[install_config_dir]/%] \
+    $[patsubst %,$[install_config_dir]/$[notdir %],$[INSTALL_CONFIG]] \
     $[if $[install_py],$[install_py:%=$[install_py_dir]/%] $[install_py_package_dir]/__init__.py]
 
 <Target Name="install"
@@ -1122,7 +1122,7 @@
 
 #if $[INSTALL_HEADERS]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_HEADERS]]]"
-        DestinationFiles="$[msjoin $[osfilename $[INSTALL_HEADERS:%=$[install_headers_dir]/%]]]"
+        DestinationFiles="$[msjoin $[osfilename $[patsubst %,$[install_headers_dir]/$[notdir %],$[INSTALL_HEADERS]]]]"
         SkipUnchangedFiles="true" />
 #endif
 
@@ -1140,7 +1140,7 @@
 
 #if $[INSTALL_CONFIG]
   <Copy SourceFiles="$[msjoin $[osfilename $[INSTALL_CONFIG]]]"
-        DestinationFiles="$[msjoin $[osfilename $[INSTALL_CONFIG:%=$[install_config_dir]/%]]]"
+        DestinationFiles="$[msjoin $[osfilename $[patsubst %,$[install_config_dir]/$[notdir %],$[INSTALL_CONFIG]]]]"
         SkipUnchangedFiles="true" />
 #endif
 

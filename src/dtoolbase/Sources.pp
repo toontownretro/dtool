@@ -13,9 +13,11 @@
     #define WIN_SYS_LIBS $[WIN_SYS_LIBS] advapi32.lib Kernel32.lib
   #endif
 
+  #define PUBLIC_EXTRA_IPATH $[ODIR_GEN]
+
   #define SOURCES \
-    checkPandaVersion.h \
-    pandaVersion.h \
+    $[ODIR_GEN]/checkPandaVersion.h \
+    $[ODIR_GEN]/pandaVersion.h \
     addHash.I addHash.h \
     atomicAdjust.h \
     atomicAdjustDummyImpl.h atomicAdjustDummyImpl.I \
@@ -66,7 +68,7 @@
     workStealingQueue.h
 
  #define COMPOSITE_SOURCES  \
-    checkPandaVersion.cxx \
+    $[ODIR_GEN]/checkPandaVersion.cxx \
     addHash.cxx \
     atomicAdjustDummyImpl.cxx \
     atomicAdjustI386Impl.cxx \
@@ -90,8 +92,8 @@
     patomic.cxx
 
   #define INSTALL_HEADERS \
-    checkPandaVersion.h \
-    pandaVersion.h \
+    $[ODIR_GEN]/checkPandaVersion.h \
+    $[ODIR_GEN]/pandaVersion.h \
     addHash.I addHash.h \
     atomicAdjust.h \
     atomicAdjustDummyImpl.h atomicAdjustDummyImpl.I \

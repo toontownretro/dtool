@@ -331,10 +331,10 @@ $[TAB] $[DEL_CMD $[$[igatemout]_obj]]
 // the directories if necessary.
 #define installed_files \
      $[INSTALL_SCRIPTS:%=$[install_scripts_dir]/%] \
-     $[INSTALL_HEADERS:%=$[install_headers_dir]/%] \
+     $[patsubst %,$[install_headers_dir]/$[notdir %],$[INSTALL_HEADERS]] \
      $[INSTALL_PARSER_INC:%=$[install_parser_inc_dir]/%] \
      $[INSTALL_DATA:%=$[install_data_dir]/%] \
-     $[INSTALL_CONFIG:%=$[install_config_dir]/%] \
+     $[patsubst %,$[install_config_dir]/$[notdir %],$[INSTALL_CONFIG]] \
      $[if $[install_py],$[install_py:%=$[install_py_dir]/%] $[install_py_package_dir]/__init__.py]
 
 #define installed_igate_files \
@@ -492,9 +492,9 @@ $[osgeneric $[ODIR]/$[get_output_file_noext].pdb] : $[osgeneric $[ODIR]/$[get_ou
       ] \
     ] \
     $[INSTALL_SCRIPTS:%=$[install_scripts_dir]/%] \
-    $[INSTALL_HEADERS:%=$[install_headers_dir]/%] \
+    $[patsubst %,$[install_headers_dir]/$[notdir %],$[INSTALL_HEADERS]] \
     $[INSTALL_DATA:%=$[install_data_dir]/%] \
-    $[INSTALL_CONFIG:%=$[install_config_dir]/%] \
+    $[patsubst %,$[install_config_dir]/$[notdir %],$[INSTALL_CONFIG]] \
     $[igatedb:$[ODIR]/%=$[install_igatedb_dir]/%]
 
 install-lib$[TARGET] : $[osgeneric $[installed_files]]
@@ -627,7 +627,7 @@ $[ODIR]/$[get_output_file_noext].pdb : $[ODIR]/$[get_output_file]
 // Here are the rules to install and uninstall the library and
 // everything that goes along with it.
 #define installed_files \
-    $[INSTALL_HEADERS:%=$[install_headers_dir]/%]
+    $[patsubst %,$[install_headers_dir]/$[notdir %],$[INSTALL_HEADERS]]
 
 install-lib$[TARGET] : $[osgeneric $[installed_files]]
 
@@ -708,9 +708,9 @@ $[ODIR]/$[TARGET].pdb : $[target]
     $[install_bin_dir]/$[TARGET]$[prog_ext] \
     $[if $[prog_has_pdb],$[install_bin_dir]/$[TARGET].pdb] \
     $[INSTALL_SCRIPTS:%=$[install_scripts_dir]/%] \
-    $[INSTALL_HEADERS:%=$[install_headers_dir]/%] \
+    $[patsubst %,$[install_headers_dir]/$[notdir %],$[INSTALL_HEADERS]] \
     $[INSTALL_DATA:%=$[install_data_dir]/%] \
-    $[INSTALL_CONFIG:%=$[install_config_dir]/%]
+    $[patsubst %,$[install_config_dir]/$[notdir %],$[INSTALL_CONFIG]]
 
 install-$[TARGET] : $[osgeneric $[installed_files]]
 
@@ -927,9 +927,9 @@ $[TAB] $[INSTALL_PROG]
 #end file
 
 #foreach file $[install_headers]
-$[osgeneric $[install_headers_dir]/$[file]] : $[file]
+$[osgeneric $[install_headers_dir]/$[notdir $[file]]] : $[file]
 #define local $[file]
-#define dest $[install_headers_dir]
+#define dest $[install_headers_dir]/$[notdir $[file]]
 $[TAB] $[INSTALL]
 #end file
 
@@ -956,9 +956,9 @@ $[TAB] $[INSTALL]
 #end file
 
 #foreach file $[install_config]
-$[osgeneric $[install_config_dir]/$[file]] : $[file]
+$[osgeneric $[install_config_dir]/$[notdir $[file]]] : $[file]
 #define local $[file]
-#define dest $[install_config_dir]
+#define dest $[install_config_dir]/$[notdir $[file]]
 $[TAB] $[INSTALL]
 #end file
 

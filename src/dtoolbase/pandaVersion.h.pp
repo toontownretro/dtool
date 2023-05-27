@@ -5,7 +5,9 @@
 // ppremake time.
 //
 
-#output pandaVersion.h notouch
+#mkdir $[ODIR_GEN]
+
+#output $[ODIR_GEN]/pandaVersion.h notouch
 /* Filename: pandaVersion.h
  * Created by:  drose (26Jan05)
  *
@@ -70,12 +72,12 @@ $[cdefine PANDA_NUMERIC_VERSION]
 /* This is a string indicating who has provided this distribution. */
 # define PANDA_DISTRIBUTOR "$[PANDA_DISTRIBUTOR]"
 
-#end pandaVersion.h
+#end $[ODIR_GEN]/pandaVersion.h
 
 
 // Let's also define checkPandaVersion.h and checkPandaVersion.cxx here.
 
-#output checkPandaVersion.h notouch
+#output $[ODIR_GEN]/checkPandaVersion.h notouch
 /* Filename: checkPandaVersion.h
  * Created by:  drose (26Jan05)
  *
@@ -142,9 +144,9 @@ template class CheckPandaVersion<void>;
 
 # endif
 
-#end checkPandaVersion.h
+#end $[ODIR_GEN]/checkPandaVersion.h
 
-#output checkPandaVersion.cxx notouch
+#output $[ODIR_GEN]/checkPandaVersion.cxx notouch
 /* Filename: checkPandaVersion.cxx
  * Created by:  drose (26Jan05)
  *
@@ -167,4 +169,4 @@ template class CheckPandaVersion<void>;
 
 EXPCL_DTOOL_DTOOLBASE int $[PANDA_VERSION_SYMBOL] = 0;
 
-#end checkPandaVersion.cxx
+#end $[ODIR_GEN]/checkPandaVersion.cxx

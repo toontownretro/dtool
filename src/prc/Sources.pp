@@ -9,6 +9,8 @@
   #define ANDROID_SYS_LIBS log
   #define WIN_SYS_LIBS ws2_32.lib user32.lib advapi32.lib crypt32.lib
 
+  #define PRIVATE_EXTRA_IPATH $[ODIR_GEN]
+
   #define SOURCES \
     androidLogStream.h \
     bigEndian.h \
@@ -42,7 +44,7 @@
     streamReader.I streamReader.h \
     streamWrapper.I streamWrapper.h \
     streamWriter.I streamWriter.h \
-    prc_parameters.h // generated file
+    $[ODIR_GEN]/prc_parameters.h // generated file
 
   #define COMPOSITE_SOURCES \
     $[if $[eq $[PLATFORM], Android], androidLogStream.cxx] \
