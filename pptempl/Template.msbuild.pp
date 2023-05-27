@@ -1349,15 +1349,15 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dir_$[dirname]", "$[osfilen
 	EndProjectSection
 EndProject
 // Also add a solution folder that will group the targets in a directory.
-//Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "$[dirname]", "$[dirname]", "{$[makeguid folder_$[dirname]]}"
-//EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "$[dirname]", "$[dirname]", "{$[makeguid folder_$[dirname]]}"
+EndProject
 #end dirname
 // And the top-level project.
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dir_$[DIRNAME]", "$[osfilename $[PATH]/dir_$[DIRNAME].vcxproj]", "{$[makeguid dir_$[DIRNAME]]}"
 EndProject
 // Top-level solution folder.
-//Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "$[DIRNAME]", "$[DIRNAME]", "{$[makeguid folder_$[DIRNAME]]}"
-//EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "$[DIRNAME]", "$[DIRNAME]", "{$[makeguid folder_$[DIRNAME]]}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Opt$[OPTIMIZE]|$[platform_config] = Opt$[OPTIMIZE]|$[platform_config]
@@ -1384,15 +1384,15 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-//#forscopes $[project_scopes]
-//#if $[and $[build_directory],$[build_target]]
-//		{$[makeguid $[TARGET]]} = {$[makeguid folder_$[DIRNAME]]}
-//#endif
-//#end $[project_scopes]
-//#formap dirname subdirs
-//		{$[makeguid dir_$[dirname]]} = {$[makeguid folder_$[dirname]]}
-//#end dirname
-//		{$[makeguid dir_$[DIRNAME]]} = {$[makeguid folder_$[DIRNAME]]}
+#forscopes $[project_scopes]
+#if $[and $[build_directory],$[build_target]]
+		{$[makeguid $[TARGET]]} = {$[makeguid folder_$[DIRNAME]]}
+#endif
+#end $[project_scopes]
+#formap dirname subdirs
+		{$[makeguid dir_$[dirname]]} = {$[makeguid folder_$[dirname]]}
+#end dirname
+		{$[makeguid dir_$[DIRNAME]]} = {$[makeguid folder_$[DIRNAME]]}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
     SolutionGuid = {$[makeguid $[PACKAGE].sln]}
