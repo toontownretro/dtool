@@ -1190,6 +1190,7 @@
 //#defer ODIR Opt$[OPTIMIZE]-$[PLATFORM]$[USE_COMPILER]
 // ODIR_SUFFIX is optional, usually empty
 #defer ODIR $[TARGET]-Opt$[OPTIMIZE]-$[PLATFORM]$[ODIR_SUFFIX]
+#defer ODIR_GEN Opt$[OPTIMIZE]-$[PLATFORM]$[ODIR_SUFFIX]
 
 
 // What is the normal extension of a compiled object file?

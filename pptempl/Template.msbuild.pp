@@ -76,7 +76,7 @@
 // $[target_ipath] is the proper ipath to put on the command line,
 // from the context of a particular target.
 
-#defer target_ipath $[TOPDIR] $[sort $[complete_ipath]] $[other_trees_include] $[get_ipath]
+#defer target_ipath $[TOPDIR] $[TOPDIR]/$[ODIR_GEN] $[sort $[complete_ipath]] $[other_trees_include] $[get_ipath]
 
 // These are the complete set of extra flags the compiler requires.
 #defer cflags $[patsubst -D%,/D%,$[get_cflags] $[CFLAGS] $[CFLAGS_OPT$[OPTIMIZE]]] $[CFLAGS_SHARED]
@@ -1207,6 +1207,8 @@
 // from within Visual Studio.
 #define misc_files $[CONFIG_HEADER]
 
+#mkdir $[dir $[CONFIG_HEADER]]
+
 // We need a top-level project to install the config header... booo!
 #output dir_$[DIRNAME].vcxproj
 #format collapse
@@ -1256,7 +1258,7 @@
   $[CONFIG_HEADER]
 
 #define installed_files \
-  $[if $[CONFIG_HEADER],$[install_headers_dir]/$[CONFIG_HEADER]]
+  $[if $[CONFIG_HEADER],$[install_headers_dir]/$[notdir $[CONFIG_HEADER]]]
 
 <Target Name="install"
         Inputs="$[msjoin $[osfilename $[install_files]]]"

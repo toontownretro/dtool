@@ -136,7 +136,7 @@
 // $[target_ipath] is the proper ipath to put on the command line,
 // from the context of a particular target.
 
-#defer target_ipath $[TOPDIR] $[sort $[complete_ipath]] $[other_trees_include] $[get_ipath]
+#defer target_ipath $[TOPDIR] $[TOPDIR]/$[ODIR_GEN] $[sort $[complete_ipath]] $[other_trees_include] $[get_ipath]
 
 // These are the complete set of extra flags the compiler requires.
 #if $[WINDOWS_PLATFORM]
@@ -1048,11 +1048,11 @@ igate : $[subdirs:%=igate-%]
 clean : $[subdirs:%=clean-%]
 clean-igate : $[subdirs:%=clean-igate-%]
 cleanall : $[subdirs:%=cleanall-%]
-install : $[osgeneric $[if $[CONFIG_HEADER],$[install_headers_dir] $[install_headers_dir]/$[CONFIG_HEADER]]] $[subdirs:%=install-%]
+install : $[osgeneric $[if $[CONFIG_HEADER],$[install_headers_dir] $[install_headers_dir]/$[notdir $[CONFIG_HEADER]]]] $[subdirs:%=install-%]
 install-igate : $[subdirs:%=install-igate-%]
 uninstall : $[subdirs:%=uninstall-%]
 #if $[CONFIG_HEADER]
-$[TAB]$[DEL_CMD $[install_headers_dir]/$[CONFIG_HEADER]]
+$[TAB]$[DEL_CMD $[install_headers_dir]/$[notdir $[CONFIG_HEADER]]]
 #endif
 uninstall-igate : $[subdirs:%=uninstall-igate-%]
 
@@ -1125,7 +1125,7 @@ $[TAB]cd ./$[PATH] && $(MAKE) clean-prebuild-bison
 $[osgeneric $[install_headers_dir]] :
 $[TAB] $[MKDIR_CMD $[install_headers_dir]]
 
-$[osgeneric $[install_headers_dir]/$[CONFIG_HEADER]] : $[CONFIG_HEADER]
+$[osgeneric $[install_headers_dir]/$[notdir $[CONFIG_HEADER]]] : $[CONFIG_HEADER]
 #define local $[CONFIG_HEADER]
 #define dest $[install_headers_dir]
 $[TAB] $[INSTALL]
@@ -1136,6 +1136,8 @@ Makefile : $[SOURCE_FILENAME] $[EXTRA_PPREMAKE_SOURCE]
 $[TAB] ppremake
 
 #end Makefile
+
+#mkdir $[dir $[CONFIG_HEADER]]
 
 // If there is a file called LocalSetup.pp in the package's top
 // directory, then invoke that.  It might contain some further setup

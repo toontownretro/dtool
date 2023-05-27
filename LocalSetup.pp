@@ -118,16 +118,16 @@
 #endif
 
 #print
-#print See dtool_config.h for more details about the specified configuration.
+#print See $[CONFIG_HEADER] for more details about the specified configuration.
 
 #print
 
 // We don't include the ppremake version in the first comment line of
 // the output to dtool_config.h, below, to minimize unnecessary
 // complete rebuilds due to an updated ppremake version.
-#output dtool_config.h notouch
+#output $[CONFIG_HEADER] notouch
 #format straight
-/* dtool_config.h.  Generated automatically by $[PPREMAKE] from $[SOURCEFILE]. */
+/* $[CONFIG_HEADER].  Generated automatically by $[PPREMAKE] from $[SOURCEFILE]. */
 
 /* Debug / non-debug symbols.  OPTIMIZE = $[OPTIMIZE] */
 #if $[<= $[OPTIMIZE],2]
@@ -558,4 +558,4 @@ $[cdefine PSLEEF_INLINE]
 # define DTOOL_PLATFORM "$[DTOOL_PLATFORM]"
 #endif
 
-#end dtool_config.h
+#end $[CONFIG_HEADER]
