@@ -355,6 +355,9 @@
 #define whole_program_optimization
 #define treat_warning_as_error
 #define treatwchar_t_asbuiltintype
+#define cpp_standard
+#define c_standard
+#define conformance
 
 #define consumed_flags
 
@@ -532,6 +535,25 @@
   #elif $[eq $[word], /Zc:wchar_t-]
     #set treatwchar_t_asbuiltintype false
 
+  #elif $[eq $[word], /std:c++14]
+    #set cpp_standard stdcpp14
+  #elif $[eq $[word], /std:c++17]
+    #set cpp_standard stdcpp17
+  #elif $[eq $[word], /std:c++20]
+    #set cpp_standard stdcpp20
+  #elif $[eq $[word], /std:c++latest]
+    #set cpp_standard stdcpplatest
+
+  #elif $[eq $[word], /std:c11]
+    #set c_standard stdc11
+  #elif $[eq $[word], /std:c17]
+    #set c_standard stdc17
+
+  #elif $[eq $[word], /permissive]
+    #set conformance true
+  #elif $[eq $[word], /permissive-]
+    #set conformance false
+
   #else
     #set consumed
   #endif
@@ -621,6 +643,9 @@
     $[if $[whole_program_optimization], <WholeProgramOptimization>$[whole_program_optimization]</WholeProgramOptimization>]
     $[if $[treat_warning_as_error], <TreatWarningAsError>$[whole_program_optimization]</TreatWarningAsError>]
     $[if $[treatwchar_t_asbuiltintype], <TreatWChar_tAsBuiltInType>$[treatwchar_t_asbuiltintype]</TreatWChar_tAsBuiltInType>]
+    $[if $[cpp_standard], <LanguageStandard>$[cpp_standard]</LanguageStandard>]
+    $[if $[c_standard], <LanguageStandard_C>$[c_standard]</LanguageStandard_C>]
+    $[if $[conformance], <Conformance>$[conformance]</Conformance>]
     <ExternalWarningLevel></ExternalWarningLevel>
 
   </ClCompile>
