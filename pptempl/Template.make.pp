@@ -83,8 +83,12 @@
       $[if $[build_target],$[ODIR]/$[get_output_file]]] $[real_lib_target_libs]
   #define bundle_targets $[active_target_bundleext(metalib_target):%=$[ODIR]/%]
 
-  #define bin_targets $[active_target(bin_target noinst_bin_target sed_bin_target):%=$[ODIR]/%$[prog_ext]]
-  #define test_bin_targets $[active_target(test_bin_target):%=$[ODIR]/%]
+  #define bin_targets \
+    $[forscopes bin_target noinst_bin_target sed_bin_target, \
+      $[if [build_target],$[ODIR]/$[TARGET]$[prog_ext]]]
+  #define test_bin_targets
+    $[forscopes test_bin_target, \
+      $[if [build_target],$[ODIR]/$[TARGET]$[prog_ext]]]
 
   // And these variables will define the various things we need to
   // install.
@@ -182,8 +186,8 @@
     $[if $[install_py_module],$[install_py_module_dir]] \
     ]
 
-#define all_odirs $[forscopes static_lib_target bin_target noinst_bin_target test_bin_target python_target python_module_target metalib_target lib_target noinst_lib_target ss_lib_target, $[ODIR] $[TEST_ODIR]]
-#mkdir $[sort $[all_odirs]]
+#define all_odirs $[sort $[forscopes static_lib_target bin_target noinst_bin_target test_bin_target python_target python_module_target metalib_target lib_target noinst_lib_target ss_lib_target, $[ODIR] $[TEST_ODIR]]]
+#mkdir $[all_odirs]
 
 // Pre-compiled headers are one way to speed the compilation of many
 // C++ source files that include similar headers, but it turns out a
@@ -286,7 +290,9 @@ $[TAB] $[DEL_CMD *.il]
 // and building.  It removes everything except the Makefile.
 cleanall : clean
 #if $[st_sources]
-$[TAB] $[DEL_DIR_CMD $[ODIR]]
+#foreach odir $[all_odirs]
+$[TAB] $[DEL_DIR_CMD $[odir]]
+#end odir
 #endif
 #if $[ne $[DEPENDENCY_CACHE_FILENAME],]
 $[TAB] $[DEL_CMD $[DEPENDENCY_CACHE_FILENAME]]
@@ -332,7 +338,8 @@ $[TAB] $[DEL_CMD $[$[igatemout]_obj]]
      $[if $[install_py],$[install_py:%=$[install_py_dir]/%] $[install_py_package_dir]/__init__.py]
 
 #define installed_igate_files \
-     $[get_igatedb(python_module_target lib_target ss_lib_target):$[ODIR]/%=$[install_igatedb_dir]/%]
+     $[forscopes python_module_target lib_target ss_lib_target,
+       $[get_igatedb:$[ODIR]/%=$[install_igatedb_dir]/%]]
 
 #define install_targets \
      $[active_target(interface_target python_target python_module_target metalib_target lib_target static_lib_target dynamic_lib_target ss_lib_target):%=install-lib%] \
