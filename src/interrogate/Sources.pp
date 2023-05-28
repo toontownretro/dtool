@@ -31,7 +31,7 @@
      parameterRemapHandleToInt.h \
      parameterRemapUnchanged.h  \
      typeManager.h \
-     interrogate_preamble_python_native.cxx // generated below
+     $[ODIR_GEN]/interrogate_preamble_python_native.cxx // generated below
 
   #define COMPOSITE_SOURCES  \
      functionRemap.cxx \
@@ -69,7 +69,7 @@
   #define TARGET interrogate_module
   #define SOURCES \
     interrogate_module.cxx \
-    interrogate_preamble_python_native.cxx
+    $[ODIR_GEN]/interrogate_preamble_python_native.cxx
 #end bin_target
 
 #define INTERROGATE_PREAMBLE_PYTHON_NATIVE \
@@ -78,5 +78,6 @@
   $[PATH]/../interrogatedb/py_wrappers.cxx \
   $[PATH]/../interrogatedb/dtool_super_base.cxx
 
-#concatcxx $[PATH]/interrogate_preamble_python_native.cxx, \
+#mkdir $[ODIR_GEN]
+#concatcxx $[PATH]/$[ODIR_GEN]/interrogate_preamble_python_native.cxx, \
   interrogate_preamble_python_native, $[INTERROGATE_PREAMBLE_PYTHON_NATIVE]
