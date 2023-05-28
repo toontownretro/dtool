@@ -83,12 +83,14 @@
       $[if $[build_target],$[ODIR]/$[get_output_file]]] $[real_lib_target_libs]
   #define bundle_targets $[active_target_bundleext(metalib_target):%=$[ODIR]/%]
 
+  #defer bin_output_name $[TARGET]$[prog_ext]
+  #defer bin_output_file $[ODIR]/$[bin_output_name]
+  #defer active_bin_targets $[if $[build_target],$[ODIR]/$[TARGET]$[prog_ext]]
+
   #define bin_targets \
-    $[forscopes bin_target noinst_bin_target sed_bin_target, \
-      $[if [build_target],$[ODIR]/$[TARGET]$[prog_ext]]]
+    $[forscopes bin_target noinst_bin_target sed_bin_target, $[active_bin_targets]]
   #define test_bin_targets \
-    $[forscopes test_bin_target, \
-      $[if [build_target],$[ODIR]/$[TARGET]$[prog_ext]]]
+    $[forscopes test_bin_target, $[active_bin_targets]]
 
   // And these variables will define the various things we need to
   // install.
@@ -682,11 +684,11 @@ $[TAB] $[INSTALL_PROG]
 /////////////////////////////////////////////////////////////////////
 
 #forscopes bin_target
-$[TARGET] : $[ODIR]/$[TARGET]$[prog_ext]
+$[TARGET] : $[bin_output_file]
 
 #define varname $[subst -,_,bin_$[TARGET]]
 $[varname] = $[osgeneric $[patsubst %,$[%_obj],$[compile_sources]]]
-#define target $[ODIR]/$[TARGET]$[prog_ext]
+#define target $[bin_output_file]
 #define sources $($[varname])
 #define cc_ld $[or $[get_ld],$[CC]]
 #define cxx_ld $[or $[get_ld],$[CXX]]
@@ -705,7 +707,7 @@ $[ODIR]/$[TARGET].pdb : $[target]
 #endif
 
 #define installed_files \
-    $[install_bin_dir]/$[TARGET]$[prog_ext] \
+    $[install_bin_dir]/$[bin_output_name] \
     $[if $[prog_has_pdb],$[install_bin_dir]/$[TARGET].pdb] \
     $[INSTALL_SCRIPTS:%=$[install_scripts_dir]/%] \
     $[patsubst %,$[install_headers_dir]/$[notdir %],$[INSTALL_HEADERS]] \
@@ -721,8 +723,8 @@ $[TAB] $[DEL_CMD $[file]]
 #end file
 #endif
 
-$[osgeneric $[install_bin_dir]/$[TARGET]$[prog_ext]] : $[ODIR]/$[TARGET]$[prog_ext]
-#define local $[ODIR]/$[TARGET]$[prog_ext]
+$[osgeneric $[install_bin_dir]/$[bin_output_name]] : $[bin_output_file]
+#define local $[bin_output_file]
 #define dest $[install_bin_dir]
 $[TAB] $[INSTALL_PROG]
 
@@ -743,11 +745,11 @@ $[TAB] $[INSTALL]
 /////////////////////////////////////////////////////////////////////
 
 #forscopes noinst_bin_target test_bin_target
-$[TARGET] : $[ODIR]/$[TARGET]$[prog_ext]
+$[TARGET] : $[bin_output_file]
 
 #define varname $[subst -,_,bin_$[TARGET]]
 $[varname] = $[osgeneric $[patsubst %,$[%_obj],$[compile_sources]]]
-#define target $[ODIR]/$[TARGET]$[prog_ext]
+#define target $[bin_output_file]
 #define sources $($[varname])
 #define cc_ld $[or $[get_ld],$[CC]]
 #define cxx_ld $[or $[get_ld],$[CXX]]
