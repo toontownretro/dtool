@@ -811,11 +811,11 @@
   $[if $[and $[build_lib],$[is_lib]],\
     $[ODIR]/$[get_output_file] \
     $[if $[not $[lib_is_static]],$[ODIR]/$[get_output_lib]] \
-      $[if $[has_pdb],$[ODIR]/$[get_output_pdb]] \
+      $[if $[lib_has_pdb],$[ODIR]/$[get_output_pdb]] \
   ] \
   $[if $[is_bin], \
     $[ODIR]/$[TARGET].exe \
-    $[if $[has_pdb],$[ODIR]/$[TARGET].pdb] \
+    $[if $[prog_has_pdb],$[ODIR]/$[TARGET].pdb] \
   ] \
   $[INSTALL_SCRIPTS] \
   $[INSTALL_MODULES] \
@@ -828,11 +828,11 @@
     $[if $[and $[build_lib],$[is_lib]], \
       $[install_lib_dir]/$[get_output_file] \
       $[if $[not $[lib_is_static]],$[install_lib_dir]/$[get_output_lib]] \
-      $[if $[has_pdb],$[install_lib_dir]/$[get_output_pdb]] \
+      $[if $[lib_has_pdb],$[install_lib_dir]/$[get_output_pdb]] \
     ] \
     $[if $[is_bin], \
       $[install_bin_dir]/$[TARGET].exe \
-      $[if $[has_pdb],$[install_bin_dir]/$[TARGET].pdb] \
+      $[if $[prog_has_pdb],$[install_bin_dir]/$[TARGET].pdb] \
     ] \
     $[INSTALL_SCRIPTS:%=$[install_scripts_dir]/%] \
     $[INSTALL_MODULES:%=$[install_lib_dir]/%] \
@@ -855,7 +855,7 @@
         DestinationFiles="$[osfilename $[install_lib_dir]/$[get_output_lib]]"
         SkipUnchangedFiles="true" />
   #endif
-  #if $[has_pdb]
+  #if $[lib_has_pdb]
   <Copy SourceFiles="$[osfilename $[ODIR]/$[get_output_pdb]]"
         DestinationFiles="$[osfilename $[install_lib_dir]/$[get_output_pdb]]"
         SkipUnchangedFiles="true" />
@@ -867,7 +867,7 @@
         DestinationFiles="$[osfilename $[install_bin_dir]/$[TARGET].exe]"
         SkipUnchangedFiles="true" />
 
-  #if $[has_pdb]
+  #if $[prog_has_pdb]
   <Copy SourceFiles="$[osfilename $[ODIR]/$[TARGET].pdb]"
         DestinationFiles="$[osfilename $[install_bin_dir]/$[TARGET].pdb]"
         SkipUnchangedFiles="true" />
@@ -947,14 +947,14 @@
   #if $[not $[lib_is_static]]
   <Delete Files="$[osfilename $[ODIR]/$[get_output_lib]]" />
   #endif
-  #if $[has_pdb]
+  #if $[lib_has_pdb]
   <Delete Files="$[osfilename $[ODIR]/$[get_output_pdb]]" />
   #endif
 
 // Delete a binary.
 #elif $[is_bin]
   <Delete Files="$[osfilename $[ODIR]/$[TARGET].exe]" />
-  #if $[has_pdb]
+  #if $[prog_has_pdb]
   <Delete Files="$[osfilename $[ODIR]/$[TARGET].pdb]" />
   #endif
 #endif
