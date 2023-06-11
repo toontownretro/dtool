@@ -285,6 +285,13 @@
   #define fmod_lpath $[wildcard $[FMOD_LPATH]]
   #define fmod_cflags $[FMOD_CFLAGS]
   #define fmod_libs $[FMOD_LIBS]
+
+  #if $[HAVE_FMOD_STUDIO]
+    #define fmod_studio_ipath $[wildcard $[FMOD_STUDIO_IPATH]]
+    #define fmod_studio_lpath $[wildcard $[FMOD_STUDIO_LPATH]]
+    #define fmod_studio_cflags $[FMOD_STUDIO_CFLAGS]
+    #define fmod_studio_libs $[FMOD_STUDIO_LIBS]
+  #endif
 #endif
 
 #if $[HAVE_STEAM_AUDIO]

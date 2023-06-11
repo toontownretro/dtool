@@ -829,12 +829,19 @@
   #define FMOD_IPATH $[unixshortname C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\inc]
   #define FMOD_LPATH $[unixshortname C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\core\lib\x64]
   #define FMOD_LIBS fmod_vc.lib
+  #define FMOD_STUDIO_IPATH $[unixshortname C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\inc]
+  #define FMOD_STUDIO_LPATH $[unixshortname C:\Program Files (x86)\FMOD SoundSystem\FMOD Studio API Windows\api\studio\lib\x64]
+  #define FMOD_STUDIO_LIBS fmodstudio_vc.lib
 #else
   #define FMOD_IPATH $[DEFAULT_IPATH]
   #define FMOD_LPATH $[DEFAULT_LPATH]
   #define FMOD_LIBS fmod
+  #define FMOD_STUDIO_IPATH $[DEFAULT_IPATH]
+  #define FMOD_STUDIO_LPATH $[DEFAULT_LPATH]
+  #define FMOD_STUDIO_LIBS fmodstudio
 #endif
 #defer HAVE_FMOD $[and $[isdir $[FMOD_IPATH]],$[libtest $[FMOD_LPATH],$[FMOD_LIBS]]]
+#defer HAVE_FMOD_STUDIO $[and $[and $[isdir $[FMOD_STUDIO_IPATH]],$[libtest $[FMOD_STUDIO_LPATH],$[FMOD_STUDIO_LIBS]]], $[HAVE_FMOD]]
 
 // Do we have Steam Audio?  We utilize this in the FMOD implementation.
 #define STEAM_AUDIO_IPATH $[DEFAULT_IPATH]
