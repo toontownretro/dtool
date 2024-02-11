@@ -6,35 +6,26 @@
  * license.  You should have received a copy of this license along
  * with this source code in a file named "LICENSE."
  *
- * @file androidLogStream.cxx
+ * @file emscriptenLogStream.cxx
  * @author rdb
- * @date 2013-01-12
+ * @date 2015-04-02
  */
 
-#include "androidLogStream.h"
+#include "emscriptenLogStream.h"
 #include "configVariableString.h"
 
-#ifdef ANDROID
+#ifdef __EMSCRIPTEN__
 
-#include <android/log.h>
+#include <emscripten.h>
 
 /**
  *
  */
-AndroidLogStream::AndroidLogStreamBuf::
-AndroidLogStreamBuf(int priority) :
-  _priority(priority) {
+EmscriptenLogStream::EmscriptenLogStreamBuf::
+EmscriptenLogStreamBuf(int flags) :
+  _flags(flags) {
 
-  static ConfigVariableString android_log_tag
-  ("android-log-tag", "Panda3D",
-   PRC_DESC("This defines the tag that Panda3D will use when writing to the "
-            "Android log.  The default is \"Panda3D\"."));
-
-  if (_tag.empty()) {
-    _tag = android_log_tag.get_value();
-  }
-
-  // The AndroidLogStreamBuf doesn't actually need a buffer--it's happy
+  // The EmscriptenLogStreamBuf doesn't actually need a buffer--it's happy
   // writing characters one at a time, since they're just getting stuffed into
   // a string.  (Although the code is written portably enough to use a buffer
   // correctly, if we had one.)
@@ -45,8 +36,8 @@ AndroidLogStreamBuf(int priority) :
 /**
  *
  */
-AndroidLogStream::AndroidLogStreamBuf::
-~AndroidLogStreamBuf() {
+EmscriptenLogStream::EmscriptenLogStreamBuf::
+~EmscriptenLogStreamBuf() {
   sync();
 }
 
@@ -54,7 +45,7 @@ AndroidLogStream::AndroidLogStreamBuf::
  * Called by the system ostream implementation when the buffer should be
  * flushed to output (for instance, on destruction).
  */
-int AndroidLogStream::AndroidLogStreamBuf::
+int EmscriptenLogStream::EmscriptenLogStreamBuf::
 sync() {
   std::streamsize n = pptr() - pbase();
 
@@ -71,7 +62,7 @@ sync() {
  * Called by the system ostream implementation when its internal buffer is
  * filled, plus one character.
  */
-int AndroidLogStream::AndroidLogStreamBuf::
+int EmscriptenLogStream::EmscriptenLogStreamBuf::
 overflow(int ch) {
   std::streamsize n = pptr() - pbase();
 
@@ -90,12 +81,11 @@ overflow(int ch) {
 /**
  * Stores a single character.
  */
-void AndroidLogStream::AndroidLogStreamBuf::
+void EmscriptenLogStream::EmscriptenLogStreamBuf::
 write_char(char c) {
-  //nout.put(c);
   if (c == '\n') {
     // Write a line to the log file.
-    __android_log_write(_priority, _tag.c_str(), _data.c_str());
+    emscripten_log(_flags, "%.*s", _data.size(), _data.c_str());
     _data.clear();
   } else {
     _data += c;
@@ -105,17 +95,17 @@ write_char(char c) {
 /**
  *
  */
-AndroidLogStream::
-AndroidLogStream(int priority) :
-  std::ostream(new AndroidLogStreamBuf(priority)) {
+EmscriptenLogStream::
+EmscriptenLogStream(int flags) :
+  std::ostream(new EmscriptenLogStreamBuf(flags)) {
 }
 
 /**
  *
  */
-AndroidLogStream::
-~AndroidLogStream() {
+EmscriptenLogStream::
+~EmscriptenLogStream() {
   delete rdbuf();
 }
 
-#endif  // ANDROID
+#endif  // __EMSCRIPTEN__
