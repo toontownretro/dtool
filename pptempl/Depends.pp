@@ -186,7 +186,7 @@
       #push 1 $[generated_file]_obj
       #set cxx_sources $[cxx_sources] $[generated_file]
       #set get_sources $[get_sources] $[generated_file]
-      #set generated_sources $[generated_sources] $[generated_file] $[patsubst %.yxx,%.h,$[filter %.yxx,$[source_file]]]
+      #set generated_sources $[generated_sources] $[generated_file] $[patsubst %.yxx,%.h %.yxx.h,$[filter %.yxx,$[source_file]]]
     #end source_file
 
     // If this is a Python module, then it should have a list of

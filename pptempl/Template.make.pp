@@ -245,7 +245,7 @@ include $[TAU_MAKEFILE]
     $[if $[dep_sources],$[DEPENDENCY_CACHE_FILENAME]] \
     $[sort $[lib_targets] $[bundle_targets] $[bin_targets]] \
     $[deferred_objs]
-all : $[all_targets]
+all : $[all_targets] igate
 
 // The 'test' rule makes all the test_bin_targets.
 test : $[test_bin_targets]
@@ -273,6 +273,7 @@ $[TAB] $[DEL_CMD $[file]]
 #foreach file $[yxx_st_sources]
 $[TAB] $[DEL_CMD $[patsubst %.yxx,%.cxx,$[file]]]
 $[TAB] $[DEL_CMD $[patsubst %.yxx,%.h,$[file]]]
+$[TAB] $[DEL_CMD $[patsubst %.yxx,%.yxx.h,$[file]]]
 #end file
 #foreach file $[lxx_st_sources]
 $[TAB] $[DEL_CMD $[patsubst %.lxx,%.cxx,$[file]]]
@@ -773,6 +774,7 @@ $[TAB] $[link_bin_c]
 #foreach file $[sort $[yxx_st_sources]]
 #define target $[patsubst %.yxx,%.cxx,$[file]]
 #define target_header $[patsubst %.yxx,%.h,$[file]]
+#define target_header2 $[patsubst %.yxx,%.yxx.h,$[file]]
 #define target_prebuilt $[target].prebuilt
 #define target_header_prebuilt $[target_header].prebuilt
 #if $[HAVE_BISON]
@@ -790,6 +792,8 @@ $[target] : $[target_prebuilt]
 $[TAB] $[COPY_CMD $[target_prebuilt], $[target]]
 $[target_header] : $[target_header_prebuilt]
 $[TAB] $[COPY_CMD $[target_header_prebuilt], $[target_header]]
+$[target_header2] : $[target_header_prebuilt]
+$[TAB] $[COPY_CMD $[target_header_prebuilt], $[target_header2]]
 #endif // HAVE_BISON
 
 #end file
@@ -863,7 +867,7 @@ $[TAB] $[compile_c]
 
 // Yacc must run before some files can be compiled, so all files
 // depend on yacc having run.
-$[target] : $[source] $[osgeneric $[get_depends $[source]]] $[generated_sources]
+$[target] : $[sort $[source] $[osgeneric $[get_depends $[source]]] $[generated_sources]]
 $[TAB] $[compile_c++]
 
 #end file
@@ -904,7 +908,7 @@ $[TAB] $[compile_c]
 
 // Yacc must run before some files can be compiled, so all files
 // depend on yacc having run.
-$[target] : $[source] $[osgeneric $[get_depends $[source]]] $[yxx_sources:%.yxx=%.h]
+$[target] : $[sort $[source] $[osgeneric $[get_depends $[source]]] $[generated_sources]]
 $[TAB] $[compile_c++]
 
 #end file
