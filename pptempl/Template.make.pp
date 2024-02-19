@@ -867,7 +867,7 @@ $[TAB] $[compile_c]
 
 // Yacc must run before some files can be compiled, so all files
 // depend on yacc having run.
-$[target] : $[sort $[source] $[osgeneric $[get_depends $[source]]] $[generated_sources]]
+$[target] : $[sort $[source] $[osgeneric $[get_depends $[source]]] $[yxx_sources:%.yxx=%.h]]
 $[TAB] $[compile_c++]
 
 #end file
@@ -908,7 +908,7 @@ $[TAB] $[compile_c]
 
 // Yacc must run before some files can be compiled, so all files
 // depend on yacc having run.
-$[target] : $[sort $[source] $[osgeneric $[get_depends $[source]]] $[generated_sources]]
+$[target] : $[sort $[source] $[osgeneric $[get_depends $[source]]] $[yxx_sources:%.yxx=%.h]]
 $[TAB] $[compile_c++]
 
 #end file
