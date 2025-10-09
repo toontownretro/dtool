@@ -21,6 +21,7 @@ Win32
 # Files generated in source tree during build
 src/cppparser/cppBison.cxx
 src/cppparser/cppBison.h
+src/cppparser/cppBison.yxx.h
 src/prc/prc_parameters.h
 src/interrogate/interrogate_preamble_python_native.cxx
 src/dtoolbase/pandaVersion.h

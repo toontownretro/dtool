@@ -101,7 +101,7 @@
   #define C++FLAGS_GEN $[C++FLAGS_GEN] \
     -Wno-microsoft-template -Wno-inconsistent-missing-override \
     -Wno-reorder-ctor -Wno-enum-compare-switch \
-    -Wno-microsoft -Wno-register
+    -Wno-microsoft -Wno-register -Wno-deprecated-builtins
 
   #define EMBED_OBJECT_DEBUG_INFO 1
 

@@ -717,6 +717,7 @@
 
 #define targets $[patsubst %.yxx,%.cxx,$[yxx_sources]]
 #define target_headers $[patsubst %.yxx,%.h,$[yxx_sources]]
+#define target_headers2 $[patsubst %.yxx,%.yxx.h,$[yxx_sources]]
 #define targets_prebuilt $[patsubst %.yxx,%.cxx.prebuilt,$[yxx_sources]]
 #define target_headers_prebuilt $[patsubst %.yxx,%.h.prebuilt,$[yxx_sources]]
 
@@ -737,6 +738,7 @@
 #foreach file $[yxx_sources]
   #define target $[patsubst %.yxx,%.cxx,$[file]]
   #define target_header $[patsubst %.yxx,%.h,$[file]]
+  #define target_header2 $[patsubst %.yxx,%.yxx.h,$[file]]
   #define target_prebuilt $[target].prebuilt
   #define target_header_prebuilt $[target_header].prebuilt
   <Exec Command="$[BISON] $[YFLAGS] -y $[if $[YACC_PREFIX],-d --name-prefix=$[YACC_PREFIX]] $[osfilename $[file]]"/>
@@ -744,6 +746,7 @@
   <Exec Command="move /y y.tab.h $[osfilename $[target_header]]"/>
   <Exec Command="copy /y $[osfilename $[target]] $[osfilename $[target_prebuilt]]"/>
   <Exec Command="copy /y $[osfilename $[target_header]] $[osfilename $[target_header_prebuilt]]"/>
+  <Exec Command="copy /y $[osfilename $[target_header2]] $[osfilename $[target_header_prebuilt]]"/>
 #end file
 
 #else // HAVE_BISON
@@ -961,7 +964,7 @@
 
 // Delete Bison/Flex generated files.
 #if $[yxx_sources]
-  <Delete Files="$[msjoin $[osfilename $[patsubst %.yxx,%.cxx %.h,$[yxx_sources]]]]" />
+  <Delete Files="$[msjoin $[osfilename $[patsubst %.yxx,%.cxx %.h %.yxx.h,$[yxx_sources]]]]" />
 #endif
 #if $[lxx_sources]
   <Delete Files="$[msjoin $[osfilename $[patsubst %.lxx,%.cxx,$[lxx_sources]]]]" />
