@@ -220,7 +220,7 @@
 #define COMMONFLAGS /Zc:forScope /bigobj /Gd /fp:fast /MP
 
 #define SMALL_OPTFLAGS /O1
-#define FAST_OPTFLAGS /O2
+#defer FAST_OPTFLAGS $[if $[>= $[OPTIMIZE],4], /O2 /Qvec -ffast-math, $[if $[= $[OPTIMIZE],3], /O2 /Qvec, /O2]]
 
 #defer OPTFLAGS $[if $[OPT_MINSIZE],$[SMALL_OPTFLAGS],$[FAST_OPTFLAGS]]
 

@@ -88,6 +88,9 @@ private:
 
 #define patomic_thread_fence(order) (std::atomic_signal_fence((order)))
 
+EXPORT_TEMPLATE_CLASS(EXPCL_DTOOL_DTOOLBASE, EXPTP_DTOOL_DTOOLBASE, patomic<uint32_t>)
+EXPORT_TEMPLATE_CLASS(EXPCL_DTOOL_DTOOLBASE, EXPTP_DTOOL_DTOOLBASE, patomic<int32_t>)
+
 #else
 
 // We're using real threading, so use the real implementation.
@@ -95,6 +98,9 @@ template<class T>
 using patomic = std::atomic<T>;
 
 #define patomic_thread_fence(order) (std::atomic_thread_fence((order)))
+
+EXPORT_TEMPLATE_CLASS(EXPCL_DTOOL_DTOOLBASE, EXPTP_DTOOL_DTOOLBASE, std::atomic<uint32_t>)
+EXPORT_TEMPLATE_CLASS(EXPCL_DTOOL_DTOOLBASE, EXPTP_DTOOL_DTOOLBASE, std::atomic<int32_t>)
 
 #endif
 
