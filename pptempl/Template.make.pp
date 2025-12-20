@@ -935,7 +935,7 @@ $[TAB] $[INSTALL_PROG]
 #foreach file $[install_headers]
 $[osgeneric $[install_headers_dir]/$[notdir $[file]]] : $[file]
 #define local $[file]
-#define dest $[install_headers_dir]/$[notdir $[file]]
+#define dest $[install_headers_dir]
 $[TAB] $[INSTALL]
 #end file
 
@@ -964,7 +964,7 @@ $[TAB] $[INSTALL]
 #foreach file $[install_config]
 $[osgeneric $[install_config_dir]/$[notdir $[file]]] : $[file]
 #define local $[file]
-#define dest $[install_config_dir]/$[notdir $[file]]
+#define dest $[install_config_dir]
 $[TAB] $[INSTALL]
 #end file
 
