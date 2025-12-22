@@ -4,7 +4,7 @@
     arpa/inet.h \
     Eigen/Dense \
     Eigen/StdVector \
-    embree3/rtcore.h \
+    rtcore.h \
     Forest/Forest.h \
     glew/glew.h \
     libavcodec/avcodec.h \
