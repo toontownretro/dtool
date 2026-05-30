@@ -628,7 +628,7 @@ determine_page_size() const {
 }
 #endif  // !__EMSCRIPTEN__
 
-#ifdef HAVE_MIMALLOC
+#if defined(HAVE_MIMALLOC) && defined(USE_MEMORY_MIMALLOC)
 /**
  * Returns the size of the memory block allocated for the indicated pointer
  * using the mimalloc API.  It's wrapped in this function to avoid putting

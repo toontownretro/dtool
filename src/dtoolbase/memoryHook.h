@@ -94,7 +94,7 @@ private:
 #endif
 };
 
-#ifdef HAVE_MIMALLOC
+#if defined(HAVE_MIMALLOC) && defined(USE_MEMORY_MIMALLOC)
 extern EXPCL_DTOOL_DTOOLBASE size_t get_mi_malloc_size(void *ptr);
 #endif
 
